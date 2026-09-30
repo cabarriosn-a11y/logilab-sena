@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Registro y sorteo de grupos de carga con jefe, calculista y operario. LogiLab SENA.">
+<title>Grupos de Carga LogiLab</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2339A900'/%3E%3Cpath d='M7 12l9-5 9 5v10l-9 5-9-5z' fill='none' stroke='white' stroke-width='2.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@700;800&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: manifiesto de carga — cabecera tipo rótulo de contenedor, pestañas, y cada grupo como una etiqueta de carga (tag) con ojal. */
+:root{
+  --bg:#F3F6F0; --surface:#FFFFFF; --surface-2:#E9EFE4; --fg:#16201A; --muted:#5B6A5E; --line:#CFD9C8;
+  --accent:#39A900; --accent-ink:#FFFFFF; --accent-soft:#E3F3D6; --hazard:#E0A21A; --hazard-soft:#FBF0D3;
+  --danger:#C23B2A; --danger-soft:#F8E1DD; --info-soft:#E6EEF6; --info:#2D5F8B;
+  --f-display:"Big Shoulders Stencil Display","Impact","Arial Narrow",sans-serif;
+  --f-body:"Barlow","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1511; --surface:#172019; --surface-2:#1F2A21; --fg:#E5ECE2; --muted:#9AAA9C; --line:#2E3B30;
+  --accent:#5CC61F; --accent-ink:#0B1209; --accent-soft:#1E3314; --hazard:#E8B23A; --hazard-soft:#3A2E12;
+  --danger:#F07A68; --danger-soft:#3D1D18; --info-soft:#18283A; --info:#8DB7DE; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1511; --surface:#172019; --surface-2:#1F2A21; --fg:#E5ECE2; --muted:#9AAA9C; --line:#2E3B30;
+  --accent:#5CC61F; --accent-ink:#0B1209; --accent-soft:#1E3314; --hazard:#E8B23A; --hazard-soft:#3A2E12;
+  --danger:#F07A68; --danger-soft:#3D1D18; --info-soft:#18283A; --info:#8DB7DE; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
+
+/* Cabecera */
+.head{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.stripe{height:10px;background:repeating-linear-gradient(-45deg,var(--hazard) 0 14px,var(--fg) 14px 28px);opacity:.9}
+.head-in{padding:18px 20px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(34px,6vw,54px);line-height:.95;margin:4px 0 0;letter-spacing:.01em;text-wrap:balance}
+h1 span{color:var(--accent)}
+.head p{margin:8px 0 0;max-width:60ch;color:var(--muted)}
+.counter{display:flex;gap:18px}
+.counter div{text-align:right}
+.counter b{display:block;font-family:var(--f-display);font-size:40px;line-height:1;font-variant-numeric:tabular-nums}
+.counter small{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* Roles */
+.roles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.role{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.role .ico{flex:none;width:38px;height:38px;border-radius:8px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.role h3{margin:0;font-size:15px}
+.role p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+
+/* Aviso */
+.notice{border-radius:var(--r);padding:12px 16px;font-size:14px;display:flex;gap:10px;align-items:flex-start}
+.notice.info{background:var(--info-soft);color:var(--info)}
+.notice.warn{background:var(--hazard-soft);color:var(--fg);border:1px solid var(--hazard)}
+.notice.ok{background:var(--accent-soft);color:var(--fg);border:1px solid var(--accent)}
+.notice.err{background:var(--danger-soft);color:var(--fg);border:1px solid var(--danger)}
+
+/* Pestañas */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);overflow-x:auto}
+.tab{appearance:none;border:0;background:none;color:var(--muted);font:600 15px var(--f-body);padding:10px 14px;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.tab:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tab .n{font-family:var(--f-mono);font-size:12px;background:var(--surface-2);border-radius:99px;padding:1px 7px;margin-left:6px}
+
+/* Formularios */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:16px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid .full{grid-column:1/-1}
+label{display:flex;flex-direction:column;gap:5px;font-weight:600;font-size:13px;min-width:0}
+label .hint{font-weight:400;color:var(--muted);font-size:12px}
+.tagrole{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+input,select,textarea{font:400 15px var(--f-body);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
+textarea{min-height:84px;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font:600 14px var(--f-body);padding:9px 14px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.danger{color:var(--danger);background:transparent}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.sec-title{font-family:var(--f-display);font-size:26px;font-weight:700;margin:0;letter-spacing:.02em}
+.muted{color:var(--muted)}
+.fallback{border-top:1px dashed var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
+.fallback pre{margin:0;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;font:13px/1.5 var(--f-mono);white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto}
+
+/* Chips de carga */
+.cargo-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);background:var(--bg)}
+.chip.taken{background:var(--hazard-soft);border-color:var(--hazard);text-decoration:line-through;color:var(--muted)}
+
+/* Etiquetas de grupo (cargo tag) */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.tag{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:6px 16px 16px 6px;padding:16px 16px 14px 40px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.tag::before{content:"";position:absolute;left:12px;top:22px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:3px solid var(--hazard)}
+.tag::after{content:"";position:absolute;left:30px;top:10px;bottom:10px;border-left:1px dashed var(--line)}
+.tag-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.gnum{font-family:var(--f-display);font-weight:800;font-size:34px;line-height:.9}
+.curso{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.carga{display:inline-block;background:var(--hazard-soft);border:1px solid var(--hazard);border-radius:4px;padding:2px 8px;font-weight:700;font-size:13px}
+.desc{font-size:13px;color:var(--muted);margin:0}
+.members{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:14px;margin:0}
+.members dt{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);padding-top:2px}
+.members dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.tag-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--f-mono);font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+.empty{border:2px dashed var(--line);border-radius:var(--r);padding:28px;text-align:center;color:var(--muted)}
+.empty b{display:block;font-family:var(--f-display);font-size:24px;color:var(--fg);margin-bottom:4px}
+
+footer{text-align:center;font-size:13px;color:var(--muted);padding-top:8px;border-top:1px solid var(--line)}
+footer b{color:var(--accent)}
+
+@media (max-width:720px){
+  .roles{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr}
+  .counter{width:100%;justify-content:flex-start}
+  .counter div{text-align:left}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.backlink{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-decoration:none}
+.backlink:hover{color:var(--accent)}
+.instr{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px}
+.instr input{width:180px;padding:6px 9px;font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a class="backlink" href="/">← LogiLab SENA · todas las herramientas</a>
+  <header class="head">
+    <div class="stripe" aria-hidden="true"></div>
+    <div class="head-in">
+      <div>
+        <div class="eyebrow">LogiLab SENA · Unitarización y embalaje de la carga</div>
+        <h1>Manifiesto de <span>grupos de carga</span></h1>
+        <p>Cada grupo escoge su tipo de carga y asigna tres roles: jefe de carga, calculista y operario. Lo que se registre aquí queda guardado en el repositorio del instructor.</p>
+      </div>
+      <div class="counter" aria-live="polite">
+        <div><b id="cntGroups">0</b><small>Grupos</small></div>
+        <div><b id="cntPeople">0</b><small>Aprendices</small></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="roles" aria-label="Roles del grupo">
+    <div class="role"><div class="ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a8 8 0 0 1 16 0"/><path d="M2 11h20v3H2z"/><path d="M10 3v4M14 3v4"/></svg></div><div><h3>Jefe de carga</h3><p>Coordina al grupo, verifica la selección de la carga y responde por la lista de chequeo.</p></div></div>
+    <div class="role"><div class="ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 19h8"/></svg></div><div><h3>Calculista</h3><p>Calcula peso, volumen, cubicaje, número de unidades por estiba y la capacidad del medio.</p></div></div>
+    <div class="role"><div class="ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V8l9-5 9 5v13"/><path d="M7 21v-8h10v8"/><path d="M7 17h10"/></svg></div><div><h3>Operario de carga</h3><p>Manipula, embala, rotula y asegura la unidad de carga siguiendo la ficha técnica.</p></div></div>
+  </section>
+
+  <div id="accessNotice" class="notice info" role="status">Conectando con el repositorio…</div>
+
+  <nav class="tabs" role="tablist" aria-label="Secciones">
+    <button class="tab" role="tab" id="tab-reg" aria-selected="true" aria-controls="p-reg">Registrar grupo</button>
+    <button class="tab" role="tab" id="tab-sort" aria-selected="false" aria-controls="p-sort">Sorteo de grupos y roles</button>
+    <button class="tab" role="tab" id="tab-repo" aria-selected="false" aria-controls="p-repo">Repositorio<span class="n" id="tabCount">0</span></button>
+  </nav>
+
+  <!-- REGISTRO -->
+  <section class="panel" id="p-reg" role="tabpanel" aria-labelledby="tab-reg">
+    <h2 class="sec-title">Registrar un grupo</h2>
+    <form id="regForm" class="grid" novalidate>
+      <label>Curso / ficha<span class="hint">Ej.: Unitarización 732235 · Gestión Logística 2987654</span><input id="fCurso" list="cursosList" required autocomplete="off"></label>
+      <label>Número de grupo<input id="fNum" type="number" min="1" max="99" required></label>
+      <label class="full">Tipo de carga seleccionada
+        <select id="fCarga" required></select>
+      </label>
+      <div class="full"><div class="hint muted" style="font-size:12px;margin-bottom:6px">Cargas ya tomadas en este curso aparecen tachadas:</div><div class="cargo-chips" id="takenChips"></div></div>
+      <label class="full" id="otraWrap" hidden>¿Cuál carga?<input id="fOtra" autocomplete="off"></label>
+      <label class="full">Descripción de la carga<span class="hint">Producto, presentación, peso aproximado, embalaje primario…</span><textarea id="fDesc"></textarea></label>
+      <label><span class="tagrole">Rol 1</span>Jefe de carga<input id="fJefe" required autocomplete="off"></label>
+      <label><span class="tagrole">Rol 2</span>Calculista<input id="fCalc" required autocomplete="off"></label>
+      <label class="full"><span class="tagrole">Rol 3</span>Operario(s) de carga<span class="hint">Un nombre por línea</span><textarea id="fOper" required></textarea></label>
+      <div class="full row">
+        <button class="btn primary" type="submit" id="btnSave">Guardar en el repositorio</button>
+        <button class="btn" type="button" id="btnClear">Limpiar</button>
+      </div>
+      <div class="full" id="regMsg" aria-live="polite"></div>
+    </form>
+    <div class="fallback">
+      <div><b>¿No se pudo guardar?</b> <span class="muted">Envía el registro al instructor por otro medio:</span></div>
+      <div class="row">
+        <button class="btn small" type="button" id="fbCopy">Copiar texto</button>
+        <a class="btn small" id="fbWa" href="https://wa.me/" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+        <a class="btn small" id="fbMail" href="mailto:">Abrir correo</a>
+        <button class="btn small" type="button" id="fbDl">Descargar .txt</button>
+      </div>
+      <pre id="fbText" tabindex="0">Llena el formulario y aquí aparecerá el texto del registro.</pre>
+    </div>
+  </section>
+
+  <!-- SORTEO -->
+  <section class="panel" id="p-sort" role="tabpanel" aria-labelledby="tab-sort" hidden>
+    <h2 class="sec-title">Sorteo de grupos y roles</h2>
+    <p class="muted" style="margin:0">Pega la lista de aprendices, define cuántos grupos quieres y el sorteo reparte a las personas. En cada grupo, el primero sorteado es jefe de carga, el segundo calculista y el resto operarios.</p>
+    <div class="grid">
+      <label>Curso / ficha<input id="sCurso" list="cursosList" autocomplete="off"></label>
+      <label>Número de grupos<input id="sN" type="number" min="1" max="30" value="4"></label>
+      <label class="full">Lista de aprendices<span class="hint">Un nombre por línea</span><textarea id="sNames" style="min-height:160px"></textarea></label>
+      <label class="full" style="flex-direction:row;align-items:center;gap:8px;font-weight:500"><input type="checkbox" id="sCargas" checked style="width:auto"> Asignar también el tipo de carga al azar (sin repetir)</label>
+      <div class="full row">
+        <button class="btn primary" type="button" id="btnSort">Sortear</button>
+        <button class="btn" type="button" id="btnSaveAll" disabled>Guardar todos en el repositorio</button>
+        <button class="btn" type="button" id="btnCopySort" disabled>Copiar resultado</button>
+        <a class="btn" id="waSort" href="https://wa.me/" target="_blank" rel="noopener" hidden>Enviar por WhatsApp</a>
+      </div>
+      <div class="full" id="sortMsg" aria-live="polite"></div>
+    </div>
+    <div class="cards" id="sortCards"></div>
+  </section>
+
+  <!-- REPOSITORIO -->
+  <section class="panel" id="p-repo" role="tabpanel" aria-labelledby="tab-repo" hidden>
+    <div class="row" style="justify-content:space-between">
+      <h2 class="sec-title">Repositorio de grupos</h2>
+      <div class="row">
+        <select id="rCurso" aria-label="Filtrar por curso" style="width:auto"><option value="">Todos los cursos</option></select>
+        <input id="rSearch" type="search" placeholder="Buscar aprendiz o carga" aria-label="Buscar" style="width:200px">
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn small" type="button" id="btnCsv">Descargar Excel (CSV)</button>
+      <button class="btn small" type="button" id="btnCopyAll">Copiar listado</button>
+      <span class="muted" id="repoMsg" aria-live="polite" style="font-size:13px"></span>
+    </div>
+    <form class="instr" id="instrForm">
+      <span class="muted" id="instrLabel">Modo instructor:</span>
+      <input id="instrKey" type="password" placeholder="Clave del instructor" autocomplete="current-password" aria-label="Clave del instructor">
+      <button class="btn small" type="submit" id="instrBtn">Entrar</button>
+      <button class="btn small" type="button" id="instrOut" hidden>Salir del modo instructor</button>
+    </form>
+    <div class="cards" id="repoCards"></div>
+    <div class="empty" id="repoEmpty"><b>Aún no hay grupos registrados</b>Los grupos aparecerán aquí en cuanto se guarde el primero desde “Registrar grupo” o desde el sorteo.</div>
+  </section>
+
+  <datalist id="cursosList"></datalist>
+  <footer>LogiLab SENA · <b>By Carlos Barrios · Instructor</b> · Centro Industrial y de Energías Alternativas, Regional Guajira</footer>
+</div>
+
+<script>
+(function(){
+const CARGAS=["Carga general suelta","Carga paletizada","Carga contenedorizada","Granel sólido","Granel líquido","Carga refrigerada / perecedera","Carga peligrosa (clase ONU)","Carga frágil","Carga sobredimensionada / de proyecto","Carga valiosa","Otra"];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const lines=s=>String(s||"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+const norm=s=>String(s||"").trim().toLowerCase();
+const API="/api/grupos";
+let online=null, isOwner=false, grupos=[], sortResult=[];
+function getKey(){try{return localStorage.getItem("logilab_clave")||"";}catch(e){return "";}}
+function setKey(v){try{v?localStorage.setItem("logilab_clave",v):localStorage.removeItem("logilab_clave");}catch(e){}}
+async function api(method,body,query){
+  const h={"content-type":"application/json"};const k=getKey();if(k)h["x-clave-instructor"]=k;
+  let r;
+  try{r=await fetch(API+(query||""),{method,headers:h,body:body?JSON.stringify(body):undefined,cache:"no-store"});}
+  catch(e){throw {code:"offline",message:"No hay conexión con el repositorio."};}
+  let d={};try{d=await r.json();}catch(e){}
+  if(!r.ok)throw {code:r.status,message:d.error||("Error "+r.status)};
+  return d;
+}
+
+/* ---------- Pestañas ---------- */
+const tabs=[["tab-reg","p-reg"],["tab-sort","p-sort"],["tab-repo","p-repo"]];
+tabs.forEach(([t,p])=>$(t).addEventListener("click",()=>{
+  tabs.forEach(([t2,p2])=>{$(t2).setAttribute("aria-selected",t2===t);$(p2).hidden=p2!==p;});
+}));
+
+/* ---------- Cargas ---------- */
+function takenIn(curso){return new Set(grupos.filter(g=>norm(g.curso)===norm(curso)&&g.carga!=="Otra").map(g=>g.carga));}
+function renderCargaSelect(){
+  const sel=$("fCarga"), prev=sel.value, taken=takenIn($("fCurso").value);
+  sel.innerHTML='<option value="">Selecciona la carga…</option>'+CARGAS.map(c=>`<option value="${esc(c)}"${taken.has(c)?" disabled":""}>${esc(c)}${taken.has(c)?" (tomada)":""}</option>`).join("");
+  if(prev&&!taken.has(prev))sel.value=prev;
+  $("takenChips").innerHTML=CARGAS.filter(c=>c!=="Otra").map(c=>`<span class="chip${taken.has(c)?" taken":""}">${esc(c)}</span>`).join("");
+  $("otraWrap").hidden=sel.value!=="Otra";
+}
+$("fCarga").addEventListener("change",()=>{$("otraWrap").hidden=$("fCarga").value!=="Otra";updateFallback();});
+$("fCurso").addEventListener("input",()=>{renderCargaSelect();updateFallback();});
+
+/* ---------- Texto de respaldo ---------- */
+function readForm(){
+  const carga=$("fCarga").value;
+  return {curso:$("fCurso").value.trim(),numero:parseInt($("fNum").value,10)||null,
+    carga, cargaOtra:carga==="Otra"?$("fOtra").value.trim():"",
+    descripcion:$("fDesc").value.trim(),jefe:$("fJefe").value.trim(),calculista:$("fCalc").value.trim(),
+    operarios:lines($("fOper").value)};
+}
+function cargaLabel(g){return g.carga==="Otra"&&g.cargaOtra?`Otra: ${g.cargaOtra}`:(g.carga||"—");}
+function groupText(g){
+  return `GRUPO ${g.numero??"?"} · ${g.curso||"Sin curso"}\nCarga: ${cargaLabel(g)}${g.descripcion?`\nDescripción: ${g.descripcion}`:""}\nJefe de carga: ${g.jefe||"—"}\nCalculista: ${g.calculista||"—"}\nOperario(s): ${(g.operarios||[]).join(", ")||"—"}`;
+}
+function setShareLinks(aWa,aMail,text,subject){
+  aWa.href="https://wa.me/?text="+encodeURIComponent(text);
+  if(aMail)aMail.href="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(text);
+}
+function updateFallback(){
+  const g=readForm();
+  const t="REGISTRO DE GRUPO – Unitarización y embalaje de la carga\n"+groupText(g);
+  $("fbText").textContent=t;
+  setShareLinks($("fbWa"),$("fbMail"),t,`Grupo ${g.numero??""} - ${g.curso}`);
+}
+$("regForm").addEventListener("input",updateFallback);
+
+async function copyText(text,el,msgEl){
+  try{await navigator.clipboard.writeText(text);flash(msgEl,"Copiado al portapapeles.","ok");}
+  catch(e){ if(el){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);} flash(msgEl,"Texto seleccionado: usa Ctrl+C (o mantén presionado y Copiar).","warn");}
+}
+function flash(el,msg,kind){el.innerHTML=`<div class="notice ${kind}">${esc(msg)}</div>`;}
+$("fbCopy").addEventListener("click",()=>copyText($("fbText").textContent,$("fbText"),$("regMsg")));
+$("fbDl").addEventListener("click",()=>saveFile(`grupo_${$("fNum").value||"x"}.txt`,$("fbText").textContent,$("regMsg")));
+
+function download(name,data,type){
+  const url=URL.createObjectURL(new Blob([data],{type:type||"text/plain;charset=utf-8"}));
+  const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+function saveFile(name,data,msgEl){download(name,data);flash(msgEl,"Archivo descargado: "+name,"ok");}
+
+/* ---------- Validación y guardado ---------- */
+function validate(g,list){
+  if(!g.curso)return "Escribe el curso o ficha.";
+  if(!g.numero)return "Escribe el número del grupo.";
+  if(!g.carga)return "Selecciona el tipo de carga.";
+  if(g.carga==="Otra"&&!g.cargaOtra)return "Escribe cuál es la otra carga.";
+  if(!g.jefe||!g.calculista||!g.operarios.length)return "Completa los tres roles: jefe, calculista y al menos un operario.";
+  const same=list.filter(x=>norm(x.curso)===norm(g.curso));
+  if(same.some(x=>x.numero===g.numero))return `El grupo ${g.numero} ya existe en ${g.curso}. Usa otro número.`;
+  if(g.carga!=="Otra"&&same.some(x=>x.carga===g.carga))return `La carga “${g.carga}” ya la tomó otro grupo de este curso. Escoge otra.`;
+  return "";
+}
+async function writeGroup(g){
+  const body={...g,creado:new Date().toISOString()};
+  const d=await api("POST",body);grupos=grupos.concat(d.grupo);renderRepo();return d;
+}
+function writeErr(e){
+  if(e&&e.code==="offline")return "No hay conexión con el repositorio, así que no se guardó. Envía el registro por WhatsApp o copia el texto de abajo.";
+  if(e&&(e.code===400||e.code===409))return e.message;
+  return "No se pudo guardar ("+(e&&e.message||"error")+"). Envía el registro por WhatsApp o copia el texto de abajo.";
+}
+$("regForm").addEventListener("submit",async ev=>{
+  ev.preventDefault();
+  const g=readForm(), err=validate(g,grupos);
+  if(err){flash($("regMsg"),err,"err");return;}
+  $("btnSave").disabled=true;
+  try{await writeGroup(g);flash($("regMsg"),`Grupo ${g.numero} guardado en el repositorio.`,"ok");$("regForm").reset();renderCargaSelect();$("fCurso").value=g.curso;renderCargaSelect();updateFallback();}
+  catch(e){flash($("regMsg"),writeErr(e),"err");}
+  finally{$("btnSave").disabled=false;}
+});
+$("btnClear").addEventListener("click",()=>{const c=$("fCurso").value;$("regForm").reset();$("fCurso").value=c;renderCargaSelect();updateFallback();$("regMsg").innerHTML="";});
+
+/* ---------- Sorteo ---------- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+$("btnSort").addEventListener("click",()=>{
+  const names=lines($("sNames").value), n=parseInt($("sN").value,10), curso=$("sCurso").value.trim();
+  if(!curso){flash($("sortMsg"),"Escribe el curso o ficha.","err");return;}
+  if(!n||n<1){flash($("sortMsg"),"Indica cuántos grupos quieres.","err");return;}
+  if(names.length<n*3){flash($("sortMsg"),`Con ${names.length} aprendices no alcanza para ${n} grupos de mínimo 3 personas (se necesitan ${n*3}). Reduce el número de grupos.`,"err");return;}
+  const same=grupos.filter(g=>norm(g.curso)===norm(curso));
+  const startNum=same.reduce((m,g)=>Math.max(m,g.numero||0),0)+1;
+  const pool=shuffle(CARGAS.filter(c=>c!=="Otra"&&!takenIn(curso).has(c)));
+  if($("sCargas").checked&&pool.length<n){flash($("sortMsg"),`Solo quedan ${pool.length} tipos de carga libres en este curso para ${n} grupos. Los grupos sin carga quedarán como “Otra”.`,"warn");} else $("sortMsg").innerHTML="";
+  const mixed=shuffle(names), buckets=Array.from({length:n},()=>[]);
+  mixed.forEach((p,i)=>buckets[i%n].push(p));
+  sortResult=buckets.map((b,i)=>{
+    const carga=$("sCargas").checked?(pool[i]||"Otra"):"Otra";
+    return {curso,numero:startNum+i,carga,cargaOtra:carga==="Otra"?($("sCargas").checked?"Por definir":"Por definir"):"",descripcion:"",jefe:b[0],calculista:b[1],operarios:b.slice(2)};
+  });
+  $("sortCards").innerHTML=sortResult.map(g=>tagHTML(g,false)).join("");
+  $("btnSaveAll").disabled=false;$("btnCopySort").disabled=false;$("waSort").hidden=false;
+  setShareLinks($("waSort"),null,sortText(),"");
+});
+function sortText(){return "SORTEO DE GRUPOS – Unitarización y embalaje de la carga\n\n"+sortResult.map(groupText).join("\n\n");}
+$("btnCopySort").addEventListener("click",()=>copyText(sortText(),null,$("sortMsg")));
+$("btnSaveAll").addEventListener("click",async()=>{
+  const nums=new Set(grupos.filter(g=>norm(g.curso)===norm(sortResult[0]?.curso)).map(g=>g.numero));
+  if(sortResult.some(g=>nums.has(g.numero))){flash($("sortMsg"),"Ya existen grupos con esos números en el repositorio. Vuelve a sortear.","err");return;}
+  $("btnSaveAll").disabled=true;let ok=0;
+  for(const g of sortResult){try{await writeGroup(g);ok++;}catch(e){flash($("sortMsg"),writeErr(e),"err");break;}}
+  if(ok===sortResult.length){flash($("sortMsg"),`${ok} grupos guardados en el repositorio.`,"ok");sortResult=[];$("sortCards").innerHTML="";$("btnCopySort").disabled=true;$("waSort").hidden=true;}
+  else $("btnSaveAll").disabled=false;
+});
+
+/* ---------- Repositorio ---------- */
+function tagHTML(g,withActions){
+  return `<article class="tag">
+    <div class="tag-top"><div><div class="curso">${esc(g.curso)}</div><div class="gnum">G-${String(g.numero??"?").padStart(2,"0")}</div></div><span class="carga">${esc(cargaLabel(g))}</span></div>
+    ${g.descripcion?`<p class="desc">${esc(g.descripcion)}</p>`:""}
+    <dl class="members"><dt>Jefe</dt><dd>${esc(g.jefe)}</dd><dt>Calculista</dt><dd>${esc(g.calculista)}</dd><dt>Operario${(g.operarios||[]).length>1?"s":""}</dt><dd>${esc((g.operarios||[]).join(", "))}</dd></dl>
+    ${withActions?`<div class="tag-foot"><span>${g.creado?new Date(g.creado).toLocaleString("es-CO",{dateStyle:"short",timeStyle:"short"}):""}</span>${isOwner?`<button class="btn danger small" data-del="${esc(g.id)}">Eliminar</button>`:""}</div>`:""}
+  </article>`;
+}
+function filtered(){
+  const c=$("rCurso").value, q=norm($("rSearch").value);
+  return grupos.filter(g=>(!c||g.curso===c)&&(!q||norm([g.curso,cargaLabel(g),g.jefe,g.calculista,...(g.operarios||[])].join(" ")).includes(q)));
+}
+function renderRepo(){
+  const cursos=[...new Set(grupos.map(g=>g.curso).filter(Boolean))].sort();
+  const sel=$("rCurso"),prev=sel.value;
+  sel.innerHTML='<option value="">Todos los cursos</option>'+cursos.map(c=>`<option>${esc(c)}</option>`).join("");
+  if(cursos.includes(prev))sel.value=prev;
+  $("cursosList").innerHTML=cursos.map(c=>`<option value="${esc(c)}">`).join("");
+  const list=filtered();
+  $("repoCards").innerHTML=list.map(g=>tagHTML(g,true)).join("");
+  $("repoEmpty").hidden=grupos.length>0;
+  $("cntGroups").textContent=grupos.length;
+  $("cntPeople").textContent=grupos.reduce((s,g)=>s+2+(g.operarios||[]).length,0);
+  $("tabCount").textContent=grupos.length;
+  renderCargaSelect();
+}
+$("rCurso").addEventListener("change",renderRepo);
+$("rSearch").addEventListener("input",renderRepo);
+$("repoCards").addEventListener("click",async ev=>{
+  const b=ev.target.closest("[data-del]");if(!b)return;
+  if(b.dataset.armed!=="1"){b.dataset.armed="1";b.textContent="¿Seguro? Eliminar";setTimeout(()=>{if(b.isConnected){b.dataset.armed="";b.textContent="Eliminar";}},4000);return;}
+  try{await api("DELETE",null,"?id="+encodeURIComponent(b.dataset.del));grupos=grupos.filter(g=>g.id!==b.dataset.del);renderRepo();$("repoMsg").textContent="Grupo eliminado.";}
+  catch(e){$("repoMsg").textContent="No se pudo eliminar: "+(e&&e.message||"error")+".";}
+});
+function csv(){
+  const rows=[["Curso","Grupo","Carga","Descripción","Jefe de carga","Calculista","Operarios","Registrado"]];
+  filtered().forEach(g=>rows.push([g.curso,g.numero,cargaLabel(g),g.descripcion||"",g.jefe,g.calculista,(g.operarios||[]).join("; "),g.creado||""]));
+  return "﻿"+rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\r\n");
+}
+$("btnCsv").addEventListener("click",async()=>{
+  download("grupos_carga.csv",csv(),"text/csv;charset=utf-8");$("repoMsg").textContent="Archivo CSV descargado.";
+});
+$("btnCopyAll").addEventListener("click",async()=>{
+  const t=filtered().map(groupText).join("\n\n")||"Sin grupos.";
+  try{await navigator.clipboard.writeText(t);$("repoMsg").textContent="Listado copiado.";}catch(e){$("repoMsg").textContent="Tu navegador no permitió copiar.";}
+});
+
+/* ---------- Acceso y carga ---------- */
+function applyAccess(){
+  const n=$("accessNotice");
+  if(online===false){n.className="notice warn";n.textContent="No hay conexión con el repositorio en este momento. Puedes llenar el formulario y enviarlo al instructor por WhatsApp o copiarlo.";}
+  else if(online){n.className="notice ok";n.textContent=isOwner?"Modo instructor activo: puedes eliminar registros y descargar el listado.":"Conectado al repositorio. Tu registro quedará guardado para el instructor.";}
+  $("instrLabel").textContent=isOwner?"Modo instructor activo.":"Modo instructor:";
+  $("instrKey").hidden=isOwner;$("instrBtn").hidden=isOwner;$("instrOut").hidden=!isOwner;
+}
+async function load(){
+  try{const d=await api("GET");grupos=d.grupos||[];isOwner=!!d.instructor;online=true;renderRepo();}
+  catch(e){online=false;}
+  applyAccess();
+}
+$("instrForm").addEventListener("submit",async ev=>{
+  ev.preventDefault();const k=$("instrKey").value.trim();if(!k)return;
+  setKey(k);await load();
+  if(!isOwner){setKey("");$("repoMsg").textContent="Clave incorrecta.";}else{$("instrKey").value="";$("repoMsg").textContent="";}
+});
+$("instrOut").addEventListener("click",()=>{setKey("");isOwner=false;renderRepo();applyAccess();});
+function init(){
+  renderCargaSelect();updateFallback();renderRepo();load();
+  setInterval(()=>{if(document.visibilityState==="visible")load();},15000);
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")load();});
+}
+init();
+})();
+</script>
+</body>
+</html>
