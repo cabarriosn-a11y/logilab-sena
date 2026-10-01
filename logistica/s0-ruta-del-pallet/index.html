@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Entregables en línea de la sesión S0, La ruta del pallet: ruta por equipo, autodiagnóstico, ticket de salida y ficha técnica E0. Unitarización y Embalaje de la Carga, Universidad de La Guajira.">
+<title>Ruta del Pallet S0</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230B2545'/%3E%3Cpath d='M7 12l9-5 9 5v10l-9 5-9-5z' fill='none' stroke='%23E0A21A' stroke-width='2.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: hoja de ruta portuaria — cabecera azul marino con dorado (como las diapositivas del curso), tarjeta de identificación compartida,
+   pestañas por entregable y, en la ruta, las 7 etapas como una línea de tiempo vertical de la planta al precinto. */
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --surface-2:#E8EDF3; --fg:#0B2545; --text:#1C2B3D; --muted:#5A6878; --line:#D3DBE5;
+  --navy:#0B2545; --navy-ink:#FFFFFF; --gold:#D99A0B; --gold-soft:#FBF1D9;
+  --ok:#2E7D32; --ok-soft:#E3F2E4; --danger:#C0392B; --danger-soft:#F9E3E0; --info-soft:#E4ECF6;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A1220; --surface:#111C2E; --surface-2:#18263B; --fg:#E8EEF6; --text:#D7E0EB; --muted:#93A2B5; --line:#26364D;
+  --navy:#1D4E89; --navy-ink:#FFFFFF; --gold:#F0B437; --gold-soft:#3A2D10;
+  --ok:#6CC070; --ok-soft:#173222; --danger:#F08070; --danger-soft:#3B1C19; --info-soft:#15243A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A1220; --surface:#111C2E; --surface-2:#18263B; --fg:#E8EEF6; --text:#D7E0EB; --muted:#93A2B5; --line:#26364D;
+  --navy:#1D4E89; --navy-ink:#FFFFFF; --gold:#F0B437; --gold-soft:#3A2D10;
+  --ok:#6CC070; --ok-soft:#173222; --danger:#F08070; --danger-soft:#3B1C19; --info-soft:#15243A; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding-inline:16px;padding-block:18px 40px;display:flex;flex-direction:column;gap:18px}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.backlink{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-decoration:none}
+.backlink:hover{color:var(--gold)}
+.eyebrow{font-weight:700;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+h1{margin:4px 0 0;font-weight:800;font-size:clamp(28px,5vw,42px);line-height:1.08;color:var(--fg);text-wrap:balance}
+.lead{margin:8px 0 0;max-width:66ch;color:var(--muted)}
+h2{margin:0;font-size:20px;color:var(--fg);font-weight:800}
+h3{margin:0;font-size:17px;color:var(--fg);font-weight:800}
+.hint{font-size:13px;color:var(--muted);font-weight:400}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+label.f{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14px;color:var(--fg);min-width:0}
+input[type=text],input[type=number],select,textarea{font:400 16px var(--f-body);color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:9px 11px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:64px}
+.miss{border-color:var(--danger)!important;background:var(--danger-soft)!important}
+
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg label{cursor:pointer}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:inline-flex;align-items:center;padding:8px 20px;border:2px solid var(--line);border-radius:var(--r);font-weight:800;font-size:18px;color:var(--fg);background:var(--bg)}
+.seg input:checked+span{border-color:var(--navy);background:var(--navy);color:var(--navy-ink)}
+.seg input:focus-visible+span{outline:3px solid var(--gold);outline-offset:2px}
+.seg.miss{border-radius:var(--r);outline:2px solid var(--danger);outline-offset:3px;background:none!important}
+
+.team{display:flex;gap:14px;align-items:flex-start;padding:12px 14px;border-radius:var(--r);background:var(--info-soft);border-left:4px solid var(--gold)}
+.team b{color:var(--fg)}
+.team .pn{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:var(--gold);border:2px solid var(--gold);font-weight:800}
+
+.notice{border-radius:var(--r);padding:11px 14px;font-size:14px}
+.notice.info{background:var(--info-soft);color:var(--fg)}
+.notice.warn{background:var(--gold-soft);border:1px solid var(--gold);color:var(--text)}
+.notice.ok{background:var(--ok-soft);border:1px solid var(--ok);color:var(--text)}
+.notice.err{background:var(--danger-soft);border:1px solid var(--danger);color:var(--text)}
+
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);overflow-x:auto;scrollbar-width:thin}
+.tab{appearance:none;border:0;background:none;color:var(--muted);font:700 15px var(--f-body);padding:10px 12px;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;white-space:nowrap;display:flex;gap:8px;align-items:center}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--gold)}
+.tab .pill{font:600 11px var(--f-mono);padding:1px 7px;border-radius:99px;background:var(--surface-2);color:var(--muted)}
+.tab .pill.done{background:var(--ok-soft);color:var(--ok)}
+
+.prog{display:flex;align-items:center;gap:10px;font:600 12px var(--f-mono);color:var(--muted)}
+.prog .bar{flex:1;height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .2s}
+
+/* Línea de tiempo de etapas */
+.route{display:flex;flex-direction:column;gap:0;position:relative}
+.stage{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;padding-bottom:16px}
+.stage::before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:repeating-linear-gradient(var(--line) 0 6px,transparent 6px 10px)}
+.stage:last-child::before{display:none}
+.stage .sn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:var(--gold);border:2px solid var(--gold);font-weight:800;font-size:18px;z-index:1}
+.stage.ok .sn{background:var(--ok);color:#fff;border-color:var(--ok)}
+.stage .body{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{appearance:none;border:1.5px solid var(--line);background:var(--bg);color:var(--text);font:600 13px var(--f-mono);padding:5px 9px;border-radius:99px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:var(--navy-ink)}
+.chips.miss{outline:2px solid var(--danger);outline-offset:3px;border-radius:8px;background:none!important}
+
+details.cal{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px}
+details.cal summary{cursor:pointer;font-weight:700;color:var(--fg)}
+.cal table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
+.cal td{border-top:1px solid var(--line);padding:6px 8px;vertical-align:top}
+.cal td:first-child{font:600 13px var(--f-mono);white-space:nowrap;color:var(--fg)}
+
+.scale{display:flex;flex-direction:column;gap:8px}
+.sitem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg)}
+@media (max-width:640px){.sitem{grid-template-columns:1fr}}
+.sitem .seg span{font-size:14px;padding:6px 12px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
+.legend b{color:var(--fg)}
+
+.send{display:flex;flex-direction:column;gap:10px;border-top:2px solid var(--line);padding-top:14px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{appearance:none;border:2px solid var(--navy);background:var(--surface);color:var(--fg);font:700 15px var(--f-body);padding:9px 14px;border-radius:var(--r);cursor:pointer;display:inline-flex;gap:6px;align-items:center;text-decoration:none}
+.btn.p{background:var(--navy);color:var(--navy-ink)}
+.btn.sm{font-size:13px;padding:5px 10px;border-width:1.5px}
+.btn.danger{border-color:var(--danger);color:var(--danger)}
+.btn:disabled{opacity:.55;cursor:wait}
+
+table.list{width:100%;border-collapse:collapse;font-size:14px}
+table.list th,table.list td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+table.list th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.tw{overflow-x:auto}
+.meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.meters{grid-template-columns:1fr}}
+.meter{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px}
+.meter b{display:block;font-size:28px;line-height:1;color:var(--fg);font-variant-numeric:tabular-nums}
+.meter small{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.meter div{font-size:12px;color:var(--muted);margin-top:4px}
+
+dialog{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--text);padding:0;width:min(760px,calc(100vw - 32px));max-height:86vh}
+dialog::backdrop{background:rgba(5,12,24,.55)}
+dialog .dh{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface)}
+dialog pre{margin:0;padding:16px;white-space:pre-wrap;font:400 14px/1.55 var(--f-body)}
+
+footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);padding-top:10px;border-top:1px solid var(--line)}
+footer b{color:var(--fg)}
+@media print{.tabs,.send,.backlink,footer,#idcard .hint{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="/">← LogiLab SENA</a>
+  <header>
+    <div class="eyebrow">Corte 2 · Sesión S0 · Apertura</div>
+    <h1>La ruta del pallet: entregables en línea</h1>
+    <p class="lead">Sigue tu producto desde la planta hasta el cierre del contenedor. Aquí entregas la ruta del equipo, tu autodiagnóstico con el ticket de salida y la ficha técnica E0. Lo que escribes se guarda en este dispositivo mientras trabajas.</p>
+  </header>
+
+  <!-- Identificación compartida -->
+  <section class="card" id="idcard" aria-labelledby="idh">
+    <h2 id="idh">1. Identifícate</h2>
+    <div class="grid2">
+      <div class="f" style="display:flex;flex-direction:column;gap:4px">
+        <span style="font-weight:700;font-size:14px;color:var(--fg)">Grupo</span>
+        <div class="seg" id="grupoSeg" role="radiogroup" aria-label="Grupo">
+          <label><input type="radio" name="grupo" value="A1" data-k="grupo"><span>A1</span></label>
+          <label><input type="radio" name="grupo" value="B1" data-k="grupo"><span>B1</span></label>
+        </div>
+      </div>
+      <label class="f">Equipo
+        <select id="equipo" data-k="equipo"><option value="">Escoge tu equipo…</option></select>
+      </label>
+    </div>
+    <div class="team" id="teamBox" hidden><div class="pn" id="teamN">1</div><div id="teamInfo"></div></div>
+    <div class="notice warn" id="teamWarn" hidden></div>
+    <div class="grid2">
+      <label class="f">Nombre completo<input type="text" id="nombre" data-k="nombre" autocomplete="name" maxlength="80" placeholder="Nombres y apellidos"></label>
+      <label class="f">Código estudiantil<input type="text" id="codigo" data-k="codigo" inputmode="numeric" maxlength="20" placeholder="Ej.: 2025123456"></label>
+    </div>
+    <label class="f" id="prodManualWrap" hidden>Producto de tu equipo
+      <select id="prodManual" data-k="prodManual"><option value="">Escoge el producto…</option></select>
+    </label>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="Entregables">
+    <button class="tab" role="tab" aria-selected="true" aria-controls="p-ruta" id="t-ruta">Ruta del pallet <span class="pill" id="pl-ruta">Equipo</span></button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-ticket" id="t-ticket">Autodiagnóstico y ticket <span class="pill" id="pl-ticket">Individual</span></button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-e0" id="t-e0">Ficha E0 <span class="pill" id="pl-e0">Equipo · tarea</span></button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-doc" id="t-doc">Docente</button>
+  </nav>
+
+  <!-- RUTA -->
+  <section class="card" role="tabpanel" id="p-ruta" aria-labelledby="t-ruta">
+    <div>
+      <h2>2. La ruta del pallet <span class="hint">· una entrega por equipo, la envía el Calculista</span></h2>
+      <p class="hint" style="margin:6px 0 0">En cada etapa escriban el <b>equipo</b> que interviene, la <b>decisión clave</b>, el <b>riesgo principal</b> (a la carga y a las personas) y marquen la <b>sesión del corte</b> donde se trabajará ese tema.</p>
+    </div>
+    <div class="prog"><span id="pg-ruta-t">0 de 8</span><div class="bar"><i id="pg-ruta"></i></div></div>
+    <details class="cal"><summary>Ver el calendario del Corte 2 (para escoger la sesión)</summary><table id="calTable"></table></details>
+    <div class="route" id="route"></div>
+    <label class="f">Reflexión del equipo: ¿en qué etapa una buena unitarización del Corte 1 evita más pérdidas, y por qué?
+      <textarea id="reflexion" data-k="reflexion" rows="4" placeholder="Nombren la etapa y expliquen con argumentos técnicos."></textarea>
+    </label>
+    <div class="send" data-act="S0-RUTA"></div>
+  </section>
+
+  <!-- TICKET -->
+  <section class="card" role="tabpanel" id="p-ticket" aria-labelledby="t-ticket" hidden>
+    <div>
+      <h2>3. Autodiagnóstico y ticket de salida <span class="hint">· cada estudiante envía el suyo</span></h2>
+      <p class="hint" style="margin:6px 0 0">Responde con honestidad: este autodiagnóstico se repite en la S10 para ver cuánto avanzaste. No tiene nota.</p>
+    </div>
+    <div class="prog"><span id="pg-ticket-t">0 de 11</span><div class="bar"><i id="pg-ticket"></i></div></div>
+    <h3>Autodiagnóstico</h3>
+    <div class="legend"><span><b>1</b> No lo conozco</span><span><b>2</b> Lo he oído</span><span><b>3</b> Lo puedo explicar</span><span><b>4</b> Lo puedo aplicar</span></div>
+    <div class="scale" id="scale"></div>
+    <h3 style="margin-top:6px">Ticket de salida</h3>
+    <div id="ticketQs" style="display:flex;flex-direction:column;gap:12px"></div>
+    <div class="send" data-act="S0-TICKET"></div>
+  </section>
+
+  <!-- E0 -->
+  <section class="card" role="tabpanel" id="p-e0" aria-labelledby="t-e0" hidden>
+    <div>
+      <h2>4. Entrega E0 · Ficha técnica del producto <span class="hint">· por equipo, para la sesión S2</span></h2>
+      <p class="hint" style="margin:6px 0 0">Es la primera pieza del expediente operativo. Consulten fichas reales de exportadores colombianos, ProColombia o el manual de empaque y embalaje. Escriban las medidas en milímetros y los pesos en kilogramos.</p>
+    </div>
+    <div class="prog"><span id="pg-e0-t">0 de 12</span><div class="bar"><i id="pg-e0"></i></div></div>
+    <div class="grid2">
+      <label class="f">Presentación comercial<input type="text" id="e0_pres" data-k="e0_pres" placeholder="Ej.: caja de cartón corrugado con 12 bolsas de 1 kg"></label>
+      <label class="f">Naturaleza de la carga
+        <select id="e0_nat" data-k="e0_nat"><option value="">Escoge…</option><option>General</option><option>Granel</option><option>Perecedera</option><option>Frágil</option><option>Peligrosa (IMDG)</option></select>
+      </label>
+    </div>
+    <h3>Unidad de embalaje (caja, saco o tambor)</h3>
+    <div class="grid3">
+      <label class="f">Largo (mm)<input type="number" min="1" id="e0_l" data-k="e0_l"></label>
+      <label class="f">Ancho (mm)<input type="number" min="1" id="e0_a" data-k="e0_a"></label>
+      <label class="f">Alto (mm)<input type="number" min="1" id="e0_h" data-k="e0_h"></label>
+    </div>
+    <div class="grid3">
+      <label class="f">Peso bruto por unidad (kg)<input type="number" min="0" step="0.01" id="e0_peso" data-k="e0_peso"></label>
+      <label class="f">Contenido por unidad<input type="text" id="e0_cont" data-k="e0_cont" placeholder="Ej.: 70 kg netos de café"></label>
+      <label class="f">Volumen por unidad (m³)<input type="text" id="e0_vol" readonly tabindex="-1" placeholder="Se calcula solo"></label>
+    </div>
+    <h3>Unitarización y destino</h3>
+    <div class="grid2">
+      <label class="f">Tipo de pallet
+        <select id="e0_pallet" data-k="e0_pallet"><option value="">Escoge…</option><option>Europalet 1200 × 800 mm</option><option>ISO / Americano 1200 × 1000 mm</option><option>Pallet 1200 × 1200 mm (tambores)</option><option>Sin pallet (estiba a piso / slip sheet)</option><option>Otro</option></select>
+      </label>
+      <label class="f">Material del pallet y NIMF-15
+        <select id="e0_mat" data-k="e0_mat"><option value="">Escoge…</option><option>Madera con sello NIMF-15</option><option>Plástico (no requiere NIMF-15)</option><option>Cartón / aglomerado (no requiere NIMF-15)</option><option>No aplica</option></select>
+      </label>
+      <label class="f">Puerto de salida<input type="text" id="e0_puerto" data-k="e0_puerto" placeholder="Ej.: Sociedad Portuaria de Santa Marta"></label>
+      <label class="f">Destino (puerto y país)<input type="text" id="e0_dest" data-k="e0_dest" placeholder="Ej.: Hamburgo, Alemania"></label>
+    </div>
+    <label class="f">Requerimientos especiales de manipulación y conservación
+      <textarea id="e0_req" data-k="e0_req" rows="3" placeholder="Temperatura, humedad, ventilación, apilamiento máximo, pictogramas ISO 780, clase IMDG si aplica…"></textarea>
+    </label>
+    <label class="f">Fuentes consultadas
+      <textarea id="e0_fuentes" data-k="e0_fuentes" rows="2" placeholder="Autor o entidad, año, título y enlace"></textarea>
+    </label>
+    <div class="send" data-act="S0-E0"></div>
+  </section>
+
+  <!-- DOCENTE -->
+  <section class="card" role="tabpanel" id="p-doc" aria-labelledby="t-doc" hidden>
+    <h2>Panel del docente</h2>
+    <div class="grid2" style="align-items:end">
+      <label class="f">Clave del docente<input type="password" id="clave" autocomplete="current-password" placeholder="La misma de la selección de carga"></label>
+      <div class="btns"><button class="btn p" id="docLoad">Cargar entregas</button><button class="btn" id="docOut" hidden>Cerrar sesión</button></div>
+    </div>
+    <div class="notice" id="docMsg" hidden></div>
+    <div id="docBody" hidden>
+      <div class="meters" id="docMeters"></div>
+      <div class="grid2" style="align-items:end">
+        <label class="f">Mostrar
+          <select id="docAct"><option value="">Todas las entregas</option><option value="S0-RUTA">Ruta del pallet</option><option value="S0-TICKET">Autodiagnóstico y ticket</option><option value="S0-E0">Ficha E0</option></select>
+        </label>
+        <div class="btns"><button class="btn" id="docCsv">Descargar CSV</button><button class="btn" id="docReload">Actualizar</button></div>
+      </div>
+      <div class="notice warn" id="docPend" hidden></div>
+      <div class="tw"><table class="list"><thead><tr><th>Entrega</th><th>Grupo · equipo</th><th>Quién</th><th>Recibida</th><th></th></tr></thead><tbody id="docRows"></tbody></table></div>
+    </div>
+  </section>
+
+  <footer><span>Unitarización y Embalaje de la Carga · 732235 · Corte 2 · Universidad de La Guajira</span><b>By Carlos Barrios · Docente</b></footer>
+</div>
+
+<dialog id="dlg"><div class="dh"><h3 id="dlgT">Entrega</h3><button class="btn sm" id="dlgX">Cerrar</button></div><pre id="dlgB"></pre></dialog>
+
+<script>
+"use strict";
+const DOCENTE_CORREO = "cabarriosn@gmail.com";
+const ASIG = "Unitarización y Embalaje de la Carga (732235) · Corte 2";
+const PRODUCTOS = {
+  1:"Café verde en sacos de 70 kg", 2:"Banano en cajas de 18,14 kg", 3:"Aguacate Hass en cajas de 4 kg",
+  4:"Baldosas cerámicas en cajas", 5:"Aceite de palma en tambores de 200 L", 6:"Confitería en cajas corrugadas",
+  7:"Sal marina de Manaure en sacos de 50 kg"
+};
+const PUERTOS = {1:"Santa Marta",2:"Santa Marta / Turbo",3:"Cartagena",4:"Barranquilla",5:"Barranquilla",6:"Cartagena",7:"Puerto Brisa / Santa Marta"};
+const ETAPAS = [
+  "Fin de línea: el producto sale empacado y se paletiza en planta",
+  "Recepción en el centro de distribución o bodega",
+  "Almacenamiento en rack o en piso",
+  "Preparación del despacho: verificación, rotulado y alistamiento",
+  "Cargue del pallet al camión (pallet–vehículo)",
+  "Llegada a puerto y llenado del contenedor",
+  "Inspección final, trincaje y cierre con precinto"
+];
+const SESIONES = [
+  ["S2","Transpaletas y apiladores: selección por escenario"],
+  ["S3","Montacargas: placa de capacidad, centro de carga y triángulo de estabilidad"],
+  ["S4","Dinámica de bodega: recepción, almacenamiento y despacho"],
+  ["S5","Software de cubicaje: Quick Pallet Maker"],
+  ["S6","Apps de carga (Pier2Peer 3D) y comparativa manual vs. software"],
+  ["S7","Laboratorio operacional: estiba y movimiento con roles"],
+  ["S8","Tipos de contenedor: Dry, High Cube, Reefer, Open Top, Flat Rack"],
+  ["S9","Inspección IICL-6, llenado y trincaje (Código CTU)"],
+  ["S10","Parcial del Corte 2 y entrega del expediente"]
+];
+const AUTODIAG = [
+  "Identifico los tipos de transpaletas, apiladores y montacargas",
+  "Leo la placa de capacidad de un montacargas",
+  "Explico el triángulo de estabilidad",
+  "Describo el flujo recepción – almacenamiento – despacho",
+  "Uso un software de cubicaje o paletización",
+  "Diferencio los tipos de contenedor y su uso",
+  "Sé qué revisar al inspeccionar un contenedor vacío",
+  "Explico cómo se trinca una carga dentro del contenedor"
+];
+const TICKET = [
+  "¿Cuál es el producto integrador de este corte y cuántas entregas parciales tiene?",
+  "Menciona un equipo de manutención que hayas visto operar y explica para qué se usa.",
+  "¿Qué tema del corte te genera más dudas y por qué?"
+];
+const E0_CAMPOS = [["e0_pres","Presentación comercial"],["e0_nat","Naturaleza de la carga"],["e0_l","Largo (mm)"],["e0_a","Ancho (mm)"],["e0_h","Alto (mm)"],["e0_peso","Peso bruto por unidad (kg)"],["e0_cont","Contenido por unidad"],["e0_pallet","Tipo de pallet"],["e0_mat","Material del pallet y NIMF-15"],["e0_puerto","Puerto de salida"],["e0_dest","Destino"],["e0_req","Requerimientos especiales"]];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const val = id => ($(id)?.value || "").trim();
+const store = {
+  get(k){try{return JSON.parse(localStorage.getItem(k)||"null");}catch(e){return null;}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}},
+  raw(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}},
+  rawSet(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k);}catch(e){}}
+};
+
+/* ---------- Construcción de la interfaz ---------- */
+$("calTable").innerHTML = '<tr><td>S1</td><td>Apertura del corte y ruta del pallet (esta sesión)</td></tr>' +
+  SESIONES.map(([s,t]) => `<tr><td>${s}</td><td>${esc(t)}</td></tr>`).join("");
+
+$("route").innerHTML = ETAPAS.map((e,i) => `
+  <div class="stage" id="st${i}">
+    <div class="sn" aria-hidden="true">${i+1}</div>
+    <div class="body">
+      <h3>${i+1}. ${esc(e)}</h3>
+      <label class="f">Equipo que interviene<input type="text" id="r${i}_eq" data-k="r${i}_eq" placeholder="Ej.: transpaleta manual, apilador, montacargas, grúa…"></label>
+      <label class="f">Decisión clave<textarea id="r${i}_dec" data-k="r${i}_dec" rows="2" placeholder="¿Qué se decide aquí? Sea concreto: tipo de pallet, nivel del rack, orden de cargue…"></textarea></label>
+      <label class="f">Riesgo principal (a la carga y a las personas)<textarea id="r${i}_rie" data-k="r${i}_rie" rows="2" placeholder="Carga: … / Personas: …"></textarea></label>
+      <div class="f" style="display:flex;flex-direction:column;gap:6px"><span style="font-weight:700;font-size:14px;color:var(--fg)">Sesión del corte donde se trabajará</span>
+        <div class="chips" id="r${i}_ses">${SESIONES.map(([s,t]) => `<button type="button" class="chip" data-s="${s}" aria-pressed="false" title="${esc(t)}">${s}</button>`).join("")}</div>
+      </div>
+    </div>
+  </div>`).join("");
+
+$("scale").innerHTML = AUTODIAG.map((q,i) => `
+  <div class="sitem"><div>${i+1}. ${esc(q)}</div>
+    <div class="seg" id="ad${i}" role="radiogroup" aria-label="${esc(q)}">${[1,2,3,4].map(n => `<label><input type="radio" name="ad${i}" value="${n}" data-k="ad${i}"><span>${n}</span></label>`).join("")}</div>
+  </div>`).join("");
+
+$("ticketQs").innerHTML = TICKET.map((q,i) => `<label class="f">${i+1}. ${esc(q)}<textarea id="tk${i}" data-k="tk${i}" rows="3"></textarea></label>`).join("");
+
+$("prodManual").innerHTML += Object.entries(PRODUCTOS).map(([n,p]) => `<option value="${n}">${n}. ${esc(p)}</option>`).join("");
+
+document.querySelectorAll(".send").forEach(box => {
+  const act = box.dataset.act;
+  box.innerHTML = `
+    <div class="btns"><button class="btn p" data-do="send">Enviar al docente</button></div>
+    <div class="notice" data-msg hidden></div>
+    <div><span class="hint">Si no hay internet o falla el envío, usa un respaldo:</span>
+      <div class="btns" style="margin-top:6px">
+        <button class="btn sm" data-do="wa">WhatsApp</button>
+        <button class="btn sm" data-do="mail">Correo</button>
+        <button class="btn sm" data-do="copy">Copiar texto</button>
+        <button class="btn sm" data-do="file">Descargar archivo</button>
+        <button class="btn sm" data-do="print">Imprimir / PDF</button>
+      </div></div>`;
+  box.addEventListener("click", ev => {
+    const b = ev.target.closest("[data-do]"); if (!b) return;
+    acciones[b.dataset.do](act, box, b);
+  });
+});
+
+/* ---------- Equipos desde /api/grupos ---------- */
+let EQUIPOS = [];   // registros de la selección de carga
+let apiOK = false;
+async function cargarEquipos(){
+  try{
+    const r = await fetch("/api/grupos", {cache:"no-store"});
+    if (!r.ok) throw new Error();
+    EQUIPOS = (await r.json()).grupos || [];
+    apiOK = true;
+  }catch(e){ apiOK = false; }
+  pintarEquipos();
+}
+function grupoSel(){ return document.querySelector('input[name="grupo"]:checked')?.value || ""; }
+function pintarEquipos(){
+  const g = grupoSel(), sel = $("equipo"), prev = sel.value || (store.get("s0_borrador")||{}).equipo || "";
+  const deG = EQUIPOS.filter(e => e.grupo === g);
+  let opts = '<option value="">' + (g ? "Escoge tu equipo…" : "Primero escoge el grupo") + '</option>';
+  for (let n = 1; n <= 7; n++){
+    const e = deG.find(x => x.equipo === n);
+    opts += `<option value="${n}">Equipo ${n}${e ? " · " + esc(e.productoNombre) : (apiOK ? " · sin producto registrado" : "")}</option>`;
+  }
+  sel.innerHTML = opts; sel.disabled = !g;
+  if (prev) sel.value = prev;
+  pintarEquipo();
+}
+function equipoActual(){
+  const g = grupoSel(), n = Number($("equipo").value);
+  return EQUIPOS.find(e => e.grupo === g && e.equipo === n) || null;
+}
+function pintarEquipo(){
+  const e = equipoActual(), n = $("equipo").value;
+  $("teamBox").hidden = !e;
+  $("teamWarn").hidden = true;
+  $("prodManualWrap").hidden = !!e || !n;
+  if (e){
+    $("teamN").textContent = e.equipo;
+    $("teamInfo").innerHTML = `<b>${esc(e.productoNombre)}</b> · sale por ${esc(PUERTOS[e.producto]||"")}<br>
+      <span class="hint">Jefe de carga: ${esc(e.jefe)} · Calculista: ${esc(e.calculista)} · Operarios: ${esc(e.operarios.join(", "))}</span>`;
+  } else if (n){
+    $("teamWarn").hidden = false;
+    $("teamWarn").textContent = apiOK
+      ? "Tu equipo todavía no registró producto en la Selección de carga. Escoge el producto abajo y avisa al docente."
+      : "No se pudo consultar la lista de equipos (sin conexión). Escoge el producto abajo; tu entrega queda igual.";
+  }
+}
+function productoActual(){
+  const e = equipoActual();
+  if (e) return e.productoNombre;
+  const m = val("prodManual"); return m ? PRODUCTOS[m] : "";
+}
+function integrantes(){
+  const e = equipoActual();
+  return e ? [`${e.jefe} (Jefe de carga)`, `${e.calculista} (Calculista)`, ...e.operarios.map(o => `${o} (Operario)`)] : [];
+}
+
+/* ---------- Borrador local ---------- */
+function guardar(){
+  const d = {};
+  document.querySelectorAll("[data-k]").forEach(el => {
+    if (el.type === "radio"){ if (el.checked) d[el.dataset.k] = el.value; }
+    else d[el.dataset.k] = el.value;
+  });
+  ETAPAS.forEach((_,i) => d[`r${i}_ses`] = sesionesDe(i));
+  store.set("s0_borrador", d);
+}
+function restaurar(){
+  const d = store.get("s0_borrador"); if (!d) return;
+  document.querySelectorAll("[data-k]").forEach(el => {
+    const v = d[el.dataset.k]; if (v == null) return;
+    if (el.type === "radio") el.checked = el.value === v; else if (el.id !== "equipo") el.value = v;
+  });
+  ETAPAS.forEach((_,i) => (d[`r${i}_ses`]||[]).forEach(s => {
+    const c = document.querySelector(`#r${i}_ses [data-s="${s}"]`); if (c) c.setAttribute("aria-pressed","true");
+  }));
+}
+const sesionesDe = i => [...document.querySelectorAll(`#r${i}_ses .chip[aria-pressed="true"]`)].map(c => c.dataset.s);
+const radio = name => document.querySelector(`input[name="${name}"]:checked`)?.value || "";
+
+/* ---------- Validación y progreso ---------- */
+function faltantes(act){
+  const m = [];   // [elemento a marcar, descripción]
+  if (!grupoSel()) m.push([$("grupoSeg"),"grupo"]);
+  if (!val("equipo")) m.push([$("equipo"),"equipo"]);
+  if (!val("nombre")) m.push([$("nombre"),"nombre"]);
+  if (!productoActual() && val("equipo")) m.push([$("prodManual"),"producto"]);
+  if (act === "S0-TICKET" && val("codigo").replace(/\D/g,"").length < 4) m.push([$("codigo"),"código estudiantil"]);
+  if (act === "S0-RUTA"){
+    ETAPAS.forEach((_,i) => {
+      if (!val(`r${i}_eq`)) m.push([$(`r${i}_eq`),`etapa ${i+1}: equipo`]);
+      if (!val(`r${i}_dec`)) m.push([$(`r${i}_dec`),`etapa ${i+1}: decisión`]);
+      if (!val(`r${i}_rie`)) m.push([$(`r${i}_rie`),`etapa ${i+1}: riesgo`]);
+      if (!sesionesDe(i).length) m.push([$(`r${i}_ses`),`etapa ${i+1}: sesión`]);
+    });
+    if (!val("reflexion")) m.push([$("reflexion"),"reflexión"]);
+  }
+  if (act === "S0-TICKET"){
+    AUTODIAG.forEach((_,i) => { if (!radio(`ad${i}`)) m.push([$(`ad${i}`),`autodiagnóstico ${i+1}`]); });
+    TICKET.forEach((_,i) => { if (!val(`tk${i}`)) m.push([$(`tk${i}`),`ticket ${i+1}`]); });
+  }
+  if (act === "S0-E0") E0_CAMPOS.forEach(([id,l]) => { if (!val(id)) m.push([$(id),l]); });
+  return m;
+}
+function progreso(){
+  const etapasOK = ETAPAS.map((_,i) => !!(val(`r${i}_eq`) && val(`r${i}_dec`) && val(`r${i}_rie`) && sesionesDe(i).length));
+  etapasOK.forEach((ok,i) => $(`st${i}`).classList.toggle("ok", ok));
+  const r = etapasOK.filter(Boolean).length + (val("reflexion") ? 1 : 0);
+  const t = AUTODIAG.filter((_,i) => radio(`ad${i}`)).length + TICKET.filter((_,i) => val(`tk${i}`)).length;
+  const e = E0_CAMPOS.filter(([id]) => val(id)).length;
+  [["ruta",r,8],["ticket",t,11],["e0",e,12]].forEach(([k,n,tot]) => {
+    $(`pg-${k}`).style.width = (100*n/tot) + "%";
+    $(`pg-${k}-t`).textContent = `${n} de ${tot} completos`;
+  });
+  const L=+val("e0_l"), A=+val("e0_a"), H=+val("e0_h");
+  $("e0_vol").value = L>0 && A>0 && H>0 ? (L*A*H/1e9).toLocaleString("es-CO",{maximumFractionDigits:4}) : "";
+}
+
+/* ---------- Armado de la entrega ---------- */
+const NOMBRES = {"S0-RUTA":"La ruta del pallet","S0-TICKET":"Autodiagnóstico y ticket de salida","S0-E0":"Entrega E0 · Ficha técnica del producto"};
+function datosDe(act){
+  if (act === "S0-RUTA") return {
+    etapas: ETAPAS.map((e,i) => ({etapa:i+1, nombre:e, equipo:val(`r${i}_eq`), decision:val(`r${i}_dec`), riesgo:val(`r${i}_rie`), sesiones:sesionesDe(i)})),
+    reflexion: val("reflexion")
+  };
+  if (act === "S0-TICKET") return {
+    autodiagnostico: AUTODIAG.map((q,i) => ({item:q, nivel:Number(radio(`ad${i}`))||0})),
+    ticket: TICKET.map((q,i) => ({pregunta:q, respuesta:val(`tk${i}`)}))
+  };
+  const d = {}; E0_CAMPOS.forEach(([id,l]) => d[l] = val(id));
+  d["Volumen por unidad (m³)"] = $("e0_vol").value; d["Fuentes consultadas"] = val("e0_fuentes");
+  return d;
+}
+function payload(act){
+  return {act, grupo:grupoSel(), equipo:Number(val("equipo")), nombre:val("nombre"), codigo:val("codigo"),
+    producto:productoActual(), integrantes:integrantes(), datos:datosDe(act)};
+}
+function texto(act){
+  const p = payload(act), d = p.datos, L = [];
+  L.push(`ACTIVIDAD: ${NOMBRES[act]} (${act})`, ASIG, `Grupo: ${p.grupo} · Equipo: ${p.equipo}`, `Producto: ${p.producto}`, `Enviado por: ${p.nombre}${p.codigo ? " · Código " + p.codigo : ""}`);
+  if (p.integrantes.length) L.push(`Integrantes: ${p.integrantes.join("; ")}`);
+  L.push(`Fecha: ${new Date().toLocaleString("es-CO")}`, "");
+  if (act === "S0-RUTA"){
+    d.etapas.forEach(e => L.push(`ETAPA ${e.etapa}. ${e.nombre}`, `  Equipo: ${e.equipo}`, `  Decisión: ${e.decision}`, `  Riesgo: ${e.riesgo}`, `  Sesión: ${e.sesiones.join(", ")}`, ""));
+    L.push(`REFLEXIÓN: ${d.reflexion}`);
+  } else if (act === "S0-TICKET"){
+    L.push("AUTODIAGNÓSTICO (1 No lo conozco · 2 Lo he oído · 3 Lo puedo explicar · 4 Lo puedo aplicar)");
+    d.autodiagnostico.forEach((a,i) => L.push(`  ${i+1}. ${a.item}: ${a.nivel || "—"}`));
+    L.push("", "TICKET DE SALIDA");
+    d.ticket.forEach((t,i) => L.push(`${i+1}. ${t.pregunta}`, `   ${t.respuesta}`));
+  } else {
+    Object.entries(d).forEach(([k,v]) => L.push(`${k}: ${v || "—"}`));
+  }
+  return L.join("\n");
+}
+function archivoNombre(act){
+  const p = payload(act), quien = act === "S0-TICKET" ? (p.codigo || p.nombre) : "equipo" + p.equipo;
+  return `${act}_${p.grupo || "G"}_${quien}`.replace(/[^\w-]+/g,"_") + ".txt";
+}
+
+/* ---------- Acciones de envío ---------- */
+function msg(box, cls, html){ const n = box.querySelector("[data-msg]"); n.className = "notice " + cls; n.innerHTML = html; n.hidden = false; }
+function validar(act, box){
+  document.querySelectorAll(".miss").forEach(x => x.classList.remove("miss"));
+  const f = faltantes(act);
+  if (!f.length) return true;
+  f.forEach(([el]) => el && el.classList.add("miss"));
+  msg(box, "err", `<b>Falta completar ${f.length} campo${f.length===1?"":"s"}:</b> ${esc(f.slice(0,6).map(x => x[1]).join(", "))}${f.length>6?"…":""}`);
+  f[0][0]?.scrollIntoView({behavior:"smooth", block:"center"});
+  return false;
+}
+function copiar(t){
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t).then(() => true, () => copiarViejo(t));
+  return Promise.resolve(copiarViejo(t));
+}
+function copiarViejo(t){
+  const ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select(); let ok = false; try{ ok = document.execCommand("copy"); }catch(e){}
+  ta.remove(); return ok;
+}
+const acciones = {
+  async send(act, box, btn){
+    if (!validar(act, box)) return;
+    btn.disabled = true; msg(box, "info", "Enviando…");
+    try{
+      const r = await fetch("/api/entregas", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify(payload(act))});
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || "No se pudo enviar.");
+      const hora = new Date(j.actualizado).toLocaleString("es-CO");
+      msg(box, "ok", `<b>Entrega recibida.</b> ${j.reemplazo ? `Reemplazó tu envío anterior (envío n.° ${j.envios}).` : "Es tu primer envío."} Hora: ${esc(hora)}<br>Si corriges algo, vuelve a enviar.`);
+      const rec = store.get("s0_enviados") || {}; rec[act] = hora; store.set("s0_enviados", rec); marcarEnviados();
+    }catch(e){
+      msg(box, "err", `<b>No se pudo enviar:</b> ${esc(e.message === "Failed to fetch" ? "sin conexión con el servidor" : e.message)}. Usa WhatsApp, correo o descarga el archivo.`);
+    }finally{ btn.disabled = false; }
+  },
+  wa(act, box){ if (!validar(act, box)) return; window.open("https://wa.me/?text=" + encodeURIComponent(texto(act)), "_blank", "noopener"); msg(box,"info","Se abrió WhatsApp: escoge al docente o al grupo del curso y envía."); },
+  mail(act, box){
+    if (!validar(act, box)) return;
+    const p = payload(act);
+    location.href = `mailto:${DOCENTE_CORREO}?subject=${encodeURIComponent(`${act} · ${p.grupo} equipo ${p.equipo} · ${p.nombre}`)}&body=${encodeURIComponent(texto(act))}`;
+    msg(box,"info","Se abrió tu correo. Si no se abrió, usa Copiar texto y pégalo en un correo a " + DOCENTE_CORREO + ".");
+  },
+  async copy(act, box){ if (!validar(act, box)) return; const ok = await copiar(texto(act)); msg(box, ok ? "ok" : "err", ok ? "Texto copiado. Pégalo en WhatsApp o en un correo al docente." : "No se pudo copiar. Usa Descargar archivo."); },
+  file(act, box){
+    if (!validar(act, box)) return;
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + texto(act)], {type:"text/plain;charset=utf-8"}));
+    a.download = archivoNombre(act); document.body.appendChild(a); a.click(); a.remove();
+    msg(box,"ok",`Archivo <b>${esc(archivoNombre(act))}</b> descargado. Envíalo al docente por WhatsApp o correo.`);
+  },
+  print(){ window.print(); }
+};
+function marcarEnviados(){
+  const rec = store.get("s0_enviados") || {};
+  [["S0-RUTA","pl-ruta","Equipo"],["S0-TICKET","pl-ticket","Individual"],["S0-E0","pl-e0","Equipo · tarea"]].forEach(([a,id,base]) => {
+    $(id).textContent = rec[a] ? "Enviado ✓" : base; $(id).classList.toggle("done", !!rec[a]);
+  });
+}
+
+/* ---------- Pestañas ---------- */
+const TABS = ["ruta","ticket","e0","doc"];
+function abrir(k){
+  TABS.forEach(t => { $(`t-${t}`).setAttribute("aria-selected", t===k); $(`p-${t}`).hidden = t!==k; });
+  $("idcard").hidden = k === "doc";
+  try{ history.replaceState(null, "", "#" + k); }catch(e){}
+}
+TABS.forEach(t => $(`t-${t}`).addEventListener("click", () => abrir(t)));
+document.querySelector(".tabs").addEventListener("keydown", e => {
+  const i = TABS.findIndex(t => $(`t-${t}`).getAttribute("aria-selected") === "true");
+  if (e.key === "ArrowRight" || e.key === "ArrowLeft"){ const n = TABS[(i + (e.key==="ArrowRight"?1:TABS.length-1)) % TABS.length]; abrir(n); $(`t-${n}`).focus(); }
+});
+
+/* ---------- Eventos ---------- */
+document.addEventListener("input", e => { if (e.target.closest("#p-doc")) return; e.target.classList?.remove("miss"); e.target.closest?.(".seg")?.classList.remove("miss"); guardar(); progreso(); });
+document.addEventListener("change", e => { if (e.target.closest("#p-doc")) return; guardar(); progreso(); });
+document.querySelectorAll('input[name="grupo"]').forEach(r => r.addEventListener("change", () => { $("grupoSeg").classList.remove("miss"); pintarEquipos(); guardar(); }));
+$("equipo").addEventListener("change", () => { pintarEquipo(); guardar(); progreso(); });
+$("route").addEventListener("click", e => {
+  const c = e.target.closest(".chip"); if (!c) return;
+  c.setAttribute("aria-pressed", c.getAttribute("aria-pressed") === "true" ? "false" : "true");
+  c.parentElement.classList.remove("miss"); guardar(); progreso();
+});
+["visibilitychange","pagehide"].forEach(ev => window.addEventListener(ev, guardar));
+
+/* ---------- Panel del docente ---------- */
+let ENTREGAS = [];
+const docHeaders = () => ({"x-clave-instructor": store.raw("logilab_clave")});
+function docMsg(cls, t){ $("docMsg").className = "notice " + cls; $("docMsg").textContent = t; $("docMsg").hidden = !t; }
+async function docCargar(){
+  const k = val("clave") || store.raw("logilab_clave");
+  if (!k){ docMsg("warn","Escribe la clave del docente."); return; }
+  store.rawSet("logilab_clave", k);
+  docMsg("info","Cargando…");
+  try{
+    const [r, g] = await Promise.all([fetch("/api/entregas", {headers:docHeaders(), cache:"no-store"}), fetch("/api/grupos", {cache:"no-store"})]);
+    const j = await r.json().catch(() => ({}));
+    if (r.status === 403){ store.rawSet("logilab_clave",""); throw new Error("Clave incorrecta."); }
+    if (!r.ok) throw new Error(j.error || "No se pudo cargar.");
+    ENTREGAS = j.entregas || [];
+    if (g.ok) EQUIPOS = (await g.json()).grupos || EQUIPOS;
+    docMsg("", ""); $("docBody").hidden = false; $("docOut").hidden = false; $("clave").value = "";
+    docPintar();
+  }catch(e){ docMsg("err", e.message === "Failed to fetch" ? "Sin conexión con el servidor." : e.message); }
+}
+function docPintar(){
+  const f = $("docAct").value, list = ENTREGAS.filter(x => !f || x.act === f);
+  const cuenta = a => ENTREGAS.filter(x => x.act === a).length, totEq = EQUIPOS.length;
+  $("docMeters").innerHTML = [["S0-RUTA","Rutas del pallet",`de ${totEq} equipos registrados`],["S0-TICKET","Tickets de salida","estudiantes"],["S0-E0","Fichas E0",`de ${totEq} equipos registrados`]]
+    .map(([a,t,s]) => `<div class="meter"><b>${cuenta(a)}</b><small>${t}</small><div>${s}</div></div>`).join("");
+  const pend = a => EQUIPOS.filter(e => !ENTREGAS.some(x => x.act === a && x.grupo === e.grupo && x.equipo === e.equipo)).map(e => `${e.grupo}-${e.equipo}`);
+  const pr = pend("S0-RUTA"), pe = pend("S0-E0");
+  $("docPend").hidden = !(pr.length || pe.length);
+  $("docPend").innerHTML = (pr.length ? `<b>Sin ruta:</b> ${esc(pr.join(", "))}. ` : "") + (pe.length ? `<b>Sin ficha E0:</b> ${esc(pe.join(", "))}.` : "");
+  $("docRows").innerHTML = list.length ? list.map((x,i) => `<tr>
+      <td>${esc(NOMBRES[x.act])}${x.envios > 1 ? ` <span class="hint">(${x.envios} envíos)</span>` : ""}</td>
+      <td>${esc(x.grupo)} · ${x.equipo}<div class="hint">${esc(x.producto)}</div></td>
+      <td>${esc(x.nombre)}${x.codigo ? `<div class="hint">${esc(x.codigo)}</div>` : ""}</td>
+      <td>${esc(new Date(x.actualizado).toLocaleString("es-CO"))}</td>
+      <td style="white-space:nowrap"><button class="btn sm" data-ver="${esc(x.key)}">Ver</button> <button class="btn sm danger" data-del="${esc(x.key)}" aria-label="Eliminar">✕</button></td></tr>`).join("")
+    : `<tr><td colspan="5" class="hint">Todavía no hay entregas${f ? " de este tipo" : ""}.</td></tr>`;
+}
+function textoEntrega(x){
+  const L = [`${NOMBRES[x.act]} · Grupo ${x.grupo} · Equipo ${x.equipo}`, `Producto: ${x.producto}`, `Enviado por: ${x.nombre}${x.codigo ? " · " + x.codigo : ""}`];
+  if (x.integrantes?.length) L.push(`Integrantes: ${x.integrantes.join("; ")}`);
+  L.push(`Recibido: ${new Date(x.actualizado).toLocaleString("es-CO")} · Envíos: ${x.envios}`, "");
+  const d = x.datos || {};
+  if (x.act === "S0-RUTA"){
+    (d.etapas||[]).forEach(e => L.push(`ETAPA ${e.etapa}. ${e.nombre}`, `  Equipo: ${e.equipo}`, `  Decisión: ${e.decision}`, `  Riesgo: ${e.riesgo}`, `  Sesión: ${(e.sesiones||[]).join(", ")}`, ""));
+    L.push(`REFLEXIÓN: ${d.reflexion}`);
+  } else if (x.act === "S0-TICKET"){
+    (d.autodiagnostico||[]).forEach((a,i) => L.push(`${i+1}. ${a.item}: ${a.nivel}`));
+    L.push("");
+    (d.ticket||[]).forEach((t,i) => L.push(`${i+1}. ${t.pregunta}`, `   ${t.respuesta}`));
+  } else Object.entries(d).forEach(([k,v]) => L.push(`${k}: ${v}`));
+  return L.join("\n");
+}
+function csv(){
+  const f = $("docAct").value, list = ENTREGAS.filter(x => !f || x.act === f);
+  if (!list.length){ docMsg("warn","No hay entregas para exportar."); return; }
+  const q = v => `"${String(v ?? "").replace(/"/g,'""').replace(/\n/g," ")}"`;
+  const filas = [["Actividad","Grupo","Equipo","Producto","Nombre","Codigo","Recibido","Envios","Detalle"].map(q).join(";")];
+  list.forEach(x => {
+    let det = "";
+    if (x.act === "S0-TICKET") det = (x.datos.autodiagnostico||[]).map((a,i) => `A${i+1}=${a.nivel}`).join(" ") + " | " + (x.datos.ticket||[]).map((t,i) => `T${i+1}: ${t.respuesta}`).join(" | ");
+    else if (x.act === "S0-RUTA") det = (x.datos.etapas||[]).map(e => `E${e.etapa}: ${e.equipo} / ${e.decision} / ${e.riesgo} / ${(e.sesiones||[]).join(",")}`).join(" | ") + " | Reflexión: " + x.datos.reflexion;
+    else det = Object.entries(x.datos).map(([k,v]) => `${k}: ${v}`).join(" | ");
+    filas.push([NOMBRES[x.act], x.grupo, x.equipo, x.producto, x.nombre, x.codigo, new Date(x.actualizado).toLocaleString("es-CO"), x.envios, det].map(q).join(";"));
+  });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + filas.join("\n")], {type:"text/csv;charset=utf-8"}));
+  a.download = `Entregas_S0${f ? "_" + f : ""}.csv`; document.body.appendChild(a); a.click(); a.remove();
+}
+$("docLoad").addEventListener("click", docCargar);
+$("docReload").addEventListener("click", docCargar);
+$("clave").addEventListener("keydown", e => { if (e.key === "Enter") docCargar(); });
+$("docOut").addEventListener("click", () => { store.rawSet("logilab_clave",""); ENTREGAS = []; $("docBody").hidden = true; $("docOut").hidden = true; docMsg("info","Sesión de docente cerrada en este dispositivo."); });
+$("docAct").addEventListener("change", docPintar);
+$("docCsv").addEventListener("click", csv);
+$("docRows").addEventListener("click", async e => {
+  const v = e.target.closest("[data-ver]"), d = e.target.closest("[data-del]");
+  if (v){ const x = ENTREGAS.find(y => y.key === v.dataset.ver); $("dlgT").textContent = NOMBRES[x.act]; $("dlgB").textContent = textoEntrega(x); $("dlg").showModal(); }
+  if (d){
+    if (!confirm("¿Eliminar esta entrega? El estudiante tendrá que enviarla de nuevo.")) return;
+    const r = await fetch("/api/entregas?key=" + encodeURIComponent(d.dataset.del), {method:"DELETE", headers:docHeaders()});
+    if (r.ok){ ENTREGAS = ENTREGAS.filter(y => y.key !== d.dataset.del); docPintar(); } else docMsg("err","No se pudo eliminar.");
+  }
+});
+$("dlgX").addEventListener("click", () => $("dlg").close());
+
+/* ---------- Inicio ---------- */
+restaurar();
+marcarEnviados();
+progreso();
+cargarEquipos();
+abrir(TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "ruta");
+if (store.raw("logilab_clave") && location.hash === "#doc") docCargar();
+</script>
+</body>
+</html>
