@@ -90,8 +90,12 @@ textarea{resize:vertical;min-height:64px}
 .stage.ok .sn{background:var(--ok);color:#fff;border-color:var(--ok)}
 .stage .body{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{appearance:none;border:1.5px solid var(--line);background:var(--bg);color:var(--text);font:600 13px var(--f-mono);padding:5px 9px;border-radius:99px;cursor:pointer}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
+.chip{appearance:none;border:1.5px solid var(--line);background:var(--bg);color:var(--text);font:600 14px var(--f-body);padding:7px 10px;border-radius:8px;cursor:pointer;text-align:left;display:flex;gap:8px;align-items:baseline;min-width:0}
+.chip b{font:700 13px var(--f-mono);color:var(--fg);flex:none}
 .chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:var(--navy-ink)}
+.chip[aria-pressed="true"] b{color:var(--gold)}
+.chip[aria-pressed="true"]::after{content:"✓";margin-left:auto;font-weight:800;color:var(--gold)}
 .chips.miss{outline:2px solid var(--danger);outline-offset:3px;border-radius:8px;background:none!important}
 
 details.cal{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px}
@@ -130,6 +134,31 @@ dialog{border:1px solid var(--line);border-radius:var(--r);background:var(--surf
 dialog::backdrop{background:rgba(5,12,24,.55)}
 dialog .dh{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface)}
 dialog pre{margin:0;padding:16px;white-space:pre-wrap;font:400 14px/1.55 var(--f-body)}
+#dlgC{width:min(1100px,calc(100vw - 24px))}
+.gradeGrid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0}
+@media (max-width:820px){.gradeGrid{grid-template-columns:1fr}}
+.gradeGrid pre{border-right:1px solid var(--line);max-height:70vh;overflow:auto}
+@media (max-width:820px){.gradeGrid pre{border-right:0;border-bottom:1px solid var(--line);max-height:40vh}}
+.rub{padding:16px;display:flex;flex-direction:column;gap:12px}
+.crit{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.crit .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.crit input{width:84px;font-weight:700}
+.lv{appearance:none;border:1.5px solid var(--line);background:var(--surface);color:var(--text);font:600 12px var(--f-body);padding:4px 8px;border-radius:99px;cursor:pointer}
+.lv:hover{border-color:var(--gold)}
+.crit details{font-size:13px;color:var(--muted)}
+.crit details li{margin:2px 0}
+.final{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 12px;border-radius:var(--r);background:var(--info-soft)}
+.final input{width:96px;font-size:22px;font-weight:800;color:var(--fg)}
+.auto{font-size:13px;padding:8px 10px;border-radius:6px;background:var(--gold-soft);border:1px solid var(--gold)}
+.badge{display:inline-block;font:800 15px var(--f-body);padding:2px 10px;border-radius:99px;background:var(--navy);color:var(--gold);font-variant-numeric:tabular-nums}
+.badge.low{background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger)}
+.flag{font-size:12px;color:var(--danger);font-weight:700}
+.views{display:flex;gap:6px;flex-wrap:wrap}
+.views .btn[aria-pressed="true"]{background:var(--navy);color:var(--navy-ink)}
+.pesos{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.pesos label{display:flex;flex-direction:column;font-size:13px;font-weight:700;color:var(--fg)}
+.pesos input{width:84px}
+td.n{text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
 
 footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);padding-top:10px;border-top:1px solid var(--line)}
 footer b{color:var(--fg)}
@@ -140,7 +169,7 @@ footer b{color:var(--fg)}
 <div class="wrap">
   <a class="backlink" href="/">← LogiLab SENA</a>
   <header>
-    <div class="eyebrow">Corte 2 · Sesión S0 · Apertura</div>
+    <div class="eyebrow">Corte 2 · Actividad S0 · Sesión de apertura</div>
     <h1>La ruta del pallet: entregables en línea</h1>
     <p class="lead">Sigue tu producto desde la planta hasta el cierre del contenedor. Aquí entregas la ruta del equipo, tu autodiagnóstico con el ticket de salida y la ficha técnica E0. Lo que escribes se guarda en este dispositivo mientras trabajas.</p>
   </header>
@@ -185,7 +214,8 @@ footer b{color:var(--fg)}
       <p class="hint" style="margin:6px 0 0">En cada etapa escriban el <b>equipo</b> que interviene, la <b>decisión clave</b>, el <b>riesgo principal</b> (a la carga y a las personas) y marquen la <b>sesión del corte</b> donde se trabajará ese tema.</p>
     </div>
     <div class="prog"><span id="pg-ruta-t">0 de 8</span><div class="bar"><i id="pg-ruta"></i></div></div>
-    <details class="cal"><summary>Ver el calendario del Corte 2 (para escoger la sesión)</summary><table id="calTable"></table></details>
+    <div class="notice info"><b>¿Qué son S2, S3…?</b> Son las clases que quedan del Corte 2. En cada etapa marquen la clase donde se aprende a hacerla bien. Ejemplo: si en la etapa 3 suben el pallet a un rack con montacargas, marquen <b>S3 · Montacargas</b>. Si algo ya lo vieron, marquen <b>C1 · Ya visto en el Corte 1</b>.</div>
+    <details class="cal"><summary>Ver el calendario completo del Corte 2</summary><table id="calTable"></table></details>
     <div class="route" id="route"></div>
     <label class="f">Reflexión del equipo: ¿en qué etapa una buena unitarización del Corte 1 evita más pérdidas, y por qué?
       <textarea id="reflexion" data-k="reflexion" rows="4" placeholder="Nombren la etapa y expliquen con argumentos técnicos."></textarea>
@@ -261,6 +291,8 @@ footer b{color:var(--fg)}
     </div>
     <div class="notice" id="docMsg" hidden></div>
     <div id="docBody" hidden>
+      <div class="views" role="group" aria-label="Vista del panel"><button class="btn" id="vEnt" aria-pressed="true">Entregas y calificación</button><button class="btn" id="vSab" aria-pressed="false">Sábana de notas</button></div>
+      <div id="viewEnt" style="display:flex;flex-direction:column;gap:14px">
       <div class="meters" id="docMeters"></div>
       <div class="grid2" style="align-items:end">
         <label class="f">Mostrar
@@ -269,7 +301,14 @@ footer b{color:var(--fg)}
         <div class="btns"><button class="btn" id="docCsv">Descargar CSV</button><button class="btn" id="docReload">Actualizar</button></div>
       </div>
       <div class="notice warn" id="docPend" hidden></div>
-      <div class="tw"><table class="list"><thead><tr><th>Entrega</th><th>Grupo · equipo</th><th>Quién</th><th>Recibida</th><th></th></tr></thead><tbody id="docRows"></tbody></table></div>
+      <div class="tw"><table class="list"><thead><tr><th>Entrega</th><th>Grupo · equipo</th><th>Quién</th><th>Recibida</th><th>Nota</th><th></th></tr></thead><tbody id="docRows"></tbody></table></div>
+      </div>
+      <div id="viewSab" hidden style="display:flex;flex-direction:column;gap:14px">
+        <p class="hint" style="margin:0">La nota de la ruta y de la ficha E0 es de equipo: se asigna a cada integrante registrado en la selección de carga. El ticket es individual. Un entregable no enviado cuenta 0,0; uno enviado y sin calificar deja la definitiva pendiente.</p>
+        <div class="pesos"><label>Ruta del pallet (%)<input type="number" min="0" max="100" id="wR"></label><label>Autodiagnóstico y ticket (%)<input type="number" min="0" max="100" id="wT"></label><label>Ficha E0 (%)<input type="number" min="0" max="100" id="wE"></label><span class="hint" id="wSum"></span>
+          <button class="btn" id="sabCsv" style="margin-left:auto">Descargar sábana (CSV)</button></div>
+        <div class="tw"><table class="list"><thead><tr><th>Grupo · eq.</th><th>Estudiante</th><th class="n">Ruta</th><th class="n">Ticket</th><th class="n">E0</th><th class="n">Definitiva</th></tr></thead><tbody id="sabRows"></tbody></table></div>
+      </div>
     </div>
   </section>
 
@@ -277,6 +316,16 @@ footer b{color:var(--fg)}
 </div>
 
 <dialog id="dlg"><div class="dh"><h3 id="dlgT">Entrega</h3><button class="btn sm" id="dlgX">Cerrar</button></div><pre id="dlgB"></pre></dialog>
+<dialog id="dlgC"><div class="dh"><div><h3 id="cT">Calificar</h3><div class="hint" id="cS"></div></div><button class="btn sm" id="cX">Cerrar</button></div>
+  <div class="gradeGrid"><pre id="cB"></pre>
+    <form class="rub" id="cForm" novalidate>
+      <div class="auto" id="cAuto" hidden></div>
+      <div id="cCrit" style="display:flex;flex-direction:column;gap:10px"></div>
+      <div class="final"><label class="f" style="flex-direction:row;align-items:center;gap:10px">Nota<input type="number" id="cNota" min="0" max="5" step="0.1"></label><span class="hint">Promedio de los criterios; puede ajustarla.</span></div>
+      <label class="f">Retroalimentación para el equipo o estudiante<textarea id="cCom" rows="3" placeholder="Qué hicieron bien y qué deben mejorar."></textarea></label>
+      <div class="notice" id="cMsg" hidden></div>
+      <div class="btns"><button class="btn p" type="submit" id="cSave">Guardar calificación</button><button class="btn" type="button" id="cNext">Guardar y siguiente</button><button class="btn danger" type="button" id="cDel">Quitar nota</button></div>
+    </form></div></dialog>
 
 <script>
 "use strict";
@@ -297,17 +346,20 @@ const ETAPAS = [
   "Llegada a puerto y llenado del contenedor",
   "Inspección final, trincaje y cierre con precinto"
 ];
+// [código, tema completo, etiqueta corta de la casilla]. "C1" = lo ya visto en el Corte 1 (paletización, embalaje).
 const SESIONES = [
-  ["S2","Transpaletas y apiladores: selección por escenario"],
-  ["S3","Montacargas: placa de capacidad, centro de carga y triángulo de estabilidad"],
-  ["S4","Dinámica de bodega: recepción, almacenamiento y despacho"],
-  ["S5","Software de cubicaje: Quick Pallet Maker"],
-  ["S6","Apps de carga (Pier2Peer 3D) y comparativa manual vs. software"],
-  ["S7","Laboratorio operacional: estiba y movimiento con roles"],
-  ["S8","Tipos de contenedor: Dry, High Cube, Reefer, Open Top, Flat Rack"],
-  ["S9","Inspección IICL-6, llenado y trincaje (Código CTU)"],
-  ["S10","Parcial del Corte 2 y entrega del expediente"]
+  ["C1","Corte 1: embalaje, pallets, patrones de acomodo y cubicaje manual","Ya visto en el Corte 1"],
+  ["S2","Transpaletas y apiladores: selección por escenario","Transpaletas y apiladores"],
+  ["S3","Montacargas: placa de capacidad, centro de carga y triángulo de estabilidad","Montacargas"],
+  ["S4","Dinámica de bodega: recepción, almacenamiento y despacho","Bodega: recibir, almacenar, despachar"],
+  ["S5","Software de cubicaje: Quick Pallet Maker","Quick Pallet Maker"],
+  ["S6","Apps de carga (Pier2Peer 3D) y comparativa manual vs. software","Apps de carga 3D"],
+  ["S7","Laboratorio operacional: estiba y movimiento con roles","Laboratorio con equipos"],
+  ["S8","Tipos de contenedor: Dry, High Cube, Reefer, Open Top, Flat Rack","Tipos de contenedor"],
+  ["S9","Inspección IICL-6, llenado y trincaje (Código CTU)","Inspección y trincaje"]
 ];
+// Solucionario de sesiones por etapa (se aceptan alternativas justificadas).
+const CLAVE_SES = {1:["C1","S2"],2:["S2","S4"],3:["S3","S4"],4:["S4"],5:["S5","S6"],6:["S6","S8","S9"],7:["S9"]};
 const AUTODIAG = [
   "Identifico los tipos de transpaletas, apiladores y montacargas",
   "Leo la placa de capacidad de un montacargas",
@@ -336,8 +388,8 @@ const store = {
 };
 
 /* ---------- Construcción de la interfaz ---------- */
-$("calTable").innerHTML = '<tr><td>S1</td><td>Apertura del corte y ruta del pallet (esta sesión)</td></tr>' +
-  SESIONES.map(([s,t]) => `<tr><td>${s}</td><td>${esc(t)}</td></tr>`).join("");
+$("calTable").innerHTML = SESIONES.filter(x => x[0] !== "C1").map(([s,t]) => `<tr><td>${s}</td><td>${esc(t)}</td></tr>`).join("") +
+  '<tr><td>S10</td><td>Parcial del Corte 2 y entrega del expediente</td></tr>';
 
 $("route").innerHTML = ETAPAS.map((e,i) => `
   <div class="stage" id="st${i}">
@@ -347,8 +399,8 @@ $("route").innerHTML = ETAPAS.map((e,i) => `
       <label class="f">Equipo que interviene<input type="text" id="r${i}_eq" data-k="r${i}_eq" placeholder="Ej.: transpaleta manual, apilador, montacargas, grúa…"></label>
       <label class="f">Decisión clave<textarea id="r${i}_dec" data-k="r${i}_dec" rows="2" placeholder="¿Qué se decide aquí? Sea concreto: tipo de pallet, nivel del rack, orden de cargue…"></textarea></label>
       <label class="f">Riesgo principal (a la carga y a las personas)<textarea id="r${i}_rie" data-k="r${i}_rie" rows="2" placeholder="Carga: … / Personas: …"></textarea></label>
-      <div class="f" style="display:flex;flex-direction:column;gap:6px"><span style="font-weight:700;font-size:14px;color:var(--fg)">Sesión del corte donde se trabajará</span>
-        <div class="chips" id="r${i}_ses">${SESIONES.map(([s,t]) => `<button type="button" class="chip" data-s="${s}" aria-pressed="false" title="${esc(t)}">${s}</button>`).join("")}</div>
+      <div class="f" style="display:flex;flex-direction:column;gap:6px"><span style="font-weight:700;font-size:14px;color:var(--fg)">¿En qué clase del corte se aprende a resolver esta etapa? <span class="hint">Toquen una o varias.</span></span>
+        <div class="chips" id="r${i}_ses">${SESIONES.map(([s,t,c]) => `<button type="button" class="chip" data-s="${s}" aria-pressed="false" title="${esc(t)}"><b>${s}</b><span>${esc(c)}</span></button>`).join("")}</div>
       </div>
     </div>
   </div>`).join("");
@@ -611,8 +663,8 @@ document.querySelector(".tabs").addEventListener("keydown", e => {
 });
 
 /* ---------- Eventos ---------- */
-document.addEventListener("input", e => { if (e.target.closest("#p-doc")) return; e.target.classList?.remove("miss"); e.target.closest?.(".seg")?.classList.remove("miss"); guardar(); progreso(); });
-document.addEventListener("change", e => { if (e.target.closest("#p-doc")) return; guardar(); progreso(); });
+document.addEventListener("input", e => { if (e.target.closest("#p-doc, dialog")) return; e.target.classList?.remove("miss"); e.target.closest?.(".seg")?.classList.remove("miss"); guardar(); progreso(); });
+document.addEventListener("change", e => { if (e.target.closest("#p-doc, dialog")) return; guardar(); progreso(); });
 document.querySelectorAll('input[name="grupo"]').forEach(r => r.addEventListener("change", () => { $("grupoSeg").classList.remove("miss"); pintarEquipos(); guardar(); }));
 $("equipo").addEventListener("change", () => { pintarEquipo(); guardar(); progreso(); });
 $("route").addEventListener("click", e => {
@@ -656,9 +708,168 @@ function docPintar(){
       <td>${esc(x.grupo)} · ${x.equipo}<div class="hint">${esc(x.producto)}</div></td>
       <td>${esc(x.nombre)}${x.codigo ? `<div class="hint">${esc(x.codigo)}</div>` : ""}</td>
       <td>${esc(new Date(x.actualizado).toLocaleString("es-CO"))}</td>
-      <td style="white-space:nowrap"><button class="btn sm" data-ver="${esc(x.key)}">Ver</button> <button class="btn sm danger" data-del="${esc(x.key)}" aria-label="Eliminar">✕</button></td></tr>`).join("")
-    : `<tr><td colspan="5" class="hint">Todavía no hay entregas${f ? " de este tipo" : ""}.</td></tr>`;
+      <td class="n">${x.calificacion ? `${badge(x.calificacion.nota)}${x.calificacion.reenvio ? '<div class="flag">Reenviada: revisar</div>' : ""}` : '<span class="hint">Sin nota</span>'}</td>
+      <td style="white-space:nowrap"><button class="btn sm p" data-cal="${esc(x.key)}">${x.calificacion ? "Revisar" : "Calificar"}</button> <button class="btn sm" data-ver="${esc(x.key)}">Ver</button> <button class="btn sm danger" data-del="${esc(x.key)}" aria-label="Eliminar">✕</button></td></tr>`).join("")
+    : `<tr><td colspan="6" class="hint">Todavía no hay entregas${f ? " de este tipo" : ""}.</td></tr>`;
+  const sinNota = list.filter(x => !x.calificacion || x.calificacion.reenvio).length;
+  if (list.length) $("docRows").insertAdjacentHTML("beforeend", `<tr><td colspan="6" class="hint">${sinNota ? `${sinNota} entrega${sinNota===1?"":"s"} por calificar o revisar.` : "Todas las entregas mostradas están calificadas."}</td></tr>`);
+  sabPintar();
 }
+const fmt = n => (Math.round(n*10)/10).toFixed(1).replace(".", ",");
+const badge = n => `<span class="badge${n < 3 ? " low" : ""}">${fmt(n)}</span>`;
+
+/* ---------- Rúbricas por entregable (escala 0,0 – 5,0, criterios con igual peso) ---------- */
+const RUBRICAS = {
+  "S0-RUTA": [
+    {k:"equipos", t:"Equipos de manutención", s:"Equipo correcto en las 7 etapas, justificado según peso o altura.", a:"Equipos adecuados en al menos 5 etapas.", i:"Menos de 5 etapas o equipos genéricos."},
+    {k:"decisiones", t:"Decisiones técnicas", s:"Decisiones concretas y verificables: tipo de pallet, nivel del rack, orden de cargue, tipo de contenedor.", a:"Decisiones correctas pero generales.", i:"No distingue entre decisión y acción."},
+    {k:"riesgos", t:"Riesgos", s:"Riesgos a la carga y a las personas en cada etapa.", a:"Riesgos solo a la carga o solo a las personas.", i:"Riesgos en menos de 4 etapas."},
+    {k:"articulacion", t:"Articulación con el corte y reflexión", s:"Cada etapa asociada a la sesión correcta; la reflexión conecta Corte 1 y Corte 2.", a:"La mayoría de etapas bien asociadas; reflexión correcta pero breve.", i:"Asociaciones erradas o reflexión sin argumento."}
+  ],
+  "S0-TICKET": [
+    {k:"autodiag", t:"Autodiagnóstico", s:"Completo y coherente con lo que el estudiante ha visto.", a:"Completo pero con valoraciones poco realistas.", i:"Incompleto."},
+    {k:"r1", t:"1. Producto integrador", s:"Expediente operativo con 5 entregas (E0 a E4).", a:"Nombra el expediente o las entregas, no ambos.", i:"No identifica el producto integrador."},
+    {k:"r2", t:"2. Equipo de manutención", s:"Equipo real con su uso correcto y explicado.", a:"Equipo correcto con uso vago.", i:"Equipo errado o sin explicación."},
+    {k:"r3", t:"3. Tema con dudas", s:"Nombra un tema del corte y explica por qué le genera dudas.", a:"Nombra el tema sin explicar.", i:"Respuesta vacía o fuera del curso."}
+  ],
+  "S0-E0": [
+    {k:"completitud", t:"Completitud", s:"Todos los campos con datos del producto real.", a:"Faltan uno o dos datos, o hay datos supuestos.", i:"Ficha incompleta."},
+    {k:"precision", t:"Precisión técnica", s:"Medidas, peso y contenido coherentes con el producto, en mm y kg.", a:"Datos plausibles con alguna inconsistencia.", i:"Datos incoherentes o sin unidades."},
+    {k:"normativa", t:"Unitarización y normativa", s:"Pallet adecuado al producto y destino; NIMF-15 y requerimientos (ISO 780, IMDG, cadena de frío) bien identificados.", a:"Pallet adecuado; requerimientos incompletos.", i:"Pallet o requerimientos inadecuados."},
+    {k:"fuentes", t:"Fuentes", s:"Fuentes verificables: entidad o autor, año y enlace.", a:"Fuentes sin datos completos.", i:"Sin fuentes."}
+  ]
+};
+let CAL = null;   // entrega abierta en el diálogo de calificación
+function revisarSesiones(x){
+  const et = x.datos?.etapas || [];
+  const malas = et.filter(e => !(e.sesiones||[]).some(s => (CLAVE_SES[e.etapa]||[]).includes(s)));
+  const ok = et.length - malas.length;
+  const sug = ok >= 6 ? "Superior" : ok >= 4 ? "Aceptable" : "Insuficiente";
+  return `<b>Revisión automática de sesiones:</b> ${ok} de ${et.length} etapas coinciden con el solucionario (sugiere nivel ${sug} en articulación).` +
+    (malas.length ? `<br>Revisar: ${malas.map(e => `etapa ${e.etapa} marcó ${(e.sesiones||[]).join(", ") || "nada"} (esperado ${CLAVE_SES[e.etapa].join(" o ")})`).join("; ")}.` : "") +
+    `<br><span class="hint">Ojo: en la etapa 6 el contenedor vacío se inspecciona antes de llenarlo (Código CTU, IICL-6).</span>`;
+}
+function abrirCal(key){
+  const x = ENTREGAS.find(y => y.key === key); if (!x) return;
+  CAL = x; const c = x.calificacion || {criterios:{}, nota:"", comentario:""};
+  $("cT").textContent = `Calificar · ${NOMBRES[x.act]}`;
+  $("cS").textContent = `${x.grupo} · Equipo ${x.equipo} · ${x.producto} · ${x.act === "S0-TICKET" ? x.nombre : "nota de equipo"}`;
+  $("cB").textContent = textoEntrega(x);
+  $("cAuto").hidden = x.act !== "S0-RUTA";
+  if (x.act === "S0-RUTA") $("cAuto").innerHTML = revisarSesiones(x);
+  $("cCrit").innerHTML = RUBRICAS[x.act].map(r => `<div class="crit">
+      <div class="row"><b style="flex:1;min-width:160px;color:var(--fg)">${esc(r.t)}</b><input type="number" min="0" max="5" step="0.1" data-c="${r.k}" value="${c.criterios?.[r.k] ?? ""}" aria-label="${esc(r.t)}"></div>
+      <div class="row"><button type="button" class="lv" data-set="${r.k}" data-v="5">Superior 5,0</button><button type="button" class="lv" data-set="${r.k}" data-v="4.5">4,5</button><button type="button" class="lv" data-set="${r.k}" data-v="4">4,0</button><button type="button" class="lv" data-set="${r.k}" data-v="3.5">Aceptable 3,5</button><button type="button" class="lv" data-set="${r.k}" data-v="3">3,0</button><button type="button" class="lv" data-set="${r.k}" data-v="2">Insuficiente 2,0</button></div>
+      <details><summary>Ver descriptores</summary><ul style="margin:6px 0 0;padding-left:18px"><li><b>Superior (4,0–5,0):</b> ${esc(r.s)}</li><li><b>Aceptable (3,0–3,9):</b> ${esc(r.a)}</li><li><b>Insuficiente (&lt; 3,0):</b> ${esc(r.i)}</li></ul></details>
+    </div>`).join("");
+  $("cNota").value = c.nota === "" ? "" : c.nota; $("cCom").value = c.comentario || "";
+  $("cMsg").hidden = true; $("cDel").hidden = !x.calificacion;
+  $("dlgC").showModal(); $("cB").scrollTop = 0;
+}
+function promedioCrit(){
+  const v = [...$("cCrit").querySelectorAll("[data-c]")].map(i => i.value === "" ? null : Number(i.value));
+  if (v.some(n => n === null || !(n >= 0 && n <= 5))) return null;
+  return Math.round(v.reduce((a,b) => a+b, 0) / v.length * 10) / 10;
+}
+$("cCrit").addEventListener("click", e => {
+  const b = e.target.closest("[data-set]"); if (!b) return;
+  $("cCrit").querySelector(`[data-c="${b.dataset.set}"]`).value = b.dataset.v;
+  const p = promedioCrit(); if (p !== null) $("cNota").value = p;
+});
+$("cCrit").addEventListener("input", () => { const p = promedioCrit(); if (p !== null) $("cNota").value = p; });
+function cMsg(cls, t){ $("cMsg").className = "notice " + cls; $("cMsg").textContent = t; $("cMsg").hidden = false; }
+async function guardarCal(siguiente){
+  const nota = Number(String($("cNota").value).replace(",", "."));
+  if ($("cNota").value === "" || !(nota >= 0 && nota <= 5)){ cMsg("err","Escriba una nota entre 0,0 y 5,0 o califique todos los criterios."); return; }
+  const criterios = {}; $("cCrit").querySelectorAll("[data-c]").forEach(i => { if (i.value !== "") criterios[i.dataset.c] = Number(i.value); });
+  $("cSave").disabled = $("cNext").disabled = true; cMsg("info","Guardando…");
+  try{
+    const r = await fetch("/api/entregas?key=" + encodeURIComponent(CAL.key), {method:"PATCH", headers:{...docHeaders(),"content-type":"application/json"}, body:JSON.stringify({criterios, nota, comentario:$("cCom").value})});
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || "No se pudo guardar.");
+    const i = ENTREGAS.findIndex(y => y.key === CAL.key); ENTREGAS[i] = j.entrega;
+    docPintar();
+    if (siguiente){
+      const f = $("docAct").value, pend = ENTREGAS.filter(y => (!f || y.act === f) && (!y.calificacion || y.calificacion.reenvio));
+      if (pend.length){ abrirCal(pend[0].key); return; }
+      $("dlgC").close(); docMsg("ok","No quedan entregas por calificar en esta vista."); return;
+    }
+    $("dlgC").close();
+  }catch(e){ cMsg("err", e.message === "Failed to fetch" ? "Sin conexión con el servidor." : e.message); }
+  finally{ $("cSave").disabled = $("cNext").disabled = false; }
+}
+$("cForm").addEventListener("submit", e => { e.preventDefault(); guardarCal(false); });
+$("cNext").addEventListener("click", () => guardarCal(true));
+$("cX").addEventListener("click", () => $("dlgC").close());
+$("cDel").addEventListener("click", async () => {
+  if (!confirm("¿Quitar la nota de esta entrega?")) return;
+  const r = await fetch("/api/entregas?key=" + encodeURIComponent(CAL.key), {method:"PATCH", headers:{...docHeaders(),"content-type":"application/json"}, body:JSON.stringify({borrar:true})});
+  const j = await r.json().catch(() => ({}));
+  if (r.ok){ const i = ENTREGAS.findIndex(y => y.key === CAL.key); ENTREGAS[i] = j.entrega; docPintar(); $("dlgC").close(); } else cMsg("err", j.error || "No se pudo quitar.");
+});
+
+/* ---------- Sábana de notas ---------- */
+const PESOS_DEF = {R:40, T:20, E:40};
+function pesos(){ const p = store.get("s0_pesos") || PESOS_DEF; return {R:+p.R||0, T:+p.T||0, E:+p.E||0}; }
+const norm = t => String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(Boolean);
+function mismoNombre(a, b){
+  const A = norm(a), B = norm(b); if (!A.length || !B.length) return false;
+  const [c, l] = A.length <= B.length ? [A, B] : [B, A];
+  return c.every(t => l.includes(t)) || (c.length >= 2 && c.slice(0,2).every(t => l.includes(t)));
+}
+function filasSabana(){
+  const filas = [], usados = new Set();
+  const nEq = (act, g, n) => ENTREGAS.find(x => x.act === act && x.grupo === g && x.equipo === n);
+  const equipos = [...EQUIPOS].sort((a,b) => a.grupo.localeCompare(b.grupo) || a.equipo - b.equipo);
+  // equipos con entregas pero sin registro en la selección de carga
+  ENTREGAS.forEach(x => { if (!equipos.some(e => e.grupo === x.grupo && e.equipo === x.equipo) && !equipos.some(e => e.sinReg && e.grupo === x.grupo && e.equipo === x.equipo)) equipos.push({grupo:x.grupo, equipo:x.equipo, sinReg:true, jefe:"", calculista:"", operarios:[]}); });
+  equipos.sort((a,b) => a.grupo.localeCompare(b.grupo) || a.equipo - b.equipo);
+  equipos.forEach(e => {
+    const miembros = e.sinReg ? [] : [[e.jefe,"Jefe de carga"],[e.calculista,"Calculista"],...e.operarios.map(o => [o,"Operario"])];
+    const tickets = ENTREGAS.filter(x => x.act === "S0-TICKET" && x.grupo === e.grupo && x.equipo === e.equipo);
+    const base = {grupo:e.grupo, equipo:e.equipo, ruta:nEq("S0-RUTA", e.grupo, e.equipo), e0:nEq("S0-E0", e.grupo, e.equipo)};
+    miembros.forEach(([nom, rol]) => {
+      const t = tickets.find(x => !usados.has(x.key) && mismoNombre(x.nombre, nom));
+      if (t) usados.add(t.key);
+      filas.push({...base, nombre: nom, rol, codigo: t?.codigo || "", ticket: t});
+    });
+    tickets.filter(x => !usados.has(x.key)).forEach(t => { usados.add(t.key); filas.push({...base, nombre: t.nombre, rol: e.sinReg ? "Equipo sin registro" : "No figura en el equipo", codigo: t.codigo, ticket: t}); });
+  });
+  ENTREGAS.filter(x => x.act === "S0-TICKET" && !usados.has(x.key)).forEach(t => filas.push({grupo:t.grupo, equipo:t.equipo, nombre:t.nombre, rol:"", codigo:t.codigo, ticket:t, ruta:null, e0:null}));
+  const w = pesos(), tot = w.R + w.T + w.E;
+  filas.forEach(f => {
+    const v = [[f.ruta, w.R], [f.ticket, w.T], [f.e0, w.E]];
+    const pendiente = v.some(([x]) => x && (!x.calificacion || x.calificacion.reenvio));
+    f.def = pendiente || !tot ? null : v.reduce((s, [x, p]) => s + (x?.calificacion ? x.calificacion.nota : 0) * p, 0) / tot;
+    f.pendiente = pendiente;
+  });
+  return filas;
+}
+const celda = x => !x ? '<span class="hint">0,0<br>no entregó</span>' : !x.calificacion ? '<span class="hint">Por calificar</span>' : badge(x.calificacion.nota) + (x.calificacion.reenvio ? '<div class="flag">Reenviada</div>' : "");
+function sabPintar(){
+  const w = pesos(); $("wR").value = w.R; $("wT").value = w.T; $("wE").value = w.E;
+  const t = w.R + w.T + w.E; $("wSum").textContent = `Suma: ${t}%`; $("wSum").style.color = t === 100 ? "" : "var(--danger)";
+  const f = filasSabana();
+  $("sabRows").innerHTML = f.length ? f.map(r => `<tr>
+    <td>${esc(r.grupo)} · ${r.equipo}</td>
+    <td>${esc(r.nombre)}<div class="hint">${esc([r.rol, r.codigo].filter(Boolean).join(" · "))}</div></td>
+    <td class="n">${celda(r.ruta)}</td><td class="n">${celda(r.ticket)}</td><td class="n">${celda(r.e0)}</td>
+    <td class="n">${r.def === null ? '<span class="hint">Pendiente</span>' : badge(r.def)}</td></tr>`).join("")
+    : '<tr><td colspan="6" class="hint">Aún no hay equipos ni entregas.</td></tr>';
+}
+["wR","wT","wE"].forEach(id => $(id).addEventListener("input", () => { store.set("s0_pesos", {R:val("wR"), T:val("wT"), E:val("wE")}); sabPintar(); }));
+$("sabCsv").addEventListener("click", () => {
+  const f = filasSabana(); if (!f.length){ docMsg("warn","No hay datos para exportar."); return; }
+  const w = pesos(), q = v => `"${String(v ?? "").replace(/"/g,'""').replace(/\n/g," ")}"`;
+  const n = x => !x ? "0,0" : x.calificacion ? fmt(x.calificacion.nota) : "Por calificar";
+  const L = [["Grupo","Equipo","Estudiante","Codigo","Rol",`Ruta (${w.R}%)`,`Ticket (${w.T}%)`,`E0 (${w.E}%)`,"Definitiva","Retroalimentacion ruta","Retroalimentacion ticket","Retroalimentacion E0"].map(q).join(";")];
+  f.forEach(r => L.push([r.grupo, r.equipo, r.nombre, r.codigo, r.rol, n(r.ruta), n(r.ticket), n(r.e0), r.def === null ? "Pendiente" : fmt(r.def), r.ruta?.calificacion?.comentario, r.ticket?.calificacion?.comentario, r.e0?.calificacion?.comentario].map(q).join(";")));
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["\ufeff" + L.join("\n")], {type:"text/csv;charset=utf-8"}));
+  a.download = "Sabana_notas_S0.csv"; document.body.appendChild(a); a.click(); a.remove();
+});
+function vista(sab){ $("vEnt").setAttribute("aria-pressed", !sab); $("vSab").setAttribute("aria-pressed", sab); $("viewEnt").hidden = sab; $("viewSab").hidden = !sab; }
+$("vEnt").addEventListener("click", () => vista(false));
+$("vSab").addEventListener("click", () => vista(true));
 function textoEntrega(x){
   const L = [`${NOMBRES[x.act]} · Grupo ${x.grupo} · Equipo ${x.equipo}`, `Producto: ${x.producto}`, `Enviado por: ${x.nombre}${x.codigo ? " · " + x.codigo : ""}`];
   if (x.integrantes?.length) L.push(`Integrantes: ${x.integrantes.join("; ")}`);
@@ -672,19 +883,20 @@ function textoEntrega(x){
     L.push("");
     (d.ticket||[]).forEach((t,i) => L.push(`${i+1}. ${t.pregunta}`, `   ${t.respuesta}`));
   } else Object.entries(d).forEach(([k,v]) => L.push(`${k}: ${v}`));
+  if (x.calificacion) L.push("", `NOTA: ${fmt(x.calificacion.nota)}${x.calificacion.comentario ? " · " + x.calificacion.comentario : ""}`);
   return L.join("\n");
 }
 function csv(){
   const f = $("docAct").value, list = ENTREGAS.filter(x => !f || x.act === f);
   if (!list.length){ docMsg("warn","No hay entregas para exportar."); return; }
   const q = v => `"${String(v ?? "").replace(/"/g,'""').replace(/\n/g," ")}"`;
-  const filas = [["Actividad","Grupo","Equipo","Producto","Nombre","Codigo","Recibido","Envios","Detalle"].map(q).join(";")];
+  const filas = [["Actividad","Grupo","Equipo","Producto","Nombre","Codigo","Recibido","Envios","Nota","Retroalimentacion","Detalle"].map(q).join(";")];
   list.forEach(x => {
     let det = "";
     if (x.act === "S0-TICKET") det = (x.datos.autodiagnostico||[]).map((a,i) => `A${i+1}=${a.nivel}`).join(" ") + " | " + (x.datos.ticket||[]).map((t,i) => `T${i+1}: ${t.respuesta}`).join(" | ");
     else if (x.act === "S0-RUTA") det = (x.datos.etapas||[]).map(e => `E${e.etapa}: ${e.equipo} / ${e.decision} / ${e.riesgo} / ${(e.sesiones||[]).join(",")}`).join(" | ") + " | Reflexión: " + x.datos.reflexion;
     else det = Object.entries(x.datos).map(([k,v]) => `${k}: ${v}`).join(" | ");
-    filas.push([NOMBRES[x.act], x.grupo, x.equipo, x.producto, x.nombre, x.codigo, new Date(x.actualizado).toLocaleString("es-CO"), x.envios, det].map(q).join(";"));
+    filas.push([NOMBRES[x.act], x.grupo, x.equipo, x.producto, x.nombre, x.codigo, new Date(x.actualizado).toLocaleString("es-CO"), x.envios, x.calificacion ? fmt(x.calificacion.nota) : "", x.calificacion?.comentario || "", det].map(q).join(";"));
   });
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + filas.join("\n")], {type:"text/csv;charset=utf-8"}));
   a.download = `Entregas_S0${f ? "_" + f : ""}.csv`; document.body.appendChild(a); a.click(); a.remove();
@@ -696,6 +908,7 @@ $("docOut").addEventListener("click", () => { store.rawSet("logilab_clave",""); 
 $("docAct").addEventListener("change", docPintar);
 $("docCsv").addEventListener("click", csv);
 $("docRows").addEventListener("click", async e => {
+  const cbtn = e.target.closest("[data-cal]"); if (cbtn){ abrirCal(cbtn.dataset.cal); return; }
   const v = e.target.closest("[data-ver]"), d = e.target.closest("[data-del]");
   if (v){ const x = ENTREGAS.find(y => y.key === v.dataset.ver); $("dlgT").textContent = NOMBRES[x.act]; $("dlgB").textContent = textoEntrega(x); $("dlg").showModal(); }
   if (d){

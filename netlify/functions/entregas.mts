@@ -9,7 +9,9 @@ import { getStore, getDeployStore } from "@netlify/blobs";
 // Un reenvío reemplaza el anterior (se conserva el contador de envíos).
 // POST   /api/entregas                 -> guarda una entrega
 // GET    /api/entregas[?act=S0-RUTA]   -> lista (header x-clave-instructor = ADMIN_KEY)
+// PATCH  /api/entregas?key=...         -> califica (docente): { criterios, nota, comentario } o { borrar: true }
 // DELETE /api/entregas?key=...         -> elimina (docente)
+// Si el estudiante reenvía después de calificado, la nota se conserva y queda marcada para revisar (reenvio: true).
 
 const ACTIVIDADES = ["S0-RUTA", "S0-TICKET", "S0-E0"];
 const GRUPOS = ["A1", "B1"];
@@ -19,7 +21,11 @@ type Entrega = {
   key: string; act: string; grupo: string; equipo: number; nombre: string; codigo: string;
   producto: string; integrantes: string[]; datos: Record<string, unknown>;
   creado: string; actualizado: string; envios: number;
+  calificacion?: Calificacion;
 };
+type Calificacion = { criterios: Record<string, number>; nota: number; comentario: string; fecha: string; reenvio: boolean };
+const KEY_RE = /^S0-(RUTA|TICKET|E0)\/(A1|B1)-[0-9A-Za-z-]+$/;
+const nota05 = (v: unknown) => { const n = Math.round(Number(v) * 10) / 10; return Number.isFinite(n) && n >= 0 && n <= 5 ? n : null; };
 
 function store() {
   const prod = Netlify.context?.deploy?.context === "production";
@@ -84,6 +90,7 @@ export default async (req: Request, _context: Context) => {
         datos,
         creado: previa?.creado || ahora, actualizado: ahora, envios: (previa?.envios || 0) + 1,
       };
+      if (previa?.calificacion) e.calificacion = { ...previa.calificacion, reenvio: true };
       await s.setJSON(key, e);
       return json({ ok: true, key, envios: e.envios, actualizado: ahora, reemplazo: !!previa }, previa ? 200 : 201);
     }
@@ -97,10 +104,30 @@ export default async (req: Request, _context: Context) => {
       return json({ entregas: items });
     }
 
+    if (req.method === "PATCH") {
+      if (!esInstructor(req)) return json({ error: "Clave de docente incorrecta." }, 403);
+      const key = new URL(req.url).searchParams.get("key") || "";
+      if (!KEY_RE.test(key)) return json({ error: "Registro no válido." }, 400);
+      let b: any;
+      try { b = await req.json(); } catch { return json({ error: "Datos inválidos." }, 400); }
+      const actual = (await s.get(key, { type: "json" })) as Entrega | null;
+      if (!actual) return json({ error: "La entrega ya no existe." }, 404);
+      if (b.borrar) { delete actual.calificacion; await s.setJSON(key, actual); return json({ ok: true, entrega: actual }); }
+      const nota = nota05(b.nota);
+      if (nota === null) return json({ error: "La nota debe estar entre 0,0 y 5,0." }, 400);
+      const criterios: Record<string, number> = {};
+      for (const [k, v] of Object.entries(b.criterios && typeof b.criterios === "object" ? b.criterios : {}).slice(0, 10)) {
+        const n = nota05(v); if (n !== null) criterios[txt(k, 60)] = n;
+      }
+      actual.calificacion = { criterios, nota, comentario: String(b.comentario ?? "").trim().slice(0, 1500), fecha: new Date().toISOString(), reenvio: false };
+      await s.setJSON(key, actual);
+      return json({ ok: true, entrega: actual });
+    }
+
     if (req.method === "DELETE") {
       if (!esInstructor(req)) return json({ error: "Clave de docente incorrecta." }, 403);
       const key = new URL(req.url).searchParams.get("key") || "";
-      if (!/^S0-(RUTA|TICKET|E0)\/(A1|B1)-[0-9A-Za-z-]+$/.test(key)) return json({ error: "Registro no válido." }, 400);
+      if (!KEY_RE.test(key)) return json({ error: "Registro no válido." }, 400);
       await s.delete(key);
       return json({ ok: true });
     }
