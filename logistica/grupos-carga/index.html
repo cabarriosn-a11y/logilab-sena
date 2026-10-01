@@ -270,7 +270,10 @@ async function api(method,body,query){
 
 /* ---------- Pestañas ---------- */
 const tabs=[["tab-sel","p-sel"],["tab-board","p-board"]];
-tabs.forEach(([t,p])=>$(t).addEventListener("click",()=>tabs.forEach(([t2,p2])=>{$(t2).setAttribute("aria-selected",t2===t);$(p2).hidden=p2!==p;})));
+function showTab(t){tabs.forEach(([t2,p2])=>{$(t2).setAttribute("aria-selected",t2===t);$(p2).hidden=t2!==t;});}
+tabs.forEach(([t])=>$(t).addEventListener("click",()=>showTab(t)));
+if(location.hash==="#tablero")showTab("tab-board");
+window.addEventListener("hashchange",()=>showTab(location.hash==="#tablero"?"tab-board":"tab-sel"));
 
 /* ---------- Formulario ---------- */
 const grupoSel=()=>{const r=document.querySelector('input[name="grupo"]:checked');return r?r.value:"";};
