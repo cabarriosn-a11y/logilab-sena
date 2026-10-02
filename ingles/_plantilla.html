@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>__TITULO__</title>
+<meta name="description" content="__DESCRIPCION__">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231F3A93'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='14' fill='white' text-anchor='middle'%3EEN%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Reto diario de inglés americano · LogiLab. Paleta propia azul/rojo suave (no marca SENA). */
+:root{
+  --bg:#F5F6FA; --surface:#FFFFFF; --surface-2:#ECEFF7; --fg:#141A2E; --muted:#5A6380; --line:#D5DAE8;
+  --blue:#1F3A93; --blue-soft:#E3E9FA; --red:#C2413B; --red-soft:#FBE7E5; --ok:#1E8A4C; --ok-soft:#DDF3E6;
+  --f-display:"Fraunces",Georgia,serif; --f-body:"Barlow","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1220; --surface:#161B2E; --surface-2:#1E2540; --fg:#E6E9F4; --muted:#9AA3C2; --line:#2C3555;
+  --blue:#7C9BFF; --blue-soft:#1C2752; --red:#F07A72; --red-soft:#3B1C1E; --ok:#4CC783; --ok-soft:#163323; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1220; --surface:#161B2E; --surface-2:#1E2540; --fg:#E6E9F4; --muted:#9AA3C2; --line:#2C3555;
+  --blue:#7C9BFF; --blue-soft:#1C2752; --red:#F07A72; --red-soft:#3B1C1E; --ok:#4CC783; --ok-soft:#163323; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.55}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 48px;display:flex;flex-direction:column;gap:22px}
+a{color:var(--blue)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px}
+.top a{text-decoration:none;font-weight:600}
+.stripe{height:8px;border-radius:4px;background:repeating-linear-gradient(90deg,var(--red) 0 22px,var(--surface) 22px 30px,var(--blue) 30px 52px,var(--surface) 52px 60px)}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(32px,7vw,52px);line-height:1.05;margin:6px 0 0}
+h1 .em{color:var(--red)}
+.lead{color:var(--muted);margin:8px 0 0;font-size:17px;max-width:62ch}
+.progress{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.chip{font-size:13px;padding:3px 10px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
+.chip.done{border-color:var(--ok);background:var(--ok-soft);color:var(--fg)}
+section.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 16px}
+section.card>h2{font-family:var(--f-display);font-size:24px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+h3{margin:14px 0 6px;font-size:17px}
+.muted{color:var(--muted)}
+.words{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.flip{perspective:900px;min-height:210px;cursor:pointer}
+.flip-in{position:relative;width:100%;height:100%;min-height:210px;transition:transform .45s;transform-style:preserve-3d}
+.flip.on .flip-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;background:var(--surface-2)}
+.face.back{transform:rotateY(180deg);background:var(--blue-soft)}
+.w-en{font-family:var(--f-display);font-size:30px;font-weight:800;line-height:1.1}
+.w-fig{font-size:15px}
+.w-ipa{font-family:var(--f-mono);font-size:14px;color:var(--muted)}
+.w-es{font-size:20px;font-weight:700;color:var(--red)}
+.w-ex{font-size:15px}
+.w-ex i{color:var(--muted)}
+.hint{font-size:12px;color:var(--muted);margin-top:auto}
+.btn{font:600 15px var(--f-body);border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:9px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:42px}
+.btn:hover{border-color:var(--blue)}
+.btn.pri{background:var(--blue);border-color:var(--blue);color:#fff}
+:root[data-theme="dark"] .btn.pri{color:#0E1220}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.pri{color:#0E1220}}
+.btn.sm{padding:4px 10px;min-height:34px;font-size:14px}
+.say{border:none;background:var(--blue);color:#fff;border-radius:99px;width:38px;height:38px;font-size:17px;cursor:pointer;flex:none}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.between{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+button:focus-visible,a:focus-visible,textarea:focus-visible,.flip:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.phrase{font-family:var(--f-display);font-size:clamp(24px,5vw,32px);font-weight:800;margin:0}
+.box{border-left:4px solid var(--blue);background:var(--surface-2);padding:10px 12px;border-radius:0 8px 8px 0;margin:10px 0}
+.box.red{border-color:var(--red);background:var(--red-soft)}
+.box.ok{border-color:var(--ok);background:var(--ok-soft)}
+ul{margin:6px 0;padding-left:20px}
+li{margin:3px 0}
+.ex{display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line)}
+.ex:last-child{border-bottom:none}
+.q{border:1px solid var(--line);border-radius:10px;padding:12px;margin:10px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{text-align:left;font:500 15px var(--f-body);padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--red);background:var(--red-soft)}
+.opt:disabled{cursor:default}
+.fb{font-size:14px;margin-top:6px}
+.score{font-family:var(--f-display);font-size:28px;font-weight:800}
+textarea{width:100%;min-height:120px;font:400 16px var(--f-body);color:var(--fg);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px}
+.heard{font-family:var(--f-mono);font-size:14px;padding:8px;border-radius:8px;background:var(--surface-2)}
+table{border-collapse:collapse;width:100%;font-size:15px}
+td,th{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+.close{text-align:center}
+.close .phrase{color:var(--blue)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px;z-index:9}
+footer{text-align:center;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+@media (prefers-reduced-motion:reduce){.flip-in{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top" id="topnav">
+    <a href="../">← Curso de inglés</a>
+    <span class="row"><a href="/" id="logilab">LogiLab</a><button class="btn sm" id="theme" type="button" aria-label="Cambiar tema">◐</button></span>
+  </div>
+  <header>
+    <div class="stripe" aria-hidden="true"></div>
+    <div class="eyebrow" style="margin-top:12px" id="eyebrow"></div>
+    <h1 id="h1"></h1>
+    <p class="lead" id="intro"></p>
+    <div class="progress" id="progress"></div>
+  </header>
+  <main id="main" style="display:flex;flex-direction:column;gap:22px"></main>
+  <footer>Inglés americano · LogiLab · <b>By Carlos Barrios</b></footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+const D = JSON.parse(document.getElementById("data").textContent);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const md = s => esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\*(.+?)\*/g,"<i>$1</i>").replace(/`(.+?)`/g,"<code>$1</code>");
+const KEY = "ingles-charly-dia-" + D.dia;
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch(e) { state = {}; }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} renderProgress(); }
+function toast(t){ const el=$("toast"); el.textContent=t; el.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>el.hidden=true,2200); }
+
+/* Tema claro/oscuro */
+(function(){ let t=null; try{t=localStorage.getItem("ingles-theme");}catch(e){} if(t) document.documentElement.dataset.theme=t; })();
+$("theme").onclick = () => { const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"); const nx = cur==="dark"?"light":"dark"; document.documentElement.dataset.theme=nx; try{localStorage.setItem("ingles-theme",nx);}catch(e){} };
+
+/* Voz en-US */
+let voice = null;
+function pickVoice(){ if(!("speechSynthesis" in window)) return; const vs = speechSynthesis.getVoices(); voice = vs.find(v=>v.lang==="en-US" && /Google|Samantha|Aria|Jenny|Guy/i.test(v.name)) || vs.find(v=>v.lang==="en-US") || vs.find(v=>/^en[-_]US/i.test(v.lang)) || null; }
+if("speechSynthesis" in window){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function say(text, ev){ if(ev) ev.stopPropagation(); if(!("speechSynthesis" in window)){ toast("Tu navegador no tiene voz. Prueba con Chrome."); return; } speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang="en-US"; if(voice) u.voice=voice; u.rate = D.nivelNum<=1 ? 0.85 : 1; speechSynthesis.speak(u); }
+const sayBtn = t => `<button class="say" type="button" aria-label="Escuchar: ${esc(t)}" data-say="${esc(t)}">🔊</button>`;
+
+const SECCIONES = [["palabras","Palabras"],["quiz","Quiz"],["hablar","Hablar"],["escribir","Escribir"],["vida","Vida real"]];
+function renderProgress(){ $("progress").innerHTML = SECCIONES.map(([k,l])=>`<span class="chip ${state[k]?"done":""}">${state[k]?"✓ ":""}${l}</span>`).join(""); }
+
+$("eyebrow").textContent = `Día ${D.dia} · Nivel ${D.nivelNum} (${D.nivel}) · ${D.fechaLarga || D.fecha}`;
+$("h1").innerHTML = `${esc(D.emoji||"")} ${esc(D.tema)}`;
+$("intro").innerHTML = md(D.intro||"");
+document.title = `Día ${D.dia} · ${D.tema} · Inglés americano`;
+
+const S = [];
+/* 1. Palabras */
+S.push(`<section class="card"><h2>🔤 Palabras del día</h2><p class="muted" style="margin-top:-6px">Toca la tarjeta para ver el significado. 🔊 para escucharla en inglés de EE. UU.</p>
+<div class="words">${D.palabras.map((w,i)=>`<div class="flip" tabindex="0" role="button" aria-label="Tarjeta ${esc(w.en)}" data-i="${i}"><div class="flip-in">
+<div class="face"><div class="between"><span class="w-en">${esc(w.en)}</span>${sayBtn(w.en)}</div><div class="w-fig">🗣️ ${esc(w.fig)}</div><div class="w-ipa">${esc(w.ipa)}</div><div class="hint">Toca para voltear ↻</div></div>
+<div class="face back"><div class="w-es">${esc(w.es)}</div><div class="between w-ex"><span>${md(w.ej)}<br><i>${md(w.ejEs)}</i></span>${sayBtn(w.ej)}</div>${w.nota?`<div class="hint">📝 ${md(w.nota)}</div>`:""}</div>
+</div></div>`).join("")}</div>
+<div class="row" style="margin-top:12px"><button class="btn" type="button" id="playAll">▶ Escuchar todas</button><button class="btn" type="button" id="wordsDone">✓ Ya las practiqué</button></div></section>`);
+
+/* 2. Frase nativa */
+const F = D.frase;
+S.push(`<section class="card"><h2>💬 Frase nativa del día</h2><div class="between"><p class="phrase">${esc(F.en)}</p>${sayBtn(F.en)}</div>
+<p><b>Significa:</b> ${md(F.es)}</p><div class="box ok"><b>✅ Cuándo usarla:</b> ${md(F.cuando)}</div><div class="box red"><b>🚫 Cuándo no:</b> ${md(F.noCuando)}</div>
+${(F.ejemplos||[]).map(e=>`<div class="ex">${sayBtn(e.en)}<span>${md(e.en)}<br><i class="muted">${md(e.es)}</i></span></div>`).join("")}</section>`);
+
+/* 3. Pronunciación */
+const P = D.pronunciacion;
+S.push(`<section class="card"><h2>🗣️ Pronunciación americana</h2><h3 style="margin-top:0">${md(P.titulo)}</h3><p>${md(P.explicacion)}</p>
+${P.truco?`<div class="box"><b>💡 Truco:</b> ${md(P.truco)}</div>`:""}
+${(P.mal||P.bien)?`<table><tr><th>❌ Como suena en español</th><th>✅ Como suena en EE. UU.</th></tr><tr><td>${md(P.mal||"")}</td><td>${md(P.bien||"")}</td></tr></table>`:""}
+${P.practica&&P.practica.length?`<h3>Repite conmigo</h3>${P.practica.map(t=>`<div class="ex">${sayBtn(t)}<span>${md(t)}</span></div>`).join("")}`:""}</section>`);
+
+/* 4. Gramática */
+const G = D.gramatica;
+S.push(`<section class="card"><h2>📘 Mini-gramática</h2><h3 style="margin-top:0">${md(G.titulo)}</h3><ul>${G.reglas.map(r=>`<li>${md(r)}</li>`).join("")}</ul>
+${G.ejemplos.map(e=>`<div class="ex">${sayBtn(e.en)}<span>${md(e.en)}<br><i class="muted">${md(e.es)}</i></span></div>`).join("")}</section>`);
+
+/* 5. Quiz */
+S.push(`<section class="card"><h2>🎯 Quiz</h2><div id="quiz">${D.quiz.map((q,i)=>`<div class="q" data-q="${i}"><p>${i+1}. ${md(q.p)}</p><div class="opts">${q.opciones.map((o,j)=>`<button class="opt" type="button" data-j="${j}">${md(o)}</button>`).join("")}</div><div class="fb" hidden></div></div>`).join("")}</div>
+<div class="row between" style="align-items:center"><span><span class="score" id="score">0/${D.quiz.length}</span> <span class="muted" id="best"></span></span><button class="btn" type="button" id="retry">↻ Repetir quiz</button></div></section>`);
+
+/* 6. Hablar */
+const H = D.hablar;
+const ART = !!window.__ARTIFACT__ || !/(^|\.)netlify\.app$|^localhost$|^127\./.test(location.hostname);
+const SR = ART ? null : (window.SpeechRecognition || window.webkitSpeechRecognition);
+S.push(`<section class="card"><h2>🎙️ Reto para hablar</h2><p>${md(H.instruccion)}</p>
+${H.frases.map((t,i)=>`<div class="ex">${sayBtn(t)}<span style="flex:1">${md(t)}</span>${SR?`<button class="btn sm" type="button" data-rec="${i}">🎤 Probar</button>`:""}</div><div class="heard" id="heard${i}" hidden></div>`).join("")}
+${SR?`<p class="muted" style="font-size:14px">🎤 El micrófono escucha tu frase y te muestra qué entendió. Si coincide, ¡vas bien!</p>`:`<p class="muted" style="font-size:14px">Grábate con la app de notas de voz del celular y compárate con el 🔊.</p>`}
+<button class="btn" type="button" data-done="hablar">✓ Lo hice</button></section>`);
+
+/* 7. Escribir */
+const E = D.escribir;
+S.push(`<section class="card"><h2>✍️ Reto para escribir</h2><p>${md(E.instruccion)}</p>${E.ejemplo?`<div class="box"><b>Ejemplo:</b> ${md(E.ejemplo)}</div>`:""}
+<textarea id="txt" placeholder="Write here… (una oración por línea)" aria-label="Tus oraciones en inglés"></textarea>
+<div class="row" style="margin-top:8px"><button class="btn pri" type="button" id="copy">📋 Copiar para enviar a Claude</button><a class="btn" id="wa" href="https://wa.me/" target="_blank" rel="noopener" style="text-decoration:none">WhatsApp</a>${ART?"":`<button class="btn" type="button" id="dl">⬇ Descargar</button>`}</div>
+<p class="muted" style="font-size:14px">Pega tus oraciones en el chat con Claude escribiendo <b>corrígeme:</b> y te las devuelvo corregidas en versión nativa.</p></section>`);
+
+/* 8. Vida real */
+S.push(`<section class="card"><h2>🏠 Reto de la vida real</h2><p>${md(D.vidaReal)}</p><button class="btn" type="button" data-done="vida">✓ Lo hice hoy</button></section>`);
+
+/* 9. Repaso */
+if(D.repaso && D.repaso.length){
+S.push(`<section class="card"><h2>🔁 Repaso espaciado</h2><p class="muted" style="margin-top:-6px">Intenta recordar el significado antes de tocar “ver”.</p><table>${D.repaso.map((r,i)=>`<tr><td style="width:44px">${sayBtn(r.en)}</td><td><b>${esc(r.en)}</b><br><span class="muted" style="font-size:13px">Día ${esc(r.dia)}</span></td><td><button class="btn sm" type="button" data-rev="${i}">ver</button><span id="rev${i}" hidden>${md(r.es)}${r.frase?`<br><i class="muted">${md(r.frase)}</i>`:""}</span></td></tr>`).join("")}</table>
+${D.repasoNota?`<p class="muted" style="font-size:14px">${md(D.repasoNota)}</p>`:""}</section>`);
+}
+
+/* 10. Cierre */
+S.push(`<section class="card close"><p class="phrase">${md(D.cierre.frase)}</p><p><b>Siguiente paso:</b> ${md(D.cierre.siguiente)}</p></section>`);
+$("main").innerHTML = S.join("");
+
+/* Interacciones */
+document.addEventListener("click", e => {
+  const s = e.target.closest("[data-say]"); if(s){ say(s.dataset.say, e); return; }
+  const f = e.target.closest(".flip"); if(f){ f.classList.toggle("on"); return; }
+  const d = e.target.closest("[data-done]"); if(d){ state[d.dataset.done]=true; save(); toast("¡Bien hecho! ✓"); return; }
+  const r = e.target.closest("[data-rev]"); if(r){ $("rev"+r.dataset.rev).hidden=false; r.hidden=true; return; }
+  const rec = e.target.closest("[data-rec]"); if(rec){ listen(+rec.dataset.rec, rec); return; }
+});
+document.addEventListener("keydown", e => { if((e.key==="Enter"||e.key===" ") && e.target.classList.contains("flip")){ e.preventDefault(); e.target.classList.toggle("on"); } });
+$("playAll").onclick = () => { if(!("speechSynthesis" in window)) return toast("Tu navegador no tiene voz."); speechSynthesis.cancel(); D.palabras.forEach(w=>{ const u=new SpeechSynthesisUtterance(w.en); u.lang="en-US"; if(voice)u.voice=voice; u.rate=D.nivelNum<=1?0.8:1; speechSynthesis.speak(u); }); };
+$("wordsDone").onclick = () => { state.palabras=true; save(); toast("Palabras ✓"); };
+
+/* Quiz */
+let answered = {};
+function quizScore(){ return Object.values(answered).filter(Boolean).length; }
+$("quiz").addEventListener("click", e => {
+  const o = e.target.closest(".opt"); if(!o) return;
+  const qEl = o.closest(".q"), i = +qEl.dataset.q, j = +o.dataset.j, q = D.quiz[i];
+  if(i in answered) return;
+  answered[i] = j === q.correcta;
+  qEl.querySelectorAll(".opt").forEach((b,k)=>{ b.disabled=true; if(k===q.correcta) b.classList.add("right"); else if(k===j) b.classList.add("wrong"); });
+  const fb = qEl.querySelector(".fb"); fb.hidden=false; fb.innerHTML = (answered[i]?"✅ ¡Correcto! ":"❌ Casi. ") + md(q.explica||"");
+  $("score").textContent = `${quizScore()}/${D.quiz.length}`;
+  if(Object.keys(answered).length === D.quiz.length){ state.quiz = true; state.best = Math.max(state.best||0, quizScore()); save(); showBest(); toast(quizScore()===D.quiz.length?"¡Perfecto! 🇺🇸":"Quiz terminado"); }
+});
+function showBest(){ $("best").textContent = state.best!=null ? `· mejor: ${state.best}/${D.quiz.length}` : ""; }
+$("retry").onclick = () => { answered={}; document.querySelectorAll("#quiz .q").forEach(q=>{ q.querySelectorAll(".opt").forEach(b=>{b.disabled=false;b.className="opt";}); q.querySelector(".fb").hidden=true; }); $("score").textContent=`0/${D.quiz.length}`; };
+showBest();
+
+/* Reconocimiento de voz */
+const norm = s => s.toLowerCase().replace(/[^a-z' ]/g," ").replace(/\s+/g," ").trim();
+function listen(i, btn){
+  const r = new SR(); r.lang="en-US"; r.interimResults=false; r.maxAlternatives=1;
+  const out = $("heard"+i); out.hidden=false; out.textContent="🎤 Escuchando…"; btn.disabled=true;
+  r.onresult = ev => { const got = ev.results[0][0].transcript; const want = norm(H.frases[i].replace(/\*/g,"")).split(" "); const g = norm(got).split(" "); const hit = want.filter(w=>g.includes(w)).length; const pct = Math.round(100*hit/want.length);
+    out.textContent = `Entendí: “${got}” · ${pct}% ${pct>=80?"✅ ¡Muy bien!":pct>=50?"👍 Vas bien, repite":"🔁 Escucha el 🔊 y prueba otra vez"}`; if(pct>=80){ state.hablar=true; save(); } };
+  r.onerror = () => { out.textContent = "No pude escucharte. Revisa el permiso del micrófono."; };
+  r.onend = () => { btn.disabled=false; };
+  try { r.start(); } catch(e){ btn.disabled=false; }
+}
+
+/* Escritura: borrador + respaldo */
+const DK = KEY + "-texto";
+try { $("txt").value = localStorage.getItem(DK) || ""; } catch(e) {}
+$("txt").addEventListener("input", () => { try{ localStorage.setItem(DK, $("txt").value); }catch(e){} });
+const payload = () => `corrígeme: (Día ${D.dia} · ${D.tema})\n${$("txt").value.trim()}`;
+function markWrite(){ if($("txt").value.trim()){ state.escribir=true; save(); } }
+$("copy").onclick = async () => { if(!$("txt").value.trim()) return toast("Escribe primero tus oraciones"); try{ await navigator.clipboard.writeText(payload()); toast("Copiado. Pégalo en el chat con Claude"); }catch(e){ $("txt").select(); document.execCommand && document.execCommand("copy"); toast("Copiado"); } markWrite(); };
+const syncWa = () => { $("wa").href = "https://wa.me/?text="+encodeURIComponent(payload()); };
+$("txt").addEventListener("input", syncWa); syncWa();
+$("wa").onclick = e => { if(!$("txt").value.trim()){ e.preventDefault(); return toast("Escribe primero tus oraciones"); } markWrite(); };
+if($("dl")) $("dl").onclick = () => { if(!$("txt").value.trim()) return toast("Escribe primero tus oraciones"); const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([payload()],{type:"text/plain"})); a.download=`ingles-dia-${String(D.dia).padStart(2,"0")}.txt`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); markWrite(); };
+
+if(ART){ $("logilab").hidden = true; if(window.__ARTIFACT__) $("topnav").querySelector("a").hidden = true; }
+renderProgress();
+/* Marca el día como visto en el registro general del curso */
+try { const all = JSON.parse(localStorage.getItem("ingles-charly-vistos")||"{}"); all[D.dia]=true; localStorage.setItem("ingles-charly-vistos", JSON.stringify(all)); } catch(e) {}
+</script>
+</body>
+</html>

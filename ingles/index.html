@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Inglés americano · LogiLab</title>
+<meta name="description" content="Curso de inglés americano de Charly: un reto diario de 15–20 minutos, de Pre-A1 a C1.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231F3A93'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='14' fill='white' text-anchor='middle'%3EEN%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F5F6FA; --surface:#FFFFFF; --surface-2:#ECEFF7; --fg:#141A2E; --muted:#5A6380; --line:#D5DAE8;
+  --blue:#1F3A93; --blue-soft:#E3E9FA; --red:#C2413B; --red-soft:#FBE7E5; --ok:#1E8A4C; --ok-soft:#DDF3E6;
+  --f-display:"Fraunces",Georgia,serif; --f-body:"Barlow","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1220; --surface:#161B2E; --surface-2:#1E2540; --fg:#E6E9F4; --muted:#9AA3C2; --line:#2C3555;
+  --blue:#7C9BFF; --blue-soft:#1C2752; --red:#F07A72; --red-soft:#3B1C1E; --ok:#4CC783; --ok-soft:#163323; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1220; --surface:#161B2E; --surface-2:#1E2540; --fg:#E6E9F4; --muted:#9AA3C2; --line:#2C3555;
+  --blue:#7C9BFF; --blue-soft:#1C2752; --red:#F07A72; --red-soft:#3B1C1E; --ok:#4CC783; --ok-soft:#163323; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:960px;margin:0 auto;padding:20px 16px 48px;display:flex;flex-direction:column;gap:24px}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:14px;gap:8px}
+.top a{color:var(--blue);text-decoration:none;font-weight:600}
+.stripe{height:8px;border-radius:4px;background:repeating-linear-gradient(90deg,var(--red) 0 22px,var(--surface) 22px 30px,var(--blue) 30px 52px,var(--surface) 52px 60px)}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(36px,8vw,64px);line-height:1;margin:8px 0 0}
+h1 span{color:var(--red)}
+h2{font-family:var(--f-display);font-size:26px;margin:0 0 10px}
+.lead{color:var(--muted);font-size:17px;max-width:62ch;margin:10px 0 0}
+.today{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;background:var(--blue);color:#fff;border-radius:14px;padding:20px}
+.today .k{font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
+.today .t{font-family:var(--f-display);font-size:clamp(26px,5vw,36px);font-weight:800;line-height:1.1}
+.today .go{margin-top:6px;font-weight:700}
+:root[data-theme="dark"] .today{color:#0E1220}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .today{color:#0E1220}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px}
+.stat b{display:block;font-family:var(--f-display);font-size:30px}
+.stat span{font-size:13px;color:var(--muted)}
+.levels{display:flex;gap:4px;flex-wrap:wrap}
+.lv{flex:1 1 120px;border-radius:8px;padding:8px 10px;background:var(--surface);border:1px solid var(--line);font-size:13px}
+.lv b{display:block;font-size:15px}
+.lv.on{border-color:var(--red);background:var(--red-soft)}
+.bar{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--red)}
+.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.day{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+a.day:hover{border-color:var(--blue)}
+.day .n{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.day h3{margin:0;font-size:18px}
+.day p{margin:0;font-size:14px;color:var(--muted)}
+.day .done{font-size:12px;color:var(--ok);font-weight:700}
+.day.off{opacity:.7}
+.gl{width:100%;border-collapse:collapse;font-size:15px}
+.gl td,.gl th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left}
+.say{border:none;background:var(--blue);color:#fff;border-radius:99px;width:34px;height:34px;cursor:pointer}
+input[type=search]{font:400 15px var(--f-body);color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:min(100%,320px);margin-bottom:8px}
+.btn{font:600 14px var(--f-body);border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:6px 12px;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+footer{text-align:center;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a href="/" id="logilab">← LogiLab</a><span style="display:flex;gap:10px;align-items:center"><a href="/ingles/salir" id="salir">Salir 🔒</a><button class="btn" id="theme" type="button" aria-label="Cambiar tema">◐</button></span></div>
+  <header>
+    <div class="stripe" aria-hidden="true"></div>
+    <div class="eyebrow" style="margin-top:12px">Curso personal · General American</div>
+    <h1>Inglés <span>americano</span></h1>
+    <p class="lead">Un reto diario de 15–20 minutos: palabras con audio en inglés de EE. UU., frase nativa, pronunciación, mini-gramática, quiz y retos para hablar y escribir.</p>
+  </header>
+  <a class="today" id="today" href="#" hidden></a>
+  <div class="stats" id="stats"></div>
+  <section><h2>Ruta de niveles</h2><div class="levels" id="levels"></div><div class="bar"><i id="bar"></i></div></section>
+  <section><h2>Todos los días</h2><div class="days" id="days"></div></section>
+  <section><h2>Mi vocabulario</h2><input type="search" id="q" placeholder="Buscar palabra…" aria-label="Buscar palabra"><table class="gl" id="gl"></table></section>
+  <footer>Inglés americano · LogiLab · <b>By Carlos Barrios</b></footer>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+(function(){ let t=null; try{t=localStorage.getItem("ingles-theme");}catch(e){} if(t) document.documentElement.dataset.theme=t; })();
+$("theme").onclick = () => { const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"); const nx = cur==="dark"?"light":"dark"; document.documentElement.dataset.theme=nx; try{localStorage.setItem("ingles-theme",nx);}catch(e){} };
+let voice=null; function pv(){ const vs=speechSynthesis.getVoices(); voice=vs.find(v=>v.lang==="en-US")||null; }
+if("speechSynthesis" in window){ pv(); speechSynthesis.onvoiceschanged=pv; }
+function say(t){ if(!("speechSynthesis" in window)) return; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang="en-US"; if(voice)u.voice=voice; u.rate=.85; speechSynthesis.speak(u); }
+document.addEventListener("click", e => { const b=e.target.closest("[data-say]"); if(b) say(b.dataset.say); });
+
+const NIVELES = [["Pre-A1","Súper principiante",1,30],["A1","Principiante",31,90],["A2","Básico",91,180],["B1","Intermedio",181,300],["B2","Intermedio alto",301,450],["C1","Avanzado",451,600]];
+function estado(dia){ try{ return JSON.parse(localStorage.getItem("ingles-charly-dia-"+dia)||"{}")||{}; }catch(e){ return {}; } }
+
+if(!/(^|\.)netlify\.app$|^localhost$|^127\./.test(location.hostname)) { $("logilab").style.visibility="hidden"; $("salir").hidden=true; }
+fetch("dias.json", {cache:"no-store"}).then(r=>r.json()).then(cat => {
+  const dias = cat.dias.slice().sort((a,b)=>b.dia-a.dia);
+  const hoy = dias.find(d=>d.ruta);
+  const inicio = new Date(cat.inicio+"T00:00:00-05:00");
+  const diaActual = Math.floor((Date.now()-inicio)/864e5)+1;
+  if(hoy){ const t=$("today"); t.href=hoy.ruta; t.hidden=false; t.innerHTML=`<span class="k">Último reto · Día ${hoy.dia} · ${esc(hoy.nivel)}</span><span class="t">${esc(hoy.emoji)} ${esc(hoy.tema)}</span><span>${hoy.palabras.map(esc).join(" · ")}</span><span class="go">Empezar →</span>`; }
+  const palabras = dias.flatMap(d=>d.palabras.map((p,i)=>({en:p,es:(d.significados||[])[i]||"",dia:d.dia,ruta:d.ruta})));
+  const hechos = dias.filter(d=>{ const s=estado(d.dia); return s.quiz && s.palabras; }).length;
+  $("stats").innerHTML = [[diaActual,"día del curso"],[palabras.length,"palabras aprendidas"],[dias.filter(d=>d.ruta).length,"retos publicados"],[hechos,"retos completados (este equipo)"]].map(([n,l])=>`<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
+  $("levels").innerHTML = NIVELES.map(([c,n,a,b])=>`<div class="lv ${diaActual>=a&&diaActual<=b?"on":""}"><b>${c}</b>${n}<br><span style="color:var(--muted)">días ${b===600?a+"+":a+"–"+b}</span></div>`).join("");
+  $("bar").style.width = Math.min(100, diaActual/451*100).toFixed(1)+"%";
+  $("days").innerHTML = dias.map(d=>{ const s=estado(d.dia); const inner=`<span class="n">DÍA ${d.dia} · ${esc(d.fecha)} · ${esc(d.nivel)}</span><h3>${esc(d.emoji)} ${esc(d.tema)}</h3><p>${d.palabras.map(esc).join(", ")}</p><p>💬 ${esc(d.frase)}</p>${s.quiz?`<span class="done">✓ Quiz ${s.best??""}${s.best!=null?"/5":""}</span>`:""}`;
+    return d.ruta?`<a class="day" href="${esc(d.ruta)}">${inner}</a>`:`<div class="day off">${inner}<p><i>Reto enviado por chat (sin página)</i></p></div>`; }).join("");
+  const renderGl = () => { const q=$("q").value.trim().toLowerCase(); const l=palabras.filter(p=>!q||(p.en+" "+p.es).toLowerCase().includes(q)).sort((a,b)=>a.en.localeCompare(b.en));
+    $("gl").innerHTML = `<tr><th></th><th>Inglés</th><th>Español</th><th>Día</th></tr>` + l.map(p=>`<tr><td style="width:42px"><button class="say" type="button" data-say="${esc(p.en)}" aria-label="Escuchar ${esc(p.en)}">🔊</button></td><td><b>${esc(p.en)}</b></td><td>${esc(p.es)}</td><td>${p.ruta?`<a href="${esc(p.ruta)}">${p.dia}</a>`:p.dia}</td></tr>`).join(""); };
+  $("q").oninput = renderGl; renderGl();
+}).catch(() => { $("days").innerHTML = "<p>No se pudo cargar el catálogo. Recarga la página.</p>"; });
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+{
+ "dia": 4,
+ "fecha": "2026-10-02",
+ "nivel": "Pre-A1",
+ "nivelNum": 0,
+ "tema": "La familia",
+ "emoji": "👨‍👩‍👧‍👦",
+ "intro": "What's up, Charly? Hoy toca hablar de la gente que más te aguanta: **tu familia**. 😄",
+ "palabras": [
+  {"en": "Mom", "fig": "mam", "ipa": "/mɑm/", "es": "mamá", "ej": "I love my mom.", "ejEs": "Quiero a mi mamá.", "nota": "En EE. UU. es **Mom**; en Inglaterra escriben *Mum*."},
+  {"en": "Dad", "fig": "ded (con una \"a\" bien abierta, entre a y e)", "ipa": "/dæd/", "es": "papá", "ej": "My dad is a teacher.", "ejEs": "Mi papá es profesor."},
+  {"en": "Brother", "fig": "brá-der (la \"d\" suave)", "ipa": "/ˈbrʌðɚ/", "es": "hermano", "ej": "This is my brother.", "ejEs": "Este es mi hermano."},
+  {"en": "Sister", "fig": "sís-ter (la R final suena)", "ipa": "/ˈsɪstɚ/", "es": "hermana", "ej": "My sister is nice.", "ejEs": "Mi hermana es amable."},
+  {"en": "Family", "fig": "fám-li (casi se come la \"i\" del medio)", "ipa": "/ˈfæm(ə)li/", "es": "familia", "ej": "I love my family.", "ejEs": "Quiero a mi familia."}
+ ],
+ "frase": {
+  "en": "Say hi to your mom (for me)!",
+  "es": "¡Salúdame a tu mamá!",
+  "cuando": "Al despedirte de un amigo o colega. Es súper común y cálida, y sirve con cualquiera: *Say hi to your family!*, *Say hi to your brother!* Fíjate que reutiliza **hi** del Día 1. 😉",
+  "noCuando": "En un correo formal de trabajo; ahí se usa *Please give my regards to…* (eso lo vemos más adelante).",
+  "ejemplos": [
+   {"en": "See you tomorrow! Say hi to your family!", "es": "¡Nos vemos mañana! ¡Salúdame a tu familia!"},
+   {"en": "Say hi to your brother for me.", "es": "Salúdame a tu hermano."}
+  ]
+ },
+ "pronunciacion": {
+  "titulo": "La TH suave /ð/",
+  "explicacion": "En **brother**, **this**, **mother** y **the**, la *th* no es una \"t\" ni una \"d\" dura. Pon la punta de la lengua entre los dientes y haz que vibre.",
+  "truco": "Ya la sabes hacer: es la \"d\" suavecita que dices en \"na**d**a\" o \"de**d**o\" cuando hablas rápido.",
+  "mal": "\"bro-ter\" o \"bro-der\" con d dura",
+  "bien": "\"bró-ðer\": lengua asomada, suave",
+  "practica": ["this", "brother", "This is my brother."]
+ },
+ "gramatica": {
+  "titulo": "Posesivos: my / your / his / her",
+  "reglas": [
+   "**my** = mi · **your** = tu / su (de usted) · **his** = su (de él) · **her** = su (de ella)",
+   "No cambian en plural: *my brother*, *my brothers* (nunca \"mys\")."
+  ],
+  "ejemplos": [
+   {"en": "This is my sister.", "es": "Esta es mi hermana."},
+   {"en": "Is this your dad?", "es": "¿Este es tu papá?"},
+   {"en": "Her mom is a teacher.", "es": "La mamá de ella es profesora."}
+  ]
+ },
+ "quiz": [
+  {"p": "¿Cómo se dice \"hermana\"?", "opciones": ["brother", "sister", "mom"], "correcta": 1, "explica": "**sister** = hermana; *brother* = hermano."},
+  {"p": "Completa: *This is ___ dad.* (mi)", "opciones": ["your", "her", "my"], "correcta": 2, "explica": "**my** = mi."},
+  {"p": "En EE. UU., ¿cómo se escribe \"mamá\"?", "opciones": ["Mum", "Mom"], "correcta": 1, "explica": "**Mom** es la forma americana; *Mum* es británica."},
+  {"p": "¿Cuál palabra lleva la TH suave /ð/?", "opciones": ["sister", "family", "brother"], "correcta": 2, "explica": "bro**th**er: lengua entre los dientes, vibrando."},
+  {"p": "¿Cómo dices \"Salúdame a tu hermano\"?", "opciones": ["Say hi to your brother!", "Say hello my brother!", "Hi your brother!"], "correcta": 0, "explica": "*Say hi to your brother (for me)!*"}
+ ],
+ "hablar": {
+  "instruccion": "Di en voz alta estas frases (o grábate 30 segundos). Revisa que la TH de *this* suene suave.",
+  "frases": ["Hi, I'm Charly.", "This is my family.", "This is my mom.", "This is my dad."]
+ },
+ "escribir": {
+  "instruccion": "Escribe **3 oraciones** sobre tu familia usando *my*, *his* o *her*. Cópialas y mándamelas para corregirlas.",
+  "ejemplo": "My sister is a teacher."
+ },
+ "vidaReal": "Hoy, cada vez que veas o llames a alguien de tu familia, piensa en inglés quién es: *mom, brother, sister…* Y si le escribes a un amigo, termina con **\"Say hi to your mom!\"**",
+ "repaso": [
+  {"en": "Hi", "es": "hola", "dia": 1, "frase": "Hi, Mom!"},
+  {"en": "Name", "es": "nombre", "dia": 1, "frase": "My dad's name is…"},
+  {"en": "Friend", "es": "amigo(a)", "dia": 1, "frase": "My brother is my friend."},
+  {"en": "Teacher", "es": "profesor(a)", "dia": 1, "frase": "I'm a teacher."},
+  {"en": "I'm", "es": "yo soy / yo estoy (I am)", "dia": 1, "frase": "I'm Charly."}
+ ],
+ "repasoNota": "Hoy repasamos el Día 1 (corresponde a N-3).",
+ "cierre": {"frase": "Family first, English second… pero hoy, los dos juntos. 💪", "siguiente": "Escribe tus 3 oraciones sobre tu familia y mándamelas con **corrígeme:**."}
+}

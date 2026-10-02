@@ -18,6 +18,12 @@ Autor: Carlos Barrios · Instructor SENA (Centro Industrial y de Energías Alter
 - Diseño claro/oscuro con tokens en `:root` y `prefers-color-scheme`.
 - Clave de instructor para acciones de administración: variable de entorno `ADMIN_KEY` en Netlify (nunca en el código).
 
+## Curso de inglés americano (`/ingles/`, solo docente)
+- Todo `/ingles/*` está protegido por la edge function `netlify/edge-functions/solo-docente.ts` con la clave `ADMIN_KEY` (cookie de 180 días; salir en `/ingles/salir`). Nunca publicar `ingles/` sin esa función.
+- Un reto por día: `ingles/datos/dia-NN.json` (mismo esquema que `dia-04.json`) → `python3 ingles/tools/publicar_dia.py ingles/datos/dia-NN.json` genera `ingles/dia-NN/index.html` y reconstruye `ingles/dias.json`.
+- Registro de lo enseñado: `ingles/datos/semilla.json` + `ingles/datos/dia-*.json`; no repetir palabras ni frases. Día 1 = 2026-09-29.
+- Lo genera y publica cada mañana la tarea programada "Reto diario de inglés".
+
 ## Publicar una herramienta nueva
 1. Crear `/<area>/<nombre>/index.html`.
 2. Agregar la entrada en `HERRAMIENTAS` de `/index.html`.

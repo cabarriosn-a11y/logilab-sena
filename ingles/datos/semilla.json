@@ -1,0 +1,32 @@
+{
+ "inicio": "2026-09-29",
+ "nota": "Días enseñados sin página (por chat). Agregar aquí si Carlos informa lo que vieron los días 2 y 3.",
+ "dias": [
+  {
+   "dia": 1,
+   "fecha": "2026-09-29",
+   "nivel": "Pre-A1",
+   "nivelNum": 0,
+   "tema": "Saludos y presentarse",
+   "emoji": "👋",
+   "ruta": null,
+   "palabras": [
+    "Hi",
+    "Name",
+    "Nice",
+    "Friend",
+    "Teacher"
+   ],
+   "significados": [
+    "hola",
+    "nombre",
+    "agradable / amable",
+    "amigo(a)",
+    "profesor(a)"
+   ],
+   "frase": "What's up?",
+   "pronunciacion": "La H aspirada",
+   "gramatica": "Contracción I'm"
+  }
+ ]
+}

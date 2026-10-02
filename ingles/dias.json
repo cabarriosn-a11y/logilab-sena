@@ -1,0 +1,57 @@
+{
+ "inicio": "2026-09-29",
+ "dias": [
+  {
+   "dia": 1,
+   "fecha": "2026-09-29",
+   "nivel": "Pre-A1",
+   "nivelNum": 0,
+   "tema": "Saludos y presentarse",
+   "emoji": "👋",
+   "ruta": null,
+   "palabras": [
+    "Hi",
+    "Name",
+    "Nice",
+    "Friend",
+    "Teacher"
+   ],
+   "significados": [
+    "hola",
+    "nombre",
+    "agradable / amable",
+    "amigo(a)",
+    "profesor(a)"
+   ],
+   "frase": "What's up?",
+   "pronunciacion": "La H aspirada",
+   "gramatica": "Contracción I'm"
+  },
+  {
+   "dia": 4,
+   "fecha": "2026-10-02",
+   "nivel": "Pre-A1",
+   "nivelNum": 0,
+   "tema": "La familia",
+   "emoji": "👨‍👩‍👧‍👦",
+   "ruta": "dia-04/",
+   "palabras": [
+    "Mom",
+    "Dad",
+    "Brother",
+    "Sister",
+    "Family"
+   ],
+   "significados": [
+    "mamá",
+    "papá",
+    "hermano",
+    "hermana",
+    "familia"
+   ],
+   "frase": "Say hi to your mom (for me)!",
+   "pronunciacion": "La TH suave /ð/",
+   "gramatica": "Posesivos: my / your / his / her"
+  }
+ ]
+}
