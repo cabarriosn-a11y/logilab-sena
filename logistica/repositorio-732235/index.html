@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Repositorio de Unitarización y Embalaje de la Carga (732235), Universidad de La Guajira: presentaciones, hojas de trabajo y actividades en línea por sesión.">
+<title>Repositorio 732235</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230B2545'/%3E%3Cpath d='M7 12l9-5 9 5v10l-9 5-9-5z' fill='none' stroke='%23E0A21A' stroke-width='2.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: repositorio del curso como un manifiesto de carga — cada sesión es una fila numerada (como un ítem del manifiesto)
+   con sus materiales a la derecha; la zona docente va separada al final, bajo llave. */
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --surface-2:#E8EDF3; --fg:#0B2545; --text:#1C2B3D; --muted:#5A6878; --line:#D3DBE5;
+  --navy:#0B2545; --navy-ink:#FFFFFF; --gold:#D99A0B; --gold-soft:#FBF1D9;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace; --r:8px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A1220; --surface:#111C2E; --surface-2:#18263B; --fg:#E8EEF6; --text:#D7E0EB; --muted:#93A2B5; --line:#26364D;
+  --navy:#1D4E89; --gold:#F0B437; --gold-soft:#3A2D10; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A1220; --surface:#111C2E; --surface-2:#18263B; --fg:#E8EEF6; --text:#D7E0EB; --muted:#93A2B5; --line:#26364D;
+  --navy:#1D4E89; --gold:#F0B437; --gold-soft:#3A2D10; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding-inline:16px;padding-block:18px 40px;display:flex;flex-direction:column;gap:20px}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.backlink{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-decoration:none}
+.eyebrow{font-weight:700;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+h1{margin:4px 0 0;font-weight:800;font-size:clamp(28px,5vw,42px);line-height:1.08;color:var(--fg);text-wrap:balance}
+.lead{margin:8px 0 0;max-width:66ch;color:var(--muted)}
+input[type=search]{font:400 16px var(--f-body);color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:min(100%,360px)}
+.ses{display:grid;grid-template-columns:64px minmax(0,1fr);gap:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.ses .n{background:var(--navy);color:var(--gold);display:grid;place-items:center;font:800 20px var(--f-mono);border-right:3px solid var(--gold)}
+.ses .b{padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.ses h2{margin:0;font-size:19px;color:var(--fg)}
+.ses .meta{font:600 12px var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.ses p{margin:0;color:var(--muted);font-size:15px}
+.files{display:flex;flex-wrap:wrap;gap:8px}
+.file{display:inline-flex;align-items:center;gap:8px;text-decoration:none;border:1.5px solid var(--line);border-radius:8px;padding:7px 11px;background:var(--bg);font-weight:600;font-size:14px;color:var(--fg)}
+.file:hover{border-color:var(--gold)}
+.file .t{font:700 11px var(--f-mono);padding:2px 6px;border-radius:4px;background:var(--navy);color:var(--gold)}
+.file.live .t{background:var(--gold);color:#1C1300}
+.lock{border:2px dashed var(--gold);border-radius:var(--r);padding:16px;background:var(--gold-soft);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.lock b{color:var(--fg)}
+.btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:var(--navy);color:#fff;font-weight:700;padding:10px 14px;border-radius:8px}
+.empty{color:var(--muted);border:2px dashed var(--line);border-radius:8px;padding:20px;text-align:center}
+footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);padding-top:10px;border-top:1px solid var(--line)}
+footer b{color:var(--fg)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="backlink" href="/">← LogiLab SENA</a>
+  <header>
+    <div class="eyebrow">Universidad de La Guajira · Administración Marítima y Portuaria</div>
+    <h1>Unitarización y Embalaje de la Carga · repositorio del curso</h1>
+    <p class="lead">Presentaciones, hojas de trabajo y actividades en línea de cada sesión del Corte 2. Las presentaciones se pueden ver en PDF desde el celular o descargar en PowerPoint.</p>
+  </header>
+  <input type="search" id="q" placeholder="Buscar sesión o tema" aria-label="Buscar sesión o tema">
+  <main id="lista" style="display:flex;flex-direction:column;gap:12px"></main>
+  <div class="empty" id="none" hidden>No hay sesiones que coincidan con la búsqueda.</div>
+
+  <section class="lock" aria-label="Zona docente">
+    <div><b>Zona docente</b><br><span style="color:var(--muted);font-size:15px">Guías docentes y solucionarios. Requiere la clave del docente.</span></div>
+    <a class="btn" href="docente/">🔒 Entrar</a>
+  </section>
+
+  <footer><span>Unitarización y Embalaje de la Carga · 732235 · Universidad de La Guajira</span><b>By Carlos Barrios · Docente</b></footer>
+</div>
+<script>
+/* Catálogo del repositorio. Para agregar una sesión: copiar sus archivos a ./archivos/ y añadir una entrada aquí
+   (la más reciente primero). Tipos de material: pdf, pptx, docx o "en línea" (enlace a una actividad de LogiLab). */
+const SESIONES = [
+  {
+    s: "S2", fecha: "2026-10-05", titulo: "Equipos de manutención: transpaletas, apiladores y grúa pórtico",
+    resumen: "Teoría breve y laboratorio por estaciones. Cada equipo opera el pedido de su producto: unidad de carga, verificación con la placa, eslinga y volumen. Insumo de la Entrega E1.",
+    archivos: [
+      {t:"en línea", n:"Hoja de laboratorio", u:"/logistica/s2-laboratorio-manutencion/"},
+      {t:"pdf", n:"Presentación", u:"archivos/S2_Equipos_de_manutencion.pdf"},
+      {t:"pptx", n:"Presentación", u:"archivos/S2_Equipos_de_manutencion.pptx"},
+      {t:"pdf", n:"Hoja imprimible", u:"archivos/S2_Hoja_de_laboratorio_estudiante.pdf"},
+      {t:"docx", n:"Hoja imprimible", u:"archivos/S2_Hoja_de_laboratorio_estudiante.docx"}
+    ]
+  },
+  {
+    s: "S1", fecha: "2026-09-28", titulo: "Apertura del Corte 2: la ruta del pallet",
+    resumen: "Reto de enlace, hoja de ruta del corte y recorrido del producto por siete etapas, del fin de línea al cierre del contenedor. Autodiagnóstico, ticket y ficha E0.",
+    archivos: [
+      {t:"en línea", n:"Entregables S0", u:"/logistica/s0-ruta-del-pallet/"},
+      {t:"en línea", n:"Selección de carga por equipos", u:"/logistica/grupos-carga/"}
+    ]
+  }
+];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function render(){
+  const q = $("q").value.trim().toLowerCase();
+  const list = SESIONES.filter(x => !q || [x.s, x.titulo, x.resumen].join(" ").toLowerCase().includes(q));
+  $("lista").innerHTML = list.map(x => `<article class="ses"><div class="n">${esc(x.s)}</div><div class="b">
+      <div class="meta">${esc(x.fecha)}</div><h2>${esc(x.titulo)}</h2><p>${esc(x.resumen)}</p>
+      <div class="files">${x.archivos.map(a => `<a class="file${a.t === "en línea" ? " live" : ""}" href="${esc(a.u)}"${a.t === "pptx" || a.t === "docx" ? " download" : ""}><span class="t">${esc(a.t.toUpperCase())}</span>${esc(a.n)}</a>`).join("")}</div>
+    </div></article>`).join("");
+  $("none").hidden = list.length > 0;
+}
+$("q").addEventListener("input", render);
+render();
+</script>
+</body>
+</html>

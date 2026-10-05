@@ -185,6 +185,17 @@ table.mx{width:100%;border-collapse:collapse;font-size:14px}
 table.mx th,table.mx td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
 table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 @media (max-width:700px){table.mx thead{display:none}table.mx tr{display:grid;gap:6px;padding:10px 0;border-bottom:1px solid var(--line)}table.mx td{border:0;padding:0}}
+.pedido{border:2px solid var(--navy);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.pedido>header{background:var(--navy);color:var(--navy-ink);padding:12px 16px}
+.pedido>header .eyebrow{color:var(--gold)}
+.pedido>header h3{color:var(--navy-ink);font-size:20px;margin-top:2px}
+.pedido .pb{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:700px){.dl{grid-template-columns:1fr 1fr}}
+.dl div{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.dl small{display:block;font:600 11px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.dl b{color:var(--fg);font-size:16px}
+.tasks{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:15px}
 .signals{display:flex;flex-wrap:wrap;gap:8px}
 .signals label{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:99px;padding:5px 12px;background:var(--bg);font-size:14px;cursor:pointer}
 </style>
@@ -219,6 +230,8 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
     <label class="f" id="prodManualWrap" hidden>Producto de tu equipo<select id="prodManual" data-k="prodManual"><option value="">Escoge el producto…</option></select></label>
   </section>
 
+  <section class="pedido" id="pedido" hidden aria-live="polite"></section>
+
   <nav class="tabs" role="tablist" aria-label="Entregables">
     <button class="tab" role="tab" aria-selected="true" aria-controls="p-lab" id="t-lab">Hoja de laboratorio <span class="pill" id="pl-lab">Equipo</span></button>
     <button class="tab" role="tab" aria-selected="false" aria-controls="p-ticket" id="t-ticket">Ticket de salida <span class="pill" id="pl-ticket">Individual</span></button>
@@ -236,7 +249,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
     <div class="notice warn"><b>Reglas del laboratorio:</b> botas, chaleco y guantes; nadie camina ni se para debajo de una carga suspendida; no se suben personas a los equipos; horquillas abajo al estacionar; el Vigía SST puede detener cualquier maniobra.</div>
 
     <article class="station" id="stU">
-      <header><div class="sn">0</div><div><h3>Su unidad de carga</h3><small>Datos de su ficha E0. Si no la tienen, estímenlos con su producto.</small></div></header>
+      <header><div class="sn">0</div><div><h3>Su unidad de carga</h3><small>Copien los datos de su pedido (recuadro de arriba).</small></div></header>
       <div class="sb">
         <div class="load">
           <label class="f">Unidades por pallet<input type="number" min="1" id="u_n" data-k="u_n"></label>
@@ -244,7 +257,12 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
           <label class="f">Peso del pallet vacío (kg)<input type="number" min="0" step="0.1" id="u_pal" data-k="u_pal" placeholder="Europalet de madera ≈ 25"></label>
           <div class="total"><small>Peso de la unidad de carga</small><b id="u_tot">—</b></div>
         </div>
-        <label class="f">Alto de la unidad de carga con el pallet (mm)<input type="number" min="0" id="u_h" data-k="u_h" placeholder="Ej.: 1400"></label>
+        <label class="f">Alto de la unidad de carga con el pallet (mm)<input type="number" min="0" id="u_h" data-k="u_h" placeholder="Capas × alto de la unidad + alto del pallet"></label>
+        <div class="grid3">
+          <label class="f">¿Cuántos pallets necesita el pedido?<input type="number" min="0" id="q_npal" data-k="q_npal"></label>
+          <label class="f">¿Cuántas unidades lleva el último pallet?<input type="number" min="0" id="q_ult" data-k="q_ult"></label>
+          <label class="f">Peso total del pedido con pallets (kg)<input type="number" min="0" step="0.01" id="q_wped" data-k="q_wped"></label>
+        </div>
       </div>
     </article>
 
@@ -260,6 +278,11 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
           <label class="f">Tiempo del circuito, intento 1 (s)<input type="number" min="0" id="t_t1" data-k="t_t1"></label>
           <label class="f">Tiempo del circuito, intento 2 (s)<input type="number" min="0" id="t_t2" data-k="t_t2"></label>
         </div>
+        <div class="grid2">
+          <label class="f">Con 2 transpaletas, ¿cuántos viajes hace cada una para recibir todo el pedido?<input type="number" min="0" id="q_viajes" data-k="q_viajes"></label>
+          <label class="f">Tiempo total de la recepción (min) = viajes × tiempo promedio del circuito<input type="number" min="0" step="0.1" id="q_trec" data-k="q_trec"></label>
+        </div>
+        <label class="f" id="q_frioWrap" hidden>Su producto es perecedero: ¿la recepción cumple el máximo de 30 minutos fuera de frío? ¿Qué harían si no?<input type="text" id="q_frio" data-k="q_frio" placeholder="Sí / No, porque…"></label>
         <div class="verdict" id="t_ver" hidden></div>
         <label class="f">¿La transpaleta sirve para mover su unidad de carga? Justifiquen con la placa.<textarea id="t_conc" data-k="t_conc" rows="2"></textarea></label>
       </div>
@@ -290,6 +313,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
           <label class="f">Configuración usada<select id="g_conf" data-k="g_conf"><option value="">Escoge…</option><option>Vertical (tiro recto)</option><option>Ahorcado</option><option>Canasta</option><option>Dos ramales (brida)</option><option>No se hizo izaje</option></select></label>
           <label class="f">¿Quién operó y quién dio las señales?<input type="text" id="g_quien" data-k="g_quien"></label>
         </div>
+        <label class="f">Para izar UN pallet completo de su producto en tiro vertical, ¿cuál es la eslinga mínima? (EN 1492-1)<select id="q_esl" data-k="q_esl"><option value="">Escoge…</option><option value="violeta">Violeta · 1.000 kg</option><option value="verde">Verde · 2.000 kg</option><option value="amarillo">Amarillo · 3.000 kg</option><option value="gris">Gris · 4.000 kg</option><option value="rojo">Rojo · 5.000 kg</option></select></label>
         <div style="display:flex;flex-direction:column;gap:6px"><span style="font-weight:700;font-size:14px;color:var(--fg)">Señales de mano practicadas</span>
           <div class="signals" id="g_sen">
             <label><input type="checkbox" value="Izar" data-k="g_s1"> Izar</label>
@@ -314,6 +338,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
           <label class="f">Pallet plástico: largo × ancho × alto (mm)<input type="text" id="p_pdim" data-k="p_pdim"></label>
           <label class="f">Daños observados<input type="text" id="p_dan" data-k="p_dan" placeholder="Tablas rotas, clavos salidos… o ninguno"></label>
         </div>
+        <label class="f">Volumen de un pallet completo de su producto (m³) = largo × ancho × alto de la unidad de carga<input type="number" min="0" step="0.001" id="q_vol" data-k="q_vol"></label>
         <label class="f">¿Qué pallet usarían para exportar su producto y por qué?<textarea id="p_conc" data-k="p_conc" rows="2"></textarea></label>
       </div>
     </article>
@@ -396,6 +421,11 @@ const TICKET = [
   "¿Qué riesgo observaste hoy en el laboratorio y cómo lo controlarías?"
 ];
 const NOMBRES = {"S2-LAB":"Hoja de laboratorio","S2-TICKET":"Ticket de salida"};
+// Pedido de cada producto (datos del ejercicio; las respuestas se calculan en el panel del docente).
+const EJ = {"1": {"u": "saco", "d": [600, 400, 250], "pu": 70.0, "pal": "ISO 1200 × 1000 de madera", "dp": [1200, 1000, 144], "pp": 25, "capa": 5, "capas": 3, "ped": 320, "ruta": "Santa Marta → Hamburgo (Alemania)", "frio": null, "nota": "Sensible a la humedad: no puede quedar sobre piso húmedo."}, "2": {"u": "caja", "d": [500, 400, 240], "pu": 18.14, "pal": "ISO 1200 × 1000 de madera", "dp": [1200, 1000, 144], "pp": 25, "capa": 6, "capas": 8, "ped": 1000, "ruta": "Santa Marta → Amberes (Bélgica)", "frio": 30, "nota": "Perecedero: máximo 30 minutos fuera de la cámara de frío durante la recepción."}, "3": {"u": "caja", "d": [400, 300, 90], "pu": 4.0, "pal": "Europalet 1200 × 800 de madera", "dp": [1200, 800, 144], "pp": 25, "capa": 8, "capas": 20, "ped": 3000, "ruta": "Cartagena → Róterdam (Países Bajos)", "frio": 30, "nota": "Perecedero: máximo 30 minutos fuera de la cámara de frío durante la recepción."}, "4": {"u": "caja", "d": [600, 400, 100], "pu": 30.0, "pal": "ISO 1200 × 1000 de madera", "dp": [1200, 1000, 144], "pp": 25, "capa": 5, "capas": 8, "ped": 820, "ruta": "Barranquilla → Miami (EE. UU.)", "frio": null, "nota": "Alta densidad y frágil: no se apila un pallet sobre otro."}, "5": {"u": "tambor", "d": [585, 585, 880], "pu": 196.0, "pal": "Pallet 1200 × 1200 de madera", "dp": [1200, 1200, 144], "pp": 30, "capa": 4, "capas": 1, "ped": 90, "ruta": "Barranquilla → Róterdam (Países Bajos)", "frio": null, "nota": "Líquido: un tambor golpeado puede derramar. Cada tambor pesa 178 kg de aceite + 18 kg del envase."}, "6": {"u": "caja", "d": [400, 300, 250], "pu": 8.0, "pal": "Europalet 1200 × 800 de madera", "dp": [1200, 800, 144], "pp": 25, "capa": 8, "capas": 6, "ped": 1100, "ruta": "Cartagena → Colón (Panamá)", "frio": null, "nota": "Sensible al calor: la zona de almacenamiento no debe pasar de 25 °C."}, "7": {"u": "saco", "d": [600, 400, 150], "pu": 50.0, "pal": "ISO 1200 × 1000 de madera", "dp": [1200, 1000, 144], "pp": 25, "capa": 5, "capas": 4, "ped": 450, "ruta": "Puerto Brisa → Kingston (Jamaica)", "frio": null, "nota": "Higroscópica y corrosiva para el metal: limpiar horquillas y ruedas después de operar."}};
+const ESLINGAS = [["violeta",1000],["verde",2000],["amarillo",3000],["gris",4000],["rojo",5000]];
+const plural = u => u === "tambor" ? "tambores" : u + "s";
+const n0 = x => Number(x).toLocaleString("es-CO", {maximumFractionDigits:2});
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -452,6 +482,7 @@ function pintarEquipos(){
 const equipoActual = () => EQUIPOS.find(e => e.grupo === grupoSel() && e.equipo === Number($("equipo").value)) || null;
 function pintarEquipo(){
   const e = equipoActual(), n = $("equipo").value;
+  setTimeout(pintarPedido, 0);
   $("teamBox").hidden = !e; $("teamWarn").hidden = true; $("prodManualWrap").hidden = !!e || !n;
   if (e){
     $("teamN").textContent = e.equipo;
@@ -460,6 +491,32 @@ function pintarEquipo(){
     $("teamWarn").hidden = false;
     $("teamWarn").textContent = apiOK ? "Tu equipo no aparece en la Selección de carga. Escoge el producto abajo y avisa al docente." : "Sin conexión para consultar los equipos. Escoge el producto abajo; tu entrega queda igual.";
   }
+}
+const productoId = () => { const e = equipoActual(); return e ? String(e.producto) : val("prodManual"); };
+function pintarPedido(){
+  const id = productoId(), e = EJ[id], box = $("pedido");
+  box.hidden = !e; $("q_frioWrap").hidden = !(e && e.frio);
+  if (!e) return;
+  box.innerHTML = `<header><div class="eyebrow">Su pedido · ejercicio de la sesión</div><h3>${esc(PRODUCTOS[id])}</h3></header>
+    <div class="pb">
+      <p style="margin:0">Su bodega en la ruta <b>${esc(e.ruta)}</b> debe recibir, almacenar y despachar <b>${n0(e.ped)} ${plural(e.u)}</b>. Con los equipos del laboratorio, decidan cómo moverlos.</p>
+      <div class="dl">
+        <div><small>Pedido</small><b>${n0(e.ped)} ${plural(e.u)}</b></div>
+        <div><small>Medidas de la unidad</small><b>${e.d.join(" × ")} mm</b></div>
+        <div><small>Peso bruto por unidad</small><b>${n0(e.pu)} kg</b></div>
+        <div><small>Pallet</small><b>${esc(e.pal)}</b></div>
+        <div><small>Pallet vacío</small><b>${n0(e.pp)} kg · ${e.dp[2]} mm de alto</b></div>
+        <div><small>Patrón de carga</small><b>${e.capa} por capa × ${e.capas} capa${e.capas > 1 ? "s" : ""}</b></div>
+      </div>
+      <div class="notice warn" style="margin:0"><b>Condición especial:</b> ${esc(e.nota)}</div>
+      <ol class="tasks">
+        <li><b>Unidad de carga:</b> calculen unidades y peso por pallet, alto, número de pallets, unidades del último pallet y peso total del pedido.</li>
+        <li><b>Estación 1:</b> midan el circuito y calculen cuánto tarda recibir todo el pedido con las 2 transpaletas${e.frio ? ", y si cumplen los 30 minutos fuera de frío" : ""}.</li>
+        <li><b>Estación 2:</b> comparen el peso de un pallet completo con la placa del apilador.</li>
+        <li><b>Estación 3:</b> escojan la eslinga mínima para izar un pallet completo.</li>
+        <li><b>Estación 4:</b> calculen el volumen de un pallet completo y escojan el pallet de exportación.</li>
+      </ol>
+    </div>`;
 }
 const productoActual = () => { const e = equipoActual(); if (e) return e.productoNombre; const m = val("prodManual"); return m ? PRODUCTOS[m] : ""; };
 const integrantes = () => { const e = equipoActual(); return e ? [`${e.jefe} (Jefe de carga)`, `${e.calculista} (Calculista)`, ...e.operarios.map(o => `${o} (Operario)`)] : []; };
@@ -502,11 +559,11 @@ function progreso(){
   veredicto("t_cap", "t_ver");
   const hmax = num("a_hmax"), alto = num("u_h");
   veredicto("a_cap", "a_ver", {ok:true, msg: hmax ? ` Altura máxima del apilador: <b>${fmtKg(hmax)} mm</b>; un rack a 4 m (4.000 mm) ${hmax >= 4000 ? "sí" : "<b>no</b>"} está a su alcance.` : ""});
-  const okU = !!(w !== null && num("u_h"));
-  const ok1 = !!(val("t_cap") && CHK_T.every((_,i) => radio(`ct${i}`)) && val("t_pal") && val("t_ent") && val("t_t1") && val("t_conc"));
+  const okU = !!(w !== null && num("u_h") && val("q_npal") && val("q_ult") && val("q_wped"));
+  const ok1 = !!(val("t_cap") && CHK_T.every((_,i) => radio(`ct${i}`)) && val("t_pal") && val("t_ent") && val("t_t1") && val("q_viajes") && val("q_trec") && (!EJ[productoId()]?.frio || val("q_frio")) && val("t_conc"));
   const ok2 = !!(val("a_cap") && val("a_cc") && val("a_hmax") && CHK_A.every((_,i) => radio(`ca${i}`)) && val("a_hp") && val("a_conc"));
-  const ok3 = !!(val("g_cap") && val("g_conf") && senales().length && val("g_conc"));
-  const ok4 = !!(val("p_mdim") && val("p_nimf") && val("p_trat") && val("p_pdim") && val("p_conc"));
+  const ok3 = !!(val("g_cap") && val("q_esl") && val("g_conf") && senales().length && val("g_conc"));
+  const ok4 = !!(val("q_vol") && val("p_mdim") && val("p_nimf") && val("p_trat") && val("p_pdim") && val("p_conc"));
   const okM = MOVS.every((_,i) => val(`m${i}_eq`) && val(`m${i}_j`));
   [["stU",okU],["st1",ok1],["st2",ok2],["st3",ok3],["st4",ok4],["stM",okM]].forEach(([id,o]) => $(id).classList.toggle("ok", o));
   const nL = [okU,ok1,ok2,ok3,ok4,okM].filter(Boolean).length, nT = TICKET.filter((_,i) => val(`tk${i}`)).length;
@@ -526,7 +583,9 @@ function faltantes(act){
     TICKET.forEach((_,i) => { if (!val(`tk${i}`)) m.push([$(`tk${i}`),`pregunta ${i+1}`]); });
     return m;
   }
-  [["u_n","unidades por pallet"],["u_p","peso por unidad"],["u_pal","peso del pallet"],["u_h","alto de la unidad"],
+  [["q_npal","número de pallets"],["q_ult","unidades del último pallet"],["q_wped","peso total del pedido"],["q_viajes","viajes por transpaleta"],["q_trec","tiempo de recepción"],["q_esl","eslinga mínima"],["q_vol","volumen del pallet"],
+   ...(EJ[productoId()]?.frio ? [["q_frio","cumplimiento de frío"]] : []),
+   ["u_n","unidades por pallet"],["u_p","peso por unidad"],["u_pal","peso del pallet"],["u_h","alto de la unidad"],
    ["t_cap","capacidad transpaleta"],["t_pal","pallet movido"],["t_ent","lados de entrada"],["t_t1","tiempo intento 1"],["t_conc","conclusión transpaleta"],
    ["a_cap","capacidad apilador"],["a_cc","centro de carga"],["a_hmax","altura máxima"],["a_hp","altura practicada"],["a_conc","conclusión apilador"],
    ["g_cap","capacidad grúa"],["g_conf","configuración eslinga"],["g_conc","conclusión grúa"],
@@ -543,6 +602,7 @@ function faltantes(act){
 function datosDe(act){
   if (act === "S2-TICKET") return {ticket: TICKET.map((q,i) => ({pregunta:q, respuesta:val(`tk${i}`)}))};
   return {
+    ejercicio: {productoId:productoId(), pallets:num("q_npal"), ultimo:num("q_ult"), pesoPedido:num("q_wped"), viajes:num("q_viajes"), tiempoRecepcion:num("q_trec"), frio:val("q_frio"), eslinga:val("q_esl"), volumen:num("q_vol")},
     unidad: {unidades:num("u_n"), pesoUnidad:num("u_p"), pesoPallet:num("u_pal"), pesoTotal:pesoUnidad(), alto:num("u_h")},
     transpaleta: {capacidad:num("t_cap"), inspeccion:CHK_T.map((t,i) => ({item:t, estado:radio(`ct${i}`)})), pallet:val("t_pal"), entradas:val("t_ent"), t1:num("t_t1"), t2:num("t_t2"), conclusion:val("t_conc")},
     apilador: {capacidad:num("a_cap"), centroCarga:num("a_cc"), alturaMax:num("a_hmax"), inspeccion:CHK_A.map((t,i) => ({item:t, estado:radio(`ca${i}`)})), alturaPractica:num("a_hp"), conclusion:val("a_conc")},
@@ -557,6 +617,8 @@ function textoDatos(act, d){
   const L = [];
   if (act === "S2-TICKET"){ (d.ticket||[]).forEach((t,i) => L.push(`${i+1}. ${t.pregunta}`, `   ${t.respuesta}`)); return L; }
   const u = d.unidad||{}, t = d.transpaleta||{}, a = d.apilador||{}, g = d.grua||{}, p = d.pallets||{};
+  const q = d.ejercicio || {};
+  L.push("EJERCICIO DEL PEDIDO", `  Pallets: ${v(q.pallets)} · último pallet: ${v(q.ultimo)} unidades · peso total: ${v(q.pesoPedido)} kg`, `  Viajes por transpaleta: ${v(q.viajes)} · tiempo de recepción: ${v(q.tiempoRecepcion)} min${q.frio ? " · frío: " + q.frio : ""}`, `  Eslinga mínima: ${v(q.eslinga)} · volumen por pallet: ${v(q.volumen)} m³`, "");
   L.push("UNIDAD DE CARGA", `  ${v(u.unidades)} unidades × ${v(u.pesoUnidad)} kg + pallet ${v(u.pesoPallet)} kg = ${u.pesoTotal == null ? "—" : fmtKg(u.pesoTotal)} kg · alto ${v(u.alto)} mm`, "");
   L.push("ESTACIÓN 1 · TRANSPALETA MANUAL", `  Capacidad placa: ${v(t.capacidad)} kg`, `  Inspección: ${(t.inspeccion||[]).map(x => `${x.item}: ${x.estado||"—"}`).join("; ")}`, `  Pallet: ${v(t.pallet)} · Entradas: ${v(t.entradas)} · Tiempos: ${v(t.t1)} s / ${v(t.t2)} s`, `  Conclusión: ${v(t.conclusion)}`, "");
   L.push("ESTACIÓN 2 · APILADOR MANUAL", `  Placa: ${v(a.capacidad)} kg a ${v(a.centroCarga)} mm de centro de carga · altura máx. ${v(a.alturaMax)} mm`, `  Inspección: ${(a.inspeccion||[]).map(x => `${x.item}: ${x.estado||"—"}`).join("; ")}`, `  Altura practicada: ${v(a.alturaPractica)} mm`, `  Conclusión: ${v(a.conclusion)}`, "");
@@ -620,6 +682,7 @@ document.addEventListener("input", e => { if (enDocente(e.target)) return; e.tar
 document.addEventListener("change", e => { if (enDocente(e.target)) return; e.target.closest?.(".seg, .signals")?.classList.remove("miss"); guardar(); progreso(); });
 document.querySelectorAll('input[name="grupo"]').forEach(r => r.addEventListener("change", () => { $("grupoSeg").classList.remove("miss"); pintarEquipos(); guardar(); }));
 $("equipo").addEventListener("change", () => { pintarEquipo(); guardar(); });
+$("prodManual").addEventListener("change", pintarPedido);
 ["visibilitychange","pagehide"].forEach(ev => window.addEventListener(ev, guardar));
 
 /* ---------- Panel del docente ---------- */
@@ -670,6 +733,7 @@ function textoEntrega(x){
 const RUBRICAS = {
   "S2-LAB": [
     {k:"inspeccion", t:"Inspección preoperacional y placas", s:"Lista completa en transpaleta y apilador; placas copiadas con unidades (kg, mm).", a:"Lista incompleta en un equipo o placa sin unidades.", i:"Sin inspección o sin datos de placa."},
+    {k:"ejercicio", t:"Cálculos del pedido", s:"Pallets, último pallet, peso del pedido, tiempo de recepción, eslinga y volumen correctos (9–10 de 10).", a:"Entre 6 y 8 cálculos correctos.", i:"Menos de 6 cálculos correctos."},
     {k:"capacidad", t:"Verificación de capacidad", s:"Calcula el peso de la unidad de carga y concluye bien en transpaleta y apilador (capacidad y altura).", a:"Concluye bien en un solo equipo.", i:"Conclusiones contrarias a la placa o sin cálculo."},
     {k:"seleccion", t:"Matriz de selección de equipos", s:"Los 5 movimientos con equipo adecuado, justificado por peso, altura o distancia.", a:"Matriz completa con justificaciones débiles o un equipo inadecuado.", i:"Incompleta o con varios equipos inadecuados (p. ej., apilador manual a 4 m)."},
     {k:"pallets", t:"Pallets y NIMF-15", s:"Mide ambos pallets, lee la marca NIMF-15 y elige pallet de exportación con criterio.", a:"Datos parciales o elección sin criterio de exportación.", i:"No identifica la marca ni compara pallets."},
@@ -681,6 +745,38 @@ const RUBRICAS = {
     {k:"r3", t:"3. Riesgo y control", s:"Riesgo concreto observado y una medida de control aplicable.", a:"Riesgo genérico o control vago.", i:"Sin riesgo o sin control."}
   ]
 };
+function esperado(id){
+  const e = EJ[id]; if (!e) return null;
+  const upp = e.capa * e.capas, npal = Math.ceil(e.ped / upp), ult = e.ped - (npal - 1) * upp;
+  const wpal = Math.round((upp * e.pu + e.pp) * 100) / 100, wped = Math.round((e.ped * e.pu + npal * e.pp) * 100) / 100;
+  const h = e.capas * e.d[2] + e.dp[2], vol = Math.round(e.dp[0] * e.dp[1] * h / 1e6) / 1000;
+  const esl = (ESLINGAS.find(([,c]) => c >= wpal) || ["más de 5 t"])[0];
+  return {upp, npal, ult, wpal, wped, h, vol, esl, viajes: Math.ceil(npal / 2), pu: e.pu, pp: e.pp, frio: e.frio};
+}
+const cerca = (a, b, tol) => a != null && b != null && Math.abs(a - b) <= Math.max(tol * Math.abs(b), 0.0011);
+function revisionEjercicio(x){
+  const d = x.datos || {}, q = d.ejercicio || {}, u = d.unidad || {}, t = d.transpaleta || {};
+  const id = q.productoId || Object.keys(PRODUCTOS).find(k => PRODUCTOS[k] === x.producto);
+  const E = esperado(id); if (!E) return "<b>Ejercicio:</b> no se identificó el producto.";
+  const fila = (txt, dado, esp, ok) => `<li>${ok ? "✓" : '<span class="flag">✕</span>'} ${txt}: ${dado == null || dado === "" ? "—" : esc(String(dado))}${ok ? "" : ` (esperado <b>${esc(String(esp))}</b>)`}</li>`;
+  const prom = [t.t1, t.t2].filter(n => n > 0); const tp = prom.length ? prom.reduce((a,b) => a+b, 0) / prom.length : null;
+  const tEsp = tp ? Math.round(E.viajes * tp / 60 * 10) / 10 : null;
+  const L = [
+    fila("Unidades por pallet", u.unidades, E.upp, u.unidades === E.upp),
+    fila("Peso de un pallet completo (kg)", u.pesoTotal, E.wpal, cerca(u.pesoTotal, E.wpal, 0.005)),
+    fila("Alto de la unidad de carga (mm)", u.alto, E.h, cerca(u.alto, E.h, 0.01)),
+    fila("Pallets del pedido", q.pallets, E.npal, q.pallets === E.npal),
+    fila("Unidades del último pallet", q.ultimo, E.ult, q.ultimo === E.ult),
+    fila("Peso total del pedido (kg)", q.pesoPedido, E.wped, cerca(q.pesoPedido, E.wped, 0.01)),
+    fila("Viajes por transpaleta", q.viajes, E.viajes, q.viajes === E.viajes),
+    tEsp != null ? fila(`Tiempo de recepción (min, con su promedio de ${Math.round(tp)} s)`, q.tiempoRecepcion, tEsp, cerca(q.tiempoRecepcion, tEsp, 0.1)) : "<li>Tiempo de recepción: sin tiempos del circuito.</li>",
+    fila("Eslinga mínima en vertical", q.eslinga, E.esl, q.eslinga === E.esl),
+    fila("Volumen de un pallet (m³)", q.volumen, E.vol, cerca(q.volumen, E.vol, 0.02)),
+  ];
+  if (E.frio) L.push(`<li>Frío (máx. ${E.frio} min): ${tEsp != null ? (tEsp <= E.frio ? "con su tiempo medido <b>cumple</b>" : "con su tiempo medido <b>no cumple</b>") : "—"}; respuesta del equipo: ${esc(q.frio || "—")}</li>`);
+  const malos = L.filter(l => l.includes("✕")).length;
+  return `<b>Ejercicio del pedido:</b> ${10 - malos} de 10 cálculos correctos.<ul style="margin:4px 0 0;padding-left:18px">${L.join("")}</ul>`;
+}
 function revisionAuto(x){
   const d = x.datos || {}, u = d.unidad || {}, t = d.transpaleta || {}, a = d.apilador || {}, L = [];
   const w = u.pesoTotal;
@@ -707,7 +803,7 @@ function abrirCal(key){
   $("cT").textContent = `Calificar · ${NOMBRES[x.act]||x.act}`;
   $("cS").textContent = `${x.grupo} · Equipo ${x.equipo} · ${x.producto} · ${x.act === "S2-TICKET" ? x.nombre : "nota de equipo"}`;
   $("cB").textContent = textoEntrega(x);
-  $("cAuto").hidden = x.act !== "S2-LAB"; if (x.act === "S2-LAB") $("cAuto").innerHTML = revisionAuto(x);
+  $("cAuto").hidden = x.act !== "S2-LAB"; if (x.act === "S2-LAB") $("cAuto").innerHTML = revisionEjercicio(x) + "<hr style='border:0;border-top:1px solid var(--gold);margin:8px 0'>" + revisionAuto(x);
   $("cCrit").innerHTML = (RUBRICAS[x.act]||[]).map(r => `<div class="crit">
       <div class="row"><b style="flex:1;min-width:160px;color:var(--fg)">${esc(r.t)}</b><input type="number" min="0" max="5" step="0.1" data-c="${r.k}" value="${c.criterios?.[r.k] ?? ""}" aria-label="${esc(r.t)}"></div>
       <div class="row">${[["Superior 5,0",5],["4,5",4.5],["4,0",4],["Aceptable 3,5",3.5],["3,0",3],["Insuficiente 2,0",2]].map(([l,n]) => `<button type="button" class="lv" data-set="${r.k}" data-v="${n}">${l}</button>`).join("")}</div>
