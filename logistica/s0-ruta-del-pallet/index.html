@@ -684,7 +684,7 @@ async function docCargar(){
   store.rawSet("logilab_clave", k);
   docMsg("info","Cargando…");
   try{
-    const [r, g] = await Promise.all([fetch("/api/entregas", {headers:docHeaders(), cache:"no-store"}), fetch("/api/grupos", {cache:"no-store"})]);
+    const [r, g] = await Promise.all([fetch("/api/entregas?sesion=S0", {headers:docHeaders(), cache:"no-store"}), fetch("/api/grupos", {cache:"no-store"})]);
     const j = await r.json().catch(() => ({}));
     if (r.status === 403){ store.rawSet("logilab_clave",""); throw new Error("Clave incorrecta."); }
     if (!r.ok) throw new Error(j.error || "No se pudo cargar.");
