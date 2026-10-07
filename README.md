@@ -8,6 +8,7 @@ Sitio publicado: https://logilab-sena.netlify.app
 ## Herramientas
 | Área | Herramienta | Ruta |
 |---|---|---|
+| Logística (SENA) | Plan Maestro Riohacha · Sesión 1 | `/logistica/s1-plan-maestro-riohacha/` |
 | Logística (Uniguajira) | Repositorio del curso 732235 | `/logistica/repositorio-732235/` |
 | Logística (Uniguajira) | Laboratorio de manutención S2 | `/logistica/s2-laboratorio-manutencion/` |
 | Logística (Uniguajira) | La ruta del pallet: entregables S0 | `/logistica/s0-ruta-del-pallet/` |
