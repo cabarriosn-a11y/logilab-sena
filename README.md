@@ -10,6 +10,7 @@ Sitio publicado: https://logilab-sena.netlify.app
 |---|---|---|
 | Logística (SENA) | Diagnóstico Situacional · Sesión 2 | `/logistica/s2-diagnostico-situacional/` |
 | Logística (SENA) | Plan Maestro Riohacha · Sesión 1 | `/logistica/s1-plan-maestro-riohacha/` |
+| Logística (Uniguajira) | Taller Quick Pallet Maker S3 | `/logistica/s3-taller-qpm/` |
 | Logística (Uniguajira) | Repositorio del curso 732235 | `/logistica/repositorio-732235/` |
 | Logística (Uniguajira) | Laboratorio de manutención S2 | `/logistica/s2-laboratorio-manutencion/` |
 | Logística (Uniguajira) | La ruta del pallet: entregables S0 | `/logistica/s0-ruta-del-pallet/` |
@@ -19,6 +20,6 @@ Sitio publicado: https://logilab-sena.netlify.app
 - `index.html`: portal con el catálogo de herramientas.
 - Una carpeta por herramienta dentro de su área (`logistica/…`).
 - `netlify/functions/grupos.mts`: API `/api/grupos` que guarda los grupos de carga en Netlify Blobs.
-- `netlify/functions/entregas.mts`: API `/api/entregas` que guarda los entregables de sesión (S0, S2) en Netlify Blobs; el docente los consulta con `ADMIN_KEY`.
+- `netlify/functions/entregas.mts`: API `/api/entregas` que guarda los entregables de sesión (S0, S2, S3) en Netlify Blobs; el docente los consulta con `ADMIN_KEY`.
 
 Cada push a `main` se publica automáticamente en Netlify.

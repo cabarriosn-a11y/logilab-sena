@@ -15,7 +15,7 @@ import { getStore, getDeployStore } from "@netlify/blobs";
 // DELETE /api/entregas?key=...         -> elimina (docente)
 // Si el estudiante reenvía después de calificado, la nota se conserva y queda marcada para revisar (reenvio: true).
 
-const ACTIVIDADES = ["S0-RUTA", "S0-TICKET", "S0-E0", "S2-LAB", "S2-TICKET"];
+const ACTIVIDADES = ["S0-RUTA", "S0-TICKET", "S0-E0", "S2-LAB", "S2-TICKET", "S3-QPM", "S3-TICKET"];
 const individual = (act: string) => act.endsWith("-TICKET");
 const GRUPOS = ["A1", "B1"];
 const MAX_EQUIPO = 7;
