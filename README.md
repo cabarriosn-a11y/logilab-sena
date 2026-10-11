@@ -8,6 +8,7 @@ Sitio publicado: https://logilab-sena.netlify.app
 ## Herramientas
 | Área | Herramienta | Ruta |
 |---|---|---|
+| Logística (SENA · Uniguajira) | CEDI LogiLab 3D · Laboratorio de centro de distribución | `/logistica/cedi-logilab-3d/` |
 | Logística (SENA) | Diagnóstico Situacional · Sesión 2 | `/logistica/s2-diagnostico-situacional/` |
 | Logística (SENA) | Plan Maestro Riohacha · Sesión 1 | `/logistica/s1-plan-maestro-riohacha/` |
 | Logística (Uniguajira) | Taller Quick Pallet Maker S3 | `/logistica/s3-taller-qpm/` |
