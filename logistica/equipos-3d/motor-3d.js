@@ -1,10 +1,11 @@
 /* =====================================================================
-   LogiLab SENA · Motor 3D v1.2
+   LogiLab SENA · Motor 3D v1.3
    Visor de equipos en piezas: giro 3D, vista explosionada, movimiento,
    etiquetas, ficha por pieza y librería de piezas básicas (K).
    Requiere antes: three.js r128 + OrbitControls (examples/js).
    Uso: LogiLab3D.mount({ title, accent, lede, specs, motion, portal, parts:[...] })
    spread: n (en una parte) separa sus hijos izquierdo/derecho n metros en la vista explosionada
+   LogiLab3D.kit() devuelve K para escenas propias (simuladores); LogiLab3D.linearize(obj) ajusta sus colores.
    portal: ruta de regreso (ej. '/' o '../') y portalText: texto del enlace del pie
    By Carlos Barrios · Instructor
    ===================================================================== */
@@ -497,9 +498,16 @@ function mount(cfg) {
   return { scene, camera, parts, K };
 }
 
+// Convierte colores sRGB a lineales una sola vez por material (para escenas propias con K)
+function linearize(root) {
+  root.traverse(m => { if (!m.isMesh) return; (Array.isArray(m.material) ? m.material : [m.material]).forEach(mt => {
+    if (!mt || mt.userData.lin) return; mt.userData.lin = true;
+    if (mt.color) mt.color.convertSRGBToLinear(); if (mt.emissive) mt.emissive.convertSRGBToLinear(); }); });
+  return root;
+}
 function safeMount(cfg) {
   if (!document.body) { document.addEventListener('DOMContentLoaded', () => mount(cfg)); return null; }
   return mount(cfg);
 }
-global.LogiLab3D = { mount: safeMount, version: '1.2' };
+global.LogiLab3D = { mount: safeMount, kit: makeKit, linearize, version: '1.3' };
 })(window);

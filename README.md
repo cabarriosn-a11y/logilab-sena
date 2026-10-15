@@ -8,6 +8,7 @@ Sitio publicado: https://logilab-sena.netlify.app
 ## Herramientas
 | Área | Herramienta | Ruta |
 |---|---|---|
+| Logística (SENA) | Patio LogiLab · Simulador de montacargas (contenedor y rack, reportes de incidentes) | `/logistica/patio-logilab/` |
 | Logística (SENA) | Equipos 3D en piezas (transpaleta y biblioteca del motor 3D) | `/logistica/equipos-3d/` |
 | Logística (SENA · Uniguajira) | CEDI LogiLab 3D · Laboratorio de centro de distribución | `/logistica/cedi-logilab-3d/` |
 | Logística (SENA) | Diagnóstico Situacional · Sesión 2 | `/logistica/s2-diagnostico-situacional/` |
