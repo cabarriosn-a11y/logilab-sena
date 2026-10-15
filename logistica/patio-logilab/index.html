@@ -665,8 +665,7 @@ function step(dt){
       else if((hit.b.part==='load'||hit.b.part==='forks')&&/rack|larguero|poste/.test(lbl))report('larguero',{obj:lbl});
       else report('choque',{obj:lbl},'choque:'+lbl);}
     v=0;if(inp.thr!==0){st.blk=(st.blk||0)+dt;if(st.blk>1.0&&(st.t-(st.blkT||-9))>4){st.blkT=st.t;toast(`Bloqueado por ${lbl}: endereza la dirección y sal recto`,'info');}}}
-  else st.blk=0;
-  else{st.px=npx;st.pz=npz;st.th=nth;}
+  else{st.px=npx;st.pz=npz;st.th=nth;st.blk=0;}
   st.v=v;syncCarry();
   // --- reglas de operación
   const sp=Math.abs(st.v),lat=st.v*om;
