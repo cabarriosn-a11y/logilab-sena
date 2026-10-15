@@ -537,7 +537,9 @@ function engage(p,px,pz,th,h){const[lx,lz]=toLocal(p.x-px,p.z-pz,th);const ry=Ma
 function collide(px,pz,th,h,only){const boxes=fkBoxes(px,pz,th,h).filter(b=>!only||only.includes(b.part));
   for(const b of boxes){for(const c of colliders){if(ovl(b,c))return {b,c};}
     for(const p of pallets){if(p===st.carry||p.state!=='rest')continue;const c=palletOBB(p);if(!ovl(b,c))continue;
-      if(b.part==='forks'){const e=engage(p,px,pz,th,h);if(e.ok&&e.lz>=1.53)continue;}
+      if(b.part==='forks'){const e=engage(p,px,pz,th,h);const dh=h-p.pb;
+        const pocket=Math.abs(Math.sin(p.yaw-th))<0.35&&Math.abs(e.lx)<0.3&&dh>=-0.03&&dh<=0.08;
+        if(pocket&&e.lz>=1.5)continue;}
       return {b,c};}}
   return null;}
 
@@ -654,13 +656,16 @@ function step(dt){
   const om=v*Math.tan(st.delta)/WB;const nth=st.th+om*dt;
   const[fx,fz]=rot(0,0.42,st.th);const Pf=[st.px+fx,st.pz+fz];Pf[0]+=Math.sin(st.th)*v*dt;Pf[1]+=Math.cos(st.th)*v*dt;
   const[gx,gz]=rot(0,0.42,nth);const npx=Pf[0]-gx,npz=Pf[1]-gz;
-  const hit=collide(npx,npz,nth,st.h);
+  let hit=collide(npx,npz,nth,st.h);
+  // antitrabas: si ya estaba metido en algo, permite moverse para salir
+  if(hit&&collide(st.px,st.pz,st.th,st.h))hit=null;
   if(hit){const imp=Math.abs(v);const lbl=hit.c.label;
     if(imp>(hit.c.pallet?0.6:0.35)){if(hit.b.part==='forks'&&hit.c.pallet)report('horq');
       else if(/techo|dintel/.test(lbl))report('techo');
       else if((hit.b.part==='load'||hit.b.part==='forks')&&/rack|larguero|poste/.test(lbl))report('larguero',{obj:lbl});
       else report('choque',{obj:lbl},'choque:'+lbl);}
-    v=0;}
+    v=0;if(inp.thr!==0){st.blk=(st.blk||0)+dt;if(st.blk>1.0&&(st.t-(st.blkT||-9))>4){st.blkT=st.t;toast(`Bloqueado por ${lbl}: endereza la dirección y sal recto`,'info');}}}
+  else st.blk=0;
   else{st.px=npx;st.pz=npz;st.th=nth;}
   st.v=v;syncCarry();
   // --- reglas de operación
