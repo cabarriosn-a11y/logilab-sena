@@ -1,9 +1,10 @@
 /* =====================================================================
-   LogiLab SENA · Motor 3D v1.1
+   LogiLab SENA · Motor 3D v1.2
    Visor de equipos en piezas: giro 3D, vista explosionada, movimiento,
    etiquetas, ficha por pieza y librería de piezas básicas (K).
    Requiere antes: three.js r128 + OrbitControls (examples/js).
    Uso: LogiLab3D.mount({ title, accent, lede, specs, motion, portal, parts:[...] })
+   spread: n (en una parte) separa sus hijos izquierdo/derecho n metros en la vista explosionada
    portal: ruta de regreso (ej. '/' o '../') y portalText: texto del enlace del pie
    By Carlos Barrios · Instructor
    ===================================================================== */
@@ -100,6 +101,11 @@ function makeKit() {
     wood: (c = 0xb8895a) => std(c, 0, 0.82),
     glass: () => new T.MeshPhysicalMaterial({ color: 0xaee6ff, metalness: 0, roughness: 0.05, transparent: true, opacity: 0.35 }),
     color: (c, m = 0.3, r = 0.5) => std(c, m, r),
+    tire: () => std(0x1b1c1e, 0, 0.92),
+    rim: (c = 0x2a2e33) => std(c, 0.6, 0.38),
+    vinyl: (c = 0x1e2124) => std(c, 0.05, 0.62),
+    lens: (c = 0xfff1c2, i = 1.4) => std(0xffffff, 0, 0.15, { emissive: c, emissiveIntensity: i }),
+    beacon: (c = 0xff9a1a) => new T.MeshPhysicalMaterial({ color: c, emissive: c, emissiveIntensity: 0.9, roughness: 0.2, transparent: true, opacity: 0.85 }),
   };
   const mesh = (geo, mat, x = 0, y = 0, z = 0) => { const m = new T.Mesh(geo, mat); m.position.set(x, y, z); return m; };
   const orient = (g, axis) => { if (axis === 'x') g.rotateY(Math.PI / 2); else if (axis === 'y') g.rotateX(-Math.PI / 2); return g; };
@@ -134,10 +140,14 @@ function makeKit() {
     }
     g.position.set(x, y, z); return g;
   }
-  // Perfil 2D extruido. plane 'xy' (extruye en z, centrado) | 'xz' (puntos x,z; espesor hacia arriba desde y=0) | 'zy' (puntos z,y; espesor en x centrado)
+  // Recorre puntos [x,y] y curvas ['q',cx,cy,x,y]
+  function trace(path, pts) { let first = true;
+    pts.forEach(p => { if (p[0] === 'q') path.quadraticCurveTo(p[1], p[2], p[3], p[4]); else if (first) { path.moveTo(p[0], p[1]); first = false; } else path.lineTo(p[0], p[1]); });
+    return path; }
+  // Perfil 2D extruido (los puntos aceptan curvas ['q',cx,cy,x,y]). plane 'xy' (extruye en z, centrado) | 'xz' (puntos x,z; espesor hacia arriba desde y=0) | 'zy' (puntos z,y; espesor en x centrado)
   function extrude(pts, depth, mat, o = {}) {
-    const s = new T.Shape(); pts.forEach((p, i) => i ? s.lineTo(p[0], p[1]) : s.moveTo(p[0], p[1]));
-    (o.holes || []).forEach(h => { const p = new T.Path(); h.forEach((q, i) => i ? p.lineTo(q[0], q[1]) : p.moveTo(q[0], q[1])); s.holes.push(p); });
+    const s = trace(new T.Shape(), pts);
+    (o.holes || []).forEach(h => s.holes.push(trace(new T.Path(), h)));
     const b = o.bevel == null ? Math.min(depth * 0.25, 0.006) : o.bevel;
     const g = new T.ExtrudeGeometry(s, { depth: Math.max(depth - 2 * b, 0.0001), bevelEnabled: b > 0, bevelSize: b, bevelThickness: b, bevelSegments: 3, curveSegments: 12 });
     const plane = o.plane || 'xy';
@@ -217,7 +227,98 @@ function makeKit() {
   // Brazo pivotante: crea un grupo en pivot con rotación y construye dentro
   function arm(g, pivot, rot, build) { const a = new T.Group(); build(a); a.position.set(...pivot); a.rotation.set(...(rot || [0, 0, 0])); g.add(a); return a; }
 
-  return { THREE: T, M, mesh, rbox, cyl, wheel, extrude, tube, loop, helix, cable, beamI, channelU, hydraulic, chain, hook, corrugated, arm, orient };
+  // Torno: perfil [[radio,y],...] girado alrededor del eje y
+  function lathe(profile, mat, seg = 48) { const g = new T.LatheGeometry(profile.map(p => new T.Vector2(p[0], p[1])), seg); return new T.Mesh(g, mat); }
+  // Llanta neumática con labrado, rin con tuercas; eje en X. o.side: 1 (rin hacia +x) o -1
+  function tire(r, w, x = 0, y = 0, z = 0, o = {}) {
+    const g = new T.Group(), inner = new T.Group(), hw = w / 2, rub = M.tire();
+    const prof = [[r * 0.64, -hw * 0.92], [r * 0.8, -hw], [r * 0.93, -hw * 0.97], [r * 0.99, -hw * 0.8], [r, -hw * 0.5], [r, hw * 0.5], [r * 0.99, hw * 0.8], [r * 0.93, hw * 0.97], [r * 0.8, hw], [r * 0.64, hw * 0.92]];
+    const t = lathe(prof, rub, 56); t.material.side = T.DoubleSide; inner.add(t);
+    if (o.tread !== false) { const n = Math.round(2 * Math.PI * r / 0.06), bw = w * 0.36;
+      const geo = new T.BoxGeometry(r * 0.07, bw, 2 * Math.PI * r / n * 0.55);
+      for (let i = 0; i < n; i++) for (const k of [-1, 1]) { const a = (i + (k > 0 ? 0.5 : 0)) / n * Math.PI * 2;
+        const b = new T.Mesh(geo, rub); b.position.set((r + r * 0.012) * Math.cos(a), k * w * 0.21, (r + r * 0.012) * Math.sin(a)); b.rotation.set(0, -a, 0); b.rotateX(k * 0.32); inner.add(b); } }
+    const rm = M.rim(o.rimColor), rr = r * 0.64;
+    inner.add(lathe([[0.001, hw * 0.34], [rr * 0.45, hw * 0.34], [rr * 0.55, hw * 0.2], [rr * 0.85, hw * 0.12], [rr * 0.95, hw * 0.5], [rr, hw * 0.62], [rr, -hw * 0.62], [rr * 0.95, -hw * 0.5], [rr * 0.6, -hw * 0.1], [0.001, -hw * 0.1]], rm, 40));
+    const cap = new T.Mesh(new T.CylinderGeometry(rr * 0.22, rr * 0.26, hw * 0.25, 24), M.chrome()); cap.position.y = hw * 0.42; inner.add(cap);
+    const lugs = o.lugs || 6; for (let i = 0; i < lugs; i++) { const a = i / lugs * Math.PI * 2; const l = new T.Mesh(new T.CylinderGeometry(rr * 0.055, rr * 0.055, hw * 0.16, 6), M.chrome());
+      l.position.set(Math.cos(a) * rr * 0.36, hw * 0.4, Math.sin(a) * rr * 0.36); inner.add(l); }
+    const side = o.side || (x < 0 ? -1 : 1); inner.rotation.z = side > 0 ? -Math.PI / 2 : Math.PI / 2; g.add(inner);
+    g.position.set(x, y, z); return g;
+  }
+  // Asiento acolchado mirando a +z; origen en la base
+  function seat(w = 0.5, x = 0, y = 0, z = 0) {
+    const g = new T.Group(), v = M.vinyl();
+    g.add(rbox(w * 0.8, 0.06, w * 0.75, M.dark(), 0, 0.03, 0, 0.01));
+    g.add(rbox(w, 0.11, w * 0.9, v, 0, 0.1, 0.02, 0.045));
+    g.add(rbox(w * 0.82, 0.04, w * 0.7, v, 0, 0.165, 0.04, 0.02));
+    [-1, 1].forEach(k => g.add(rbox(w * 0.14, 0.13, w * 0.86, v, k * w * 0.43, 0.13, 0.02, 0.05)));
+    const back = new T.Group(); back.add(rbox(w, w * 1.0, 0.11, v, 0, w * 0.5, 0, 0.045)); back.add(rbox(w * 0.78, w * 0.8, 0.03, v, 0, w * 0.52, 0.055, 0.015));
+    back.add(rbox(w * 0.5, w * 0.22, 0.09, v, 0, w * 1.12, 0, 0.04));
+    back.position.set(0, 0.12, -w * 0.42); back.rotation.x = -0.18; g.add(back);
+    g.position.set(x, y, z); return g;
+  }
+  // Volante con columna; el aro mira al operador (-z) e inclina 'tilt'
+  function steering(r = 0.17, x = 0, y = 0, z = 0, tilt = 0.6, col = 0.45) {
+    const g = new T.Group(), w = new T.Group(), rub = M.rubber();
+    const ring = new T.Mesh(new T.TorusGeometry(r, r * 0.11, 14, 48), rub); ring.rotation.x = Math.PI / 2; w.add(ring);
+    for (let i = 0; i < 3; i++) { const a = i / 3 * Math.PI * 2 + Math.PI / 2; const sp = rbox(r * 0.95, r * 0.07, r * 0.16, M.dark(), Math.cos(a) * r * 0.5, 0, Math.sin(a) * r * 0.5, r * 0.03); sp.rotation.y = -a; w.add(sp); }
+    w.add(cyl(r * 0.22, r * 0.18, M.dark(), 0, 0, 0, null, 24));
+    const knob = cyl(r * 0.09, r * 0.35, M.rubber(), r * 0.72, r * 0.17, r * 0.72, null, 16); w.add(knob);
+    w.add(cyl(r * 0.12, col, M.dark(), 0, -col / 2, 0, null, 16));
+    w.rotation.x = tilt; g.add(w); g.position.set(x, y, z); return g;
+  }
+  // Polea acanalada, eje en X
+  function pulley(r, w, mat, x = 0, y = 0, z = 0) {
+    const m = lathe([[0.001, -w / 2], [r, -w / 2], [r, -w * 0.3], [r * 0.78, 0], [r, w * 0.3], [r, w / 2], [0.001, w / 2]], mat || M.steel(), 32);
+    m.rotation.z = Math.PI / 2; m.position.set(x, y, z); return m;
+  }
+  // Banco de baterías: celdas con bornes rojo/negro y puentes; origen en la base
+  function battery(cols, rows, cw, ch, cd, x = 0, y = 0, z = 0) {
+    const g = new T.Group(), W = cols * cw, D = rows * cd;
+    g.add(rbox(W + 0.03, ch * 0.9, D + 0.03, M.dark(), 0, ch * 0.45, 0, 0.006));
+    const red = M.color(0xc8261d, 0.2, 0.45), blk = M.color(0x15171a, 0.2, 0.5), cell = M.color(0x2f3439, 0.15, 0.55), top = M.color(0x3d434a, 0.1, 0.6);
+    for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
+      const cx = -W / 2 + cw * (i + 0.5), cz = -D / 2 + cd * (j + 0.5);
+      g.add(rbox(cw * 0.92, ch, cd * 0.92, cell, cx, ch / 2, cz, 0.006));
+      g.add(rbox(cw * 0.8, 0.012, cd * 0.8, top, cx, ch + 0.004, cz, 0.004));
+      g.add(cyl(cw * 0.09, 0.03, red, cx - cw * 0.25, ch + 0.02, cz, null, 14));
+      g.add(cyl(cw * 0.09, 0.03, blk, cx + cw * 0.25, ch + 0.02, cz, null, 14));
+      g.add(cyl(cw * 0.05, 0.016, M.color(0x8a8f94, 0.2, 0.5), cx, ch + 0.012, cz + cd * 0.22, null, 10));
+      if (i < cols - 1) g.add(rbox(cw * 0.55, 0.008, cw * 0.1, M.brass(), cx + cw * 0.5, ch + 0.035, cz, 0.002));
+    }
+    g.position.set(x, y, z); return g;
+  }
+  // Faro de trabajo apuntando a +z
+  function lamp(r, x = 0, y = 0, z = 0, color) {
+    const g = new T.Group(); g.add(rbox(r * 2.4, r * 2, r * 1.4, M.dark(), 0, 0, 0, r * 0.3));
+    const lens = cyl(r * 0.85, r * 0.12, M.lens(color), 0, 0, r * 0.72, 'z', 24); g.add(lens);
+    g.add(cyl(r * 0.25, r * 0.8, M.dark(), 0, -r * 1.2, 0, null, 10));
+    g.position.set(x, y, z); return g;
+  }
+  // Baliza giratoria ámbar
+  function beacon(r, x = 0, y = 0, z = 0) {
+    const g = new T.Group(); g.add(cyl(r * 1.1, r * 0.4, M.dark(), 0, r * 0.2, 0, null, 24));
+    g.add(lathe([[0.001, r * 1.6], [r * 0.5, r * 1.55], [r * 0.85, r * 1.3], [r, r * 0.9], [r, r * 0.4]], M.beacon(), 32));
+    g.position.set(x, y, z); return g;
+  }
+  // Cilindro hidráulico entre dos puntos (cuerpo + vástago + ojos)
+  function ram(a, b, r, bodyMat) {
+    const g = new T.Group(), A = new T.Vector3(...a), B = new T.Vector3(...b), m = A.clone().lerp(B, 0.62);
+    g.add(cable(a, m.toArray(), r, bodyMat || M.paint()));
+    g.add(cable(A.clone().lerp(B, 0.55).toArray(), b, r * 0.45, M.chrome()));
+    [A, B].forEach(P => { const e = new T.Mesh(new T.SphereGeometry(r * 0.9, 16, 12), M.dark()); e.position.copy(P); g.add(e); });
+    return g;
+  }
+  // Rejilla (respaldo de carga, barandas): marco + barras verticales, plano XY
+  function grille(w, h, bars, r, mat, x = 0, y = 0, z = 0) {
+    const g = new T.Group(); g.add(loop(w, h, r * 3, r, mat, 0, 0, 0));
+    for (let i = 1; i < bars; i++) g.add(rbox(r * 2.2, h - r * 2, r * 1.6, mat, -w / 2 + w * i / bars, h / 2, 0, r * 0.5));
+    g.add(rbox(w - r * 2, r * 2, r * 1.6, mat, 0, h * 0.5, 0, r * 0.5));
+    g.position.set(x, y, z); return g;
+  }
+
+  return { THREE: T, M, mesh, lathe, tire, seat, steering, pulley, battery, lamp, beacon, ram, grille, rbox, cyl, wheel, extrude, tube, loop, helix, cable, beamI, channelU, hydraulic, chain, hook, corrugated, arm, orient };
 }
 
 /* ---------------- Montaje del visor ---------------- */
@@ -273,7 +374,10 @@ function mount(cfg) {
     let sw = def.sw;
     g.traverse(m => { if (m.isMesh) { if (!sw && m.material.color) sw = '#' + m.material.color.getHexString();
       m.castShadow = true; m.receiveShadow = true; m.material = m.material.clone(); m.material.color.convertSRGBToLinear();
-      m.material.emissive = new T.Color(0); m.userData.pid = parts.length; pickables.push(m); } });
+      if (!m.material.emissive) m.material.emissive = new T.Color(0); else m.material.emissive.convertSRGBToLinear();
+      m.userData.e0 = m.material.emissive.clone(); m.userData.ei0 = m.material.emissiveIntensity == null ? 1 : m.material.emissiveIntensity;
+      m.userData.pid = parts.length; pickables.push(m); } });
+    if (def.spread) g.children.forEach(c => { c.userData.x0 = c.position.x; });
     parts.push(Object.assign({}, def, { ref: def.ref || idx + 1, sw, group: g, base: g.position.clone(), ex: new T.Vector3(...(def.ex || [0, 0, 0])), mv: def.move ? new T.Vector3(...def.move) : null }));
   });
 
@@ -321,7 +425,7 @@ function mount(cfg) {
   let hover = null, selected = null, hitLocal = null, hitPart = null;
   const HL = new T.Color(0x3ee0f0), BLACK = new T.Color(0);
   function paint() { parts.forEach((p, i) => { const on = i === hover || i === selected;
-    p.group.traverse(m => { if (m.isMesh) { m.material.emissive.copy(on ? HL : BLACK); m.material.emissiveIntensity = i === hover ? 0.42 : 0.28; } });
+    p.group.traverse(m => { if (m.isMesh) { if (on) { m.material.emissive.copy(HL); m.material.emissiveIntensity = i === hover ? 0.42 : 0.28; } else { m.material.emissive.copy(m.userData.e0); m.material.emissiveIntensity = m.userData.ei0; } } });
     p.li.classList.toggle('on', on); }); }
   function setHover(i) { hover = i; paint(); }
   const detail = $('.ll-detail');
@@ -376,7 +480,8 @@ function mount(cfg) {
     const mt = mIn ? mIn.value / 100 : 0; mV += (mt - mV) * (reduce ? 1 : 0.15);
     const e = exV * exV * (3 - 2 * exV);
     parts.forEach(p => { p.group.position.set(p.base.x + p.ex.x * e, p.base.y + p.ex.y * e, p.base.z + p.ex.z * e);
-      if (p.mv) p.group.position.addScaledVector(p.mv, mV); if (p.motion) p.motion(p.group, mV, K); });
+      if (p.mv) p.group.position.addScaledVector(p.mv, mV); if (p.motion) p.motion(p.group, mV, K);
+      if (p.spread) p.group.children.forEach(c => { c.position.x = c.userData.x0 + Math.sign(c.userData.x0) * p.spread * e; }); });
     controls.update(); renderer.render(scene, camera);
     const w = canvas.clientWidth, h = canvas.clientHeight;
     if (hitPart !== null) { const v = parts[hitPart].group.localToWorld(hitLocal.clone()); const [sx, sy] = toScreen(v, w, h); spot.style.display = ''; spot.setAttribute('transform', `translate(${sx},${sy})`); }
@@ -396,5 +501,5 @@ function safeMount(cfg) {
   if (!document.body) { document.addEventListener('DOMContentLoaded', () => mount(cfg)); return null; }
   return mount(cfg);
 }
-global.LogiLab3D = { mount: safeMount, version: '1.1' };
+global.LogiLab3D = { mount: safeMount, version: '1.2' };
 })(window);
