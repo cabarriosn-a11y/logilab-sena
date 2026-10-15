@@ -53,6 +53,7 @@ body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--body);overflow:h
 #assist{font:600 12px var(--mono);color:var(--muted);max-width:170px;text-align:center;line-height:1.3}
 #assist.ok{color:var(--ok)} #assist.go{color:var(--safety)}
 #report{left:50%;top:12px;transform:translate(-50%,-140%);width:min(440px,calc(100% - 24px));padding:0;overflow:hidden;transition:transform .35s ease;z-index:8;background:var(--glass2)}
+#report:not(.on){opacity:0;visibility:hidden;transition:transform .35s ease,opacity .35s,visibility 0s .35s}
 #report.on{transform:translate(-50%,0)}
 #report .bar{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;font:700 13px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#10161b}
 #report .in{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px}
@@ -150,7 +151,7 @@ label.f input{font:500 15px var(--body);color:var(--ink);background:#0b1620;bord
     <div id="assist">Acércate a una estiba</div>
   </section>
 
-  <div id="keys" class="hud"><b>W/S</b> avanzar · reversa<br><b>A/D</b> girar · <b>Espacio</b> freno<br><b>R/F</b> subir · bajar horquillas<br><b>T/G</b> mástil atrás · adelante<br><b>H</b> bocina · <b>C</b> cámara · <b>P</b> pausa</div>
+  <div id="keys" class="hud"><b>W/S</b> avanzar · reversa<br><b>A/D</b> girar · <b>Espacio</b> freno<br><b>R/F</b> subir · bajar horquillas<br><b>T/G</b> mástil atrás · adelante<br><b>H</b> bocina · <b>C</b> cámara · <b>P</b> pausa<br><b>Mouse</b> arrastra: girar cámara<br><b>Rueda</b> zoom · <b>Q/E</b> girar · doble clic: centrar</div>
 
   <div id="touch">
     <div id="joy" aria-label="Palanca de manejo"><div id="knob"></div></div>
@@ -184,6 +185,7 @@ label.f input{font:500 15px var(--body);color:var(--ink);background:#0b1620;bord
         <li>Inserta las horquillas a fondo</li>
         <li>Cede el paso al peatón y usa la bocina</li>
         <li>No superes la capacidad: 1 800 kg</li>
+        <li>Arrastra con el mouse o el dedo para mover la cámara</li>
       </ul>
       <div class="err" id="sErr"></div>
       <div class="row"><button class="btn primary" id="bStart" style="padding:12px;font-size:15px">Iniciar simulación</button></div>
@@ -715,13 +717,38 @@ function syncForklift(dt){if(!st.tip){FK.root.rotation.set(0,st.th,0);}FK.root.p
 
 /* ================= Cámara ================= */
 const CAMS=['Persecución','Cabina','Superior'];
-function cycleCam(){st.camMode=(st.camMode+1)%3;toast('Cámara: '+CAMS[st.camMode],'info');}
+function cycleCam(){st.camMode=(st.camMode+1)%3;camO.idle=9;toast('Cámara: '+CAMS[st.camMode],'info');}
 const camPos=new T.Vector3(),camLook=new T.Vector3();let camInit=false;
+/* Cámara libre estilo plataforma 3D: arrastrar para orbitar, rueda o pellizco para zoom, Q/E para girar */
+const camO={yaw:0,pitch:0.42,dist:6.4,idle:9,cy:0,cp:0};
+const CAM_LIM={0:[3.2,14],1:[1,1],2:[6,26]};
+function camDrag(dx,dy){camO.idle=0;
+  if(st.camMode===1){camO.cy=Math.max(-1.9,Math.min(1.9,camO.cy-dx*0.006));camO.cp=Math.max(-0.7,Math.min(0.6,camO.cp-dy*0.005));}
+  else{camO.yaw-=dx*0.0065;camO.pitch=Math.max(0.08,Math.min(1.4,camO.pitch+dy*0.005));}}
+function camZoom(f){const[a,b]=CAM_LIM[st.camMode];if(st.camMode===2)camO.sd=Math.max(a,Math.min(b,(camO.sd||17)*f));else camO.dist=Math.max(a,Math.min(b,camO.dist*f));camO.idle=0;}
+function camReset(){camO.yaw=0;camO.pitch=0.42;camO.dist=6.4;camO.cy=0;camO.cp=0;camO.sd=17;toast('Cámara centrada','info');}
+(function(){const pts=new Map();let pinch=0;
+  canvas.addEventListener('contextmenu',e=>e.preventDefault());
+  canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===2){const[a,b]=[...pts.values()];pinch=Math.hypot(a.x-b.x,a.y-b.y);}canvas.style.cursor='grabbing';});
+  canvas.addEventListener('pointermove',e=>{const p=pts.get(e.pointerId);if(!p)return;
+    if(pts.size===1){camDrag(e.clientX-p.x,e.clientY-p.y);}
+    p.x=e.clientX;p.y=e.clientY;
+    if(pts.size===2){const[a,b]=[...pts.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch>0)camZoom(pinch/d);pinch=d;}});
+  const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch=0;if(!pts.size)canvas.style.cursor='';};
+  canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);
+  canvas.addEventListener('wheel',e=>{e.preventDefault();camZoom(Math.exp(e.deltaY*0.0012));},{passive:false});
+  canvas.addEventListener('dblclick',camReset);})();
 function stepCamera(dt){const W=(lx,ly,lz)=>{const[a,b]=rot(lx,lz,st.th);return new T.Vector3(st.px+a,ly,st.pz+b);};let p,l;
-  if(st.camMode===0){p=W(0,3.4,-5.6);l=W(0,1.1+Math.max(0,st.h)*0.45,2.2);}
-  else if(st.camMode===1){p=W(0,2.0,-0.32);l=W(0,1.35+st.h*0.55,4.0);}
-  else{p=new T.Vector3(st.px,17,st.pz+7);l=new T.Vector3(st.px,0,st.pz);}
-  const k=camInit?1-Math.exp(-dt*(st.camMode===1?12:5)):1;camPos.lerp(p,k);camLook.lerp(l,k);camInit=true;camera.position.copy(camPos);camera.lookAt(camLook);
+  camO.idle+=dt;const q=(KEYS.KeyQ?1:0)-(KEYS.KeyE?1:0);if(q){camO.idle=0;if(st.camMode===1)camO.cy=Math.max(-1.9,Math.min(1.9,camO.cy+q*1.8*dt));else camO.yaw+=q*1.8*dt;}
+  const back=camO.idle>2.2&&Math.abs(st.v)>0.25;
+  if(st.camMode===0){if(back)camO.yaw*=Math.exp(-dt*1.6);
+    const c=W(0,1.1+Math.max(0,st.h)*0.35,0.4),a=st.th+Math.PI+camO.yaw,cp=Math.cos(camO.pitch),d=camO.dist;
+    p=new T.Vector3(c.x+Math.sin(a)*cp*d,Math.max(0.6,c.y+Math.sin(camO.pitch)*d),c.z+Math.cos(a)*cp*d);l=W(0,0.9+Math.max(0,st.h)*0.45,1.6);}
+  else if(st.camMode===1){if(camO.idle>1.6){camO.cy*=Math.exp(-dt*3);camO.cp*=Math.exp(-dt*3);}
+    p=W(0,2.0,-0.32);const a=st.th+camO.cy,pc=-0.12+st.h*0.12+camO.cp;
+    l=new T.Vector3(p.x+Math.sin(a)*Math.cos(pc)*4,p.y+Math.sin(pc)*4,p.z+Math.cos(a)*Math.cos(pc)*4);}
+  else{const a=camO.yaw,sd=camO.sd||17;p=new T.Vector3(st.px+Math.sin(a)*sd*0.42,sd,st.pz+Math.cos(a)*sd*0.42);l=new T.Vector3(st.px,0,st.pz);}
+  const k=camInit?1-Math.exp(-dt*(st.camMode===1?12:7)):1;camPos.lerp(p,k);camLook.lerp(l,k);camInit=true;camera.position.copy(camPos);camera.lookAt(camLook);
   sun.position.set(st.px+12,24,st.pz+9);sun.target.position.set(st.px,0,st.pz);}
 
 /* ================= HUD ================= */
@@ -775,7 +802,7 @@ function begin(m){st.name=$('fName').value.trim();st.ficha=$('fFicha').value.tri
   try{localStorage.setItem('patio.name',st.name);localStorage.setItem('patio.ficha',st.ficha);}catch(e){}
   audio();$('sErr').textContent='';setupMission(m);
   if(coarse){$('mission').classList.add('min');$('mtog').textContent='+';}SLOTS.forEach(s=>s.p=null);refreshMission();$('start').hidden=true;$('final').hidden=true;$('pause').hidden=true;st.run=true;st.paused=false;camInit=false;
-  toast(MISSIONS[m].title,'info');}
+  toast(MISSIONS[m].title,'info');if(coarse)setTimeout(()=>toast('Arrastra la pantalla para girar la cámara','info'),2800);}
 $('bStart').addEventListener('click',()=>begin(chosen));
 function togglePause(){if(!st.run||st.ended)return;st.paused=!st.paused;$('pause').hidden=!st.paused;}
 $('bPause').addEventListener('click',togglePause);$('bResume').addEventListener('click',togglePause);
