@@ -8,6 +8,7 @@ Sitio publicado: https://logilab-sena.netlify.app
 ## Herramientas
 | Área | Herramienta | Ruta |
 |---|---|---|
+| Logística (SENA) | Equipos 3D en piezas (transpaleta y biblioteca del motor 3D) | `/logistica/equipos-3d/` |
 | Logística (SENA · Uniguajira) | CEDI LogiLab 3D · Laboratorio de centro de distribución | `/logistica/cedi-logilab-3d/` |
 | Logística (SENA) | Diagnóstico Situacional · Sesión 2 | `/logistica/s2-diagnostico-situacional/` |
 | Logística (SENA) | Plan Maestro Riohacha · Sesión 1 | `/logistica/s1-plan-maestro-riohacha/` |
@@ -20,6 +21,7 @@ Sitio publicado: https://logilab-sena.netlify.app
 ## Cómo está organizado
 - `index.html`: portal con el catálogo de herramientas.
 - Una carpeta por herramienta dentro de su área (`logistica/…`).
+- `logistica/equipos-3d/motor-3d.js`: motor 3D compartido por todos los visores de equipos (cada equipo es solo su lista de piezas).
 - `netlify/functions/grupos.mts`: API `/api/grupos` que guarda los grupos de carga en Netlify Blobs.
 - `netlify/functions/entregas.mts`: API `/api/entregas` que guarda los entregables de sesión (S0, S2, S3) en Netlify Blobs; el docente los consulta con `ADMIN_KEY`.
 
