@@ -238,6 +238,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
 
   <nav class="tabs" role="tablist" aria-label="Entregables">
     <button class="tab" role="tab" aria-selected="true" aria-controls="p-lab" id="t-lab">Taller QPM <span class="pill" id="pl-lab">Equipo</span></button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-adv" id="t-adv">Taller avanzado <span class="pill" id="pl-adv">Equipo</span></button>
     <button class="tab" role="tab" aria-selected="false" aria-controls="p-ticket" id="t-ticket">Ticket de salida <span class="pill" id="pl-ticket">Individual</span></button>
     <button class="tab" role="tab" aria-selected="false" aria-controls="p-doc" id="t-doc">Docente</button>
   </nav>
@@ -255,6 +256,18 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
     <div id="ejs" style="display:flex;flex-direction:column;gap:16px"></div>
 
     <div class="send" data-act="S3-QPM"></div>
+  </section>
+
+  <!-- TALLER AVANZADO -->
+  <section class="card" role="tabpanel" id="p-adv" aria-labelledby="t-adv" hidden>
+    <div>
+      <h2>Taller avanzado · paletización y contenerización <span class="hint">· uno por equipo, código S3-QPMA</span></h2>
+      <p class="hint" style="margin:6px 0 0">Cuatro ejercicios con varios productos: paletas CHEP y EUR, contenedores de 20' y 40' HC, carga suelta y un pedido mixto. Requisito: haber hecho los ejercicios 1 a 6. Se entrega aparte del taller básico.</p>
+    </div>
+    <div class="prog"><span id="pg-adv-t">0 de 4</span><div class="bar"><i id="pg-adv"></i></div></div>
+    <div class="notice info"><b>Truco para contenedores:</b> si su versión de QPM no tiene el modo «Paleta a contenedor», creen el <b>piso del contenedor como una paleta</b> (largo × ancho interior, 1 mm de alto, 0 kg) y carguen la paleta armada o la caja con <b>Caja a paleta</b>. Las propiedades de la carga son el interior del contenedor: altura interior y carga útil. Así se hace en los ejercicios 8 y 9.</div>
+    <div id="ejs2" style="display:flex;flex-direction:column;gap:16px"></div>
+    <div class="send" data-act="S3-QPMA"></div>
   </section>
 
   <!-- TICKET -->
@@ -281,17 +294,17 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
       <div id="viewEnt" style="display:flex;flex-direction:column;gap:14px">
         <div class="meters" id="docMeters"></div>
         <div class="grid2" style="align-items:end">
-          <label class="f">Mostrar<select id="docAct"><option value="">Todas las entregas</option><option value="S3-QPM">Taller QPM</option><option value="S3-TICKET">Ticket de salida</option></select></label>
+          <label class="f">Mostrar<select id="docAct"><option value="">Todas las entregas</option><option value="S3-QPM">Taller QPM</option><option value="S3-QPMA">Taller avanzado</option><option value="S3-TICKET">Ticket de salida</option></select></label>
           <div class="btns"><button class="btn" id="docCsv">Descargar CSV</button><button class="btn" id="docReload">Actualizar</button></div>
         </div>
         <div class="notice warn" id="docPend" hidden></div>
         <div class="tw"><table class="list"><thead><tr><th>Entrega</th><th>Grupo · equipo</th><th>Quién</th><th>Recibida</th><th>Nota</th><th></th></tr></thead><tbody id="docRows"></tbody></table></div>
       </div>
       <div id="viewSab" hidden style="display:flex;flex-direction:column;gap:14px">
-        <p class="hint" style="margin:0">La nota del taller es de equipo: se asigna a cada integrante registrado en la selección de carga. El ticket es individual. Lo no enviado cuenta 0,0; lo enviado sin calificar deja la definitiva pendiente.</p>
-        <div class="pesos"><label>Taller QPM (%)<input type="number" min="0" max="100" id="wL"></label><label>Ticket (%)<input type="number" min="0" max="100" id="wT"></label><span class="hint" id="wSum"></span>
+        <p class="hint" style="margin:0">La nota del taller y del taller avanzado es de equipo: se asigna a cada integrante registrado en la selección de carga. El ticket es individual. Lo no enviado cuenta 0,0; lo enviado sin calificar deja la definitiva pendiente.</p>
+        <div class="pesos"><label>Taller QPM (%)<input type="number" min="0" max="100" id="wL"></label><label>Avanzado (%)<input type="number" min="0" max="100" id="wA"></label><label>Ticket (%)<input type="number" min="0" max="100" id="wT"></label><span class="hint" id="wSum"></span>
           <button class="btn" id="sabCsv" style="margin-left:auto">Descargar sábana (CSV)</button></div>
-        <div class="tw"><table class="list"><thead><tr><th>Grupo · eq.</th><th>Estudiante</th><th class="n">Taller</th><th class="n">Ticket</th><th class="n">Definitiva</th></tr></thead><tbody id="sabRows"></tbody></table></div>
+        <div class="tw"><table class="list"><thead><tr><th>Grupo · eq.</th><th>Estudiante</th><th class="n">Taller</th><th class="n">Avanzado</th><th class="n">Ticket</th><th class="n">Definitiva</th></tr></thead><tbody id="sabRows"></tbody></table></div>
       </div>
     </div>
   </section>
@@ -314,7 +327,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
 <script>
 "use strict";
 const DOCENTE_CORREO = "cabarriosn@gmail.com";
-const SES = "S3", ACT_EQ = "S3-QPM", ACT_TK = "S3-TICKET";
+const SES = "S3", ACT_EQ = "S3-QPM", ACT_TK = "S3-TICKET", ACT_AV = "S3-QPMA";
 const ASIG = "Unitarización y Embalaje de la Carga (732235) · Corte 2 · S3 Taller Quick Pallet Maker";
 const PRODUCTOS = {1:"Café verde en sacos de 70 kg",2:"Banano en cajas de 18,14 kg",3:"Aguacate Hass en cajas de 4 kg",4:"Baldosas cerámicas en cajas",5:"Aceite de palma en tambores de 200 L",6:"Confitería en cajas corrugadas",7:"Sal marina de Manaure en sacos de 50 kg"};
 const PUERTOS = {1:"Santa Marta",2:"Santa Marta / Turbo",3:"Cartagena",4:"Barranquilla",5:"Barranquilla",6:"Cartagena",7:"Puerto Brisa / Santa Marta"};
@@ -355,6 +368,53 @@ const EJS = [
   {id:"e6", n:"6", lvl:"Reto", t:"Su producto en QPM", s:"Paleticen el producto del equipo y compárenlo con el patrón manual de la S2.",
    pasos:["Nueva hoja <b>Caja a paleta</b> con la unidad de su producto (medidas y peso del recuadro).","Escojan su paleta. Si es de 1200 × 1200, créenla en <b>Ventana › Cajas y paletas estándar</b>.","Ajusten las <b>dimensiones máximas de la carga</b> al largo y ancho de su paleta (sin voladizo); dejen 1345 mm y 1500 kg.","<b>Recalcular</b>, escojan la solución con más unidades y comparen con el patrón manual de la S2.","Brecha (%) = (total QPM − total S2) ÷ total S2 × 100."],
    f:[["e6_pal","Paleta usada en QPM","x","Ej.: CHEP 1200x1000"],["e6_capa","Unidades por capa (QPM)","n"],["e6_capas","Capas (QPM)","n"],["e6_tot","Unidades por paleta (QPM)","n"],["e6_kg","Peso total con paleta (kg)","n"],["e6_h","Altura total con paleta (mm)","n"],["e6_lim","Factor limitante","s",LIMITES],["e6_brecha","Brecha frente al patrón de la S2 (%)","n"],["e6_conc","Recomendación al Jefe de carga: ¿qué paleta armarían y por qué? Mencionen la condición especial de su producto.","t"]]}
+];
+
+/* ---------- Taller avanzado (S3-QPMA): paletización multiproducto y contenerización ----------
+   Los datos están en AV; las referencias se calculan en el panel del docente (revisionAv). */
+const AV = {
+  A:{n:"Panela en bloque", d:[380,290,220], p:28},
+  B:{n:"Café tostado en grano", d:[500,300,240], p:14},
+  C:{n:"Bocadillo veleño", d:[320,240,180], p:9},
+  chep:[1200,1000,145,30], eur:[1200,800,144,25], hmax:1345, wmax:1500,
+  c20:{n:"20' ST", d:[5898,2352,2393], kg:28200, usd:2100}, c40:{n:"40' HC", d:[12032,2352,2698], kg:26500, usd:3300},
+  pa:{d:[1200,1000,1645], kg:950}, pb:{d:[1200,1000,1165], kg:640},
+  ped:{A:600, B:450, C:900}
+};
+const LIM_CONT = ["Posiciones de piso del contenedor","Altura interior del contenedor","Carga útil (peso máximo)"];
+const mm = a => a.map(x => x.toLocaleString("es-CO")).join(" × ");
+const kgs = n => n.toLocaleString("es-CO");
+const EJS2 = [
+  {id:"e7", n:"7", lvl:"Intermedio", t:"Un pedido, tres productos, dos paletas", s:"Paleticen tres productos en CHEP y en EUR y descubran qué limita cada paleta.",
+   datos:[["Panela en bloque",`${mm(AV.A.d)} mm · ${AV.A.p} kg`],["Café tostado en grano",`${mm(AV.B.d)} mm · ${AV.B.p} kg`],["Bocadillo veleño",`${mm(AV.C.d)} mm · ${AV.C.p} kg`],
+     ["Paleta CHEP",`${mm(AV.chep.slice(0,3))} mm · ${AV.chep[3]} kg`],["Paleta EUR",`${mm(AV.eur.slice(0,3))} mm · ${AV.eur[3]} kg`],["Carga máxima",`${kgs(AV.hmax)} mm sobre la paleta · ${kgs(AV.wmax)} kg · sin voladizo`]],
+   pasos:["Hagan <b>6 hojas «Caja a paleta»</b>: 3 productos × 2 paletas. Las cajas no se voltean (vertical: solo Altura).","En la EUR cambien también las dimensiones máximas de la carga a <b>1200 × 800</b>.","Anoten las cajas por paleta y lean en el informe qué se agotó primero: la altura o el peso.","Comparen: ¿la paleta que da más cajas es siempre la mejor para exportar?"],
+   f:[["e7_Ac","Panela · cajas por paleta CHEP","n"],["e7_Al","Panela · factor limitante en CHEP","s",LIMITES],["e7_Ae","Panela · cajas por paleta EUR","n"],["e7_Ael","Panela · factor limitante en EUR","s",LIMITES],
+      ["e7_Bc","Café · cajas por paleta CHEP","n"],["e7_Bef","Café · eficiencia de área en CHEP (%)","n"],["e7_Be","Café · cajas por paleta EUR","n"],
+      ["e7_Cc","Bocadillo · cajas por paleta CHEP","n"],["e7_Ch","Bocadillo · altura total con paleta CHEP (mm)","n"],["e7_Ce","Bocadillo · cajas por paleta EUR","n"],
+      ["e7_conc","¿Por qué la panela cambia de factor limitante al pasar de CHEP a EUR? ¿Qué paleta usarían si el cliente está en Europa y por qué?","t"]]},
+  {id:"e8", n:"8", lvl:"Intermedio", t:"De la paleta al contenedor", s:"Cuántas paletas caben en un 20' ST y en un 40' HC, y cuándo conviene apilar.",
+   datos:[["Paleta alta (A)",`${mm(AV.pa.d)} mm · ${kgs(AV.pa.kg)} kg · no se apila`],["Paleta baja (B)",`${mm(AV.pb.d)} mm · ${kgs(AV.pb.kg)} kg · soporta 1 paleta encima`],
+     ["Contenedor 20' ST (interior)",`${mm(AV.c20.d)} mm · carga útil ${kgs(AV.c20.kg)} kg · flete USD ${kgs(AV.c20.usd)}`],["Contenedor 40' HC (interior)",`${mm(AV.c40.d)} mm · carga útil ${kgs(AV.c40.kg)} kg · flete USD ${kgs(AV.c40.usd)}`]],
+   pasos:["Creen el piso de cada contenedor como una «paleta» (ver el truco de arriba) o usen el modo de contenedor de su QPM.","Carguen la paleta A como si fuera una caja en el 20' ST y en el 40' HC.","Repitan con la paleta B en el 40' HC: QPM la apila en dos niveles si la altura alcanza.","Revisen si el peso supera la carga útil y calculen el costo de flete por kilogramo de cada opción."],
+   f:[["e8_a20","Paletas A en el 20' ST","n"],["e8_a40","Paletas A en el 40' HC","n"],["e8_pos","Paletas B por nivel en el 40' HC (posiciones de piso)","n"],["e8_niv","Niveles de paletas B que caben por altura","n"],
+      ["e8_btot","Paletas B que se pueden cargar en el 40' HC","n"],["e8_lim","Factor limitante del 40' HC con paletas B","s",LIM_CONT],["e8_ckg","Costo de flete por kg de la opción más barata (USD/kg)","n"],
+      ["e8_conc","¿Qué opción recomiendan (A en 20', A en 40' HC o B en 40' HC)? ¿Qué condición debe cumplir el empaque para poder apilar?","t"]]},
+  {id:"e9", n:"9", lvl:"Avanzado", t:"Carga suelta frente a carga paletizada", s:"Carguen el bocadillo directo al piso del 40' HC y compárenlo con las paletas.",
+   datos:[["Caja de bocadillo",`${mm(AV.C.d)} mm · ${AV.C.p} kg`],["Contenedor 40' HC (interior)",`${mm(AV.c40.d)} mm · carga útil ${kgs(AV.c40.kg)} kg`],["Paletizado (comparación)","Paletas CHEP de bocadillo del ej. 7, sin apilar (el bocadillo no soporta peso encima)"]],
+   pasos:["Usen el piso del 40' HC como paleta (ej. 8) y carguen la caja de bocadillo directo.","Primero pongan un peso máximo muy alto para ver cuántas cajas caben <b>por volumen</b>; luego pongan la carga útil real.","Calculen cuántas cajas van paletizadas: paletas en el 40' HC × cajas por paleta del ej. 7.","Diferencia (%) = (cajas sueltas − cajas paletizadas) ÷ cajas paletizadas × 100."],
+   f:[["e9_capa","Cajas por capa en el piso del 40' HC","n"],["e9_capas","Capas por altura","n"],["e9_vol","Cajas que caben por volumen (sin límite de peso)","n"],["e9_tot","Cajas que se pueden cargar con 26 500 kg","n"],
+      ["e9_lim","Factor limitante de la carga suelta","s",LIM_CONT],["e9_pal","Cajas si se envía paletizado (paletas × cajas por paleta)","n"],["e9_dif","Diferencia carga suelta frente a paletizada (%)","n"],
+      ["e9_conc","Además de la cantidad, ¿qué ventajas y desventajas tiene la carga suelta (tiempo de cargue, mano de obra, daños, descargue en destino)? ¿Qué recomiendan?","t"]]},
+  {id:"e10", n:"10", lvl:"Avanzado", t:"Reto: contenerizar el pedido mixto", s:"Panela, café y bocadillo hacia un 40' HC: paletas, apilamiento, peso y plan de cargue.",
+   datos:[["Pedido",`Panela ${AV.ped.A} cajas · café ${AV.ped.B} · bocadillo ${AV.ped.C}`],["Paleta","CHEP 1200x1000, con sus resultados del ej. 7"],
+     ["Apilamiento","Panela y café soportan una paleta encima. El bocadillo no soporta peso: va arriba o solo."],
+     ["Contenedor principal",`40' HC · ${mm(AV.c40.d)} mm · carga útil ${kgs(AV.c40.kg)} kg · 22 posiciones de piso para CHEP`],["Contenedor adicional",`20' ST · ${mm(AV.c20.d)} mm · carga útil ${kgs(AV.c20.kg)} kg`]],
+   pasos:["Con las cajas por paleta del ej. 7 calculen las paletas de cada producto (la última puede quedar incompleta).","Calculen el peso de cada paleta (cajas × peso + 30 kg de la paleta) y el peso total del pedido.","Formen parejas apilables cuya altura sumada no pase de 2 698 mm y calculen las posiciones de piso mínimas.","Comparen con las 22 posiciones y con la carga útil del 40' HC. Decidan si cabe todo y, si no, cómo lo reparten.","Escriban el plan de cargue: qué va al fondo, qué apilan, cómo reparten el peso y cómo aseguran la carga."],
+   f:[["e10_pA","Paletas de panela","n"],["e10_pB","Paletas de café","n"],["e10_pC","Paletas de bocadillo","n"],["e10_kg","Peso total del pedido con paletas (kg)","n"],
+      ["e10_pos","Posiciones de piso mínimas apilando lo permitido","n"],["e10_lim","¿Qué impide cargar todo en un solo 40' HC?","s",[...LIM_CONT,"Nada: cabe todo"]],["e10_kg40","Peso que cargan en el 40' HC (kg)","n"],
+      ["e10_plan","Plan de cargue: qué va en el 40' HC y qué en el 20' ST, qué apilan, orden de cargue y aseguramiento","t"],
+      ["e10_conc","Si el cliente exige un solo contenedor, ¿qué le proponen (reducir el pedido, otra paleta, otro contenedor)? Justifiquen con números.","t"]]}
 ];
 /* Paso a paso campo por campo de cada ejercicio: [paso, dónde, qué hacer]. "!" al inicio del paso = advertencia. */
 const CFG = {
@@ -406,6 +466,47 @@ const CFG = {
     ["2", "Para reproducir el caso B", "Igual que el ejercicio 4 pero con Longitud externa máxima en <b>600</b>"],
     ["3", "Para reproducir el caso C", "Igual que el ejercicio 4 pero con Tipo <b>NP</b>"],
     ["4", "Después", "Corrijan un dato a la vez y vuelvan a Recalcular: el dato que hace desaparecer el error es la causa"]
+  ],
+  e7: [
+    ["1", "Menú Archivo", "<b>Nueva hoja de datos › Caja a paleta</b> (una hoja por producto y paleta: 6 en total)"],
+    ["2", "Caja · panela", "Longitud <b>380</b> · Ancho <b>290</b> · Altura <b>220</b> mm · Peso <b>28</b> kg · verticales: <b>solo Altura</b>"],
+    ["3", "Dimensiones Paleta y carga", "<b>CHEP 1200x1000</b> · Propiedades de la carga: máximas <b>1200 × 1000 × 1345</b> · Peso Máximo <b>1500</b> kg"],
+    ["4", "Herramientas", "<b>Recalcular</b> → solución con más cajas → informe detallado: cajas por paleta, peso y altura"],
+    ["5", "Factor limitante", "Comparen las capas que armó QPM con 1345 ÷ alto de la caja. Si armó <b>menos</b> capas de las que caben por altura, lo limitó el <b>peso</b>."],
+    ["6", "Archivo › Guardar como", "Guarden una copia y cambien a <b>EUR 1200x800</b> (si no aparece: 1200 × 800 × 144 mm, 25 kg) y las máximas de la carga a <b>1200 × 800 × 1345</b> → Recalcular"],
+    ["7", "Café y bocadillo", "Repitan los pasos 2 a 6 con café <b>500 × 300 × 240 · 14 kg</b> y bocadillo <b>320 × 240 × 180 · 9 kg</b>"],
+    ["8", "Eficiencia de área", "La da el informe; o calcúlenla: cajas por capa × largo × ancho de la caja ÷ (1200 × 1000) × 100"],
+    ["!", "Ojo", "Si cambian la paleta pero no las máximas de la carga, QPM deja cajas por fuera de la EUR (voladizo)."]
+  ],
+  e8: [
+    ["1", "Ventana › Cajas y paletas estándar", "En la tabla de <b>paletas</b>: <b>Editar › Duplicar</b> una fila y conviértanla en «Piso 20' ST»: Longitud <b>5898</b> · Ancho <b>2352</b> · Altura <b>1</b> mm · Peso <b>0</b> kg (o 1 si no acepta 0). Hagan otra «Piso 40' HC»: <b>12032 × 2352 × 1</b>. Enter en cada celda."],
+    ["2", "Herramientas › Opciones", "Si QPM no acepta medidas tan grandes, suban los máximos de dimensiones de paleta y de carga (por ejemplo a 13 000 mm)."],
+    ["3", "Archivo › Nueva hoja de datos", "<b>Caja a paleta</b>. En la «caja» escriban la <b>paleta A armada</b>: <b>1200 × 1000 × 1645</b> mm · <b>950</b> kg · verticales <b>solo Altura</b>"],
+    ["4", "Dimensiones Paleta y carga", "<b>Piso 20' ST</b> · máximas <b>5898 × 2352 × 2393</b> · Peso Máximo <b>28200</b> kg → <b>Recalcular</b> → paletas A en el 20' ST"],
+    ["5", "Cambiar al 40' HC", "<b>Piso 40' HC</b> · máximas <b>12032 × 2352 × 2698</b> · Peso Máximo <b>26500</b> → Recalcular → paletas A en el 40' HC"],
+    ["6", "Paleta B", "Cambien la «caja» a <b>1200 × 1000 × 1165</b> mm · <b>640</b> kg → Recalcular. «Por capa» = posiciones de piso · «capas» = niveles · total = paletas cargadas"],
+    ["7", "Peso", "Comparen posiciones × niveles × 640 kg con la carga útil. Si la supera, QPM deja el último nivel incompleto."],
+    ["8", "Costo por kg", "Flete ÷ (paletas × peso de cada paleta). 20' ST = USD 2 100 · 40' HC = USD 3 300. Comparen las tres opciones y escriban la menor (dos decimales)."],
+    ["i", "Si su QPM tiene modo contenedor", "Pueden usar <b>Paleta a contenedor</b> con las mismas medidas interiores y carga útil: el resultado debe coincidir."]
+  ],
+  e9: [
+    ["1", "Archivo › Nueva hoja de datos", "<b>Caja a paleta</b> · caja de bocadillo <b>320 × 240 × 180</b> mm · <b>9</b> kg · verticales <b>solo Altura</b>"],
+    ["2", "Dimensiones Paleta y carga", "<b>Piso 40' HC</b> (del ej. 8) · máximas <b>12032 × 2352 × 2698</b>"],
+    ["3", "Peso Máximo 99999 kg", "<b>Recalcular</b> → cajas por capa, capas y total: eso cabe <b>por volumen</b>"],
+    ["4", "Peso Máximo 26500 kg", "<b>Recalcular</b> → cajas que de verdad se pueden cargar. ¿Cuántas capas quedaron?"],
+    ["5", "Paletizado", "Posiciones de piso del 40' HC para CHEP (ej. 8) × cajas por paleta de bocadillo (ej. 7). No se apila."],
+    ["6", "Diferencia (%)", "(cajas sueltas − cajas paletizadas) ÷ cajas paletizadas × 100"],
+    ["!", "Si QPM tarda", "Con un piso tan grande QPM puede tardar unos segundos: esperen antes de volver a hacer clic."]
+  ],
+  e10: [
+    ["1", "Paletas por producto", "Pedido ÷ cajas por paleta (ej. 7, CHEP), redondeado hacia arriba. La última paleta lleva el sobrante."],
+    ["2", "Peso por paleta", "Cajas × peso de la caja + 30 kg de la paleta. La paleta incompleta pesa menos: calcúlenla aparte."],
+    ["3", "Altura por paleta", "Capas × alto de la caja + 145 mm (la del bocadillo ya la tienen del ej. 7)"],
+    ["4", "Parejas apilables", "Abajo solo panela o café. La suma de las dos alturas debe ser ≤ 2 698 mm. Empiecen poniendo cada bocadillo sobre la paleta más baja que lo aguante."],
+    ["5", "Posiciones de piso", "Total de paletas − número de parejas. Compárenlo con las 22 posiciones del 40' HC."],
+    ["6", "Carga útil", "Sumen el peso. Si pasa de 26 500 kg, decidan qué paletas van al 20' ST (máximo 28 200 kg)."],
+    ["7", "QPM (opcional)", "Verifiquen una pareja apilada: «caja» de 1200 × 1000 × (altura de las dos paletas) en el Piso 40' HC."],
+    ["8", "Plan de cargue", "Lo pesado abajo y repartido a lo largo del contenedor; nada suelto: bolsas de aire o calzas en los huecos; lo último que se carga es lo primero que se descarga."]
   ]
 };
 function cfgTabla(rows){
@@ -429,7 +530,8 @@ const TICKET = [
   "En el ejercicio de tu producto, ¿cuál fue el factor limitante (área, altura o peso) y en qué dato del informe de QPM lo viste?",
   "Si QPM muestra «Una caja válida no pudo ser creada», ¿qué tres cosas revisarías primero?"
 ];
-const NOMBRES = {"S3-QPM":"Taller QPM","S3-TICKET":"Ticket de salida"};
+const NOMBRES = {"S3-QPM":"Taller QPM","S3-QPMA":"Taller avanzado","S3-TICKET":"Ticket de salida"};
+const LISTA = act => act === ACT_AV ? EJS2 : EJS;
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -451,7 +553,7 @@ const campo = ([id, label, tipo, extra]) => {
   if (tipo === "x") return `<label class="f">${esc(label)}<input type="text" id="${id}" data-k="${id}" maxlength="160"${extra ? ` placeholder="${esc(extra)}"` : ""}></label>`;
   return `<label class="f">${esc(label)}<input type="number" id="${id}" data-k="${id}" step="any" min="0" inputmode="decimal"></label>`;
 };
-$("ejs").innerHTML = EJS.map(e => `<article class="station" id="st_${e.id}">
+const tarjeta = e => `<article class="station" id="st_${e.id}">
   <header><div class="sn">${e.n}</div><div><h3>Ejercicio ${e.n} · ${esc(e.t)}<span class="lvl">${e.lvl}</span></h3><small>${esc(e.s)}</small></div></header>
   <div class="sb">
     ${e.datos ? `<div class="dl">${e.datos.map(([k,v]) => `<div><small>${esc(k)}</small><b>${esc(v)}</b></div>`).join("")}</div>` : ""}
@@ -462,7 +564,9 @@ $("ejs").innerHTML = EJS.map(e => `<article class="station" id="st_${e.id}">
     ${e.nota ? `<div class="notice warn" style="margin:0">${esc(e.nota)}</div>` : ""}
     ${e.casos ? "" : `<div class="grid3">${e.f.map(campo).join("")}</div>`}
     ${e.id === "e3" ? `<div class="verdict" id="e3_ver" hidden></div>` : ""}
-  </div></article>`).join("");
+  </div></article>`;
+$("ejs").innerHTML = EJS.map(tarjeta).join("");
+$("ejs2").innerHTML = EJS2.map(tarjeta).join("");
 $("ticketQs").innerHTML = TICKET.map((q,i) => `<label class="f">${i+1}. ${esc(q)}<textarea id="tk${i}" data-k="tk${i}" rows="3"></textarea></label>`).join("");
 $("prodManual").innerHTML += Object.entries(PRODUCTOS).map(([n,p]) => `<option value="${n}">${n}. ${esc(p)}</option>`).join("");
 
@@ -561,6 +665,8 @@ function progreso(){
   const ok = EJS.map(e => { const c = completo(e); $("st_" + e.id).classList.toggle("ok", c); return c; });
   const nL = ok.filter(Boolean).length, nT = TICKET.filter((_,i) => val(`tk${i}`)).length;
   $("pg-lab").style.width = (100*nL/EJS.length) + "%"; $("pg-lab-t").textContent = `${nL} de ${EJS.length} ejercicios completos`;
+  const nA = EJS2.map(e => { const c = completo(e); $("st_" + e.id).classList.toggle("ok", c); return c; }).filter(Boolean).length;
+  $("pg-adv").style.width = (100*nA/EJS2.length) + "%"; $("pg-adv-t").textContent = `${nA} de ${EJS2.length} ejercicios completos`;
   $("pg-ticket").style.width = (100*nT/3) + "%"; $("pg-ticket-t").textContent = `${nT} de 3 respuestas`;
 }
 
@@ -576,7 +682,7 @@ function faltantes(act){
     TICKET.forEach((_,i) => { if (!val(`tk${i}`)) m.push([$(`tk${i}`),`pregunta ${i+1}`]); });
     return m;
   }
-  EJS.forEach(e => e.f.forEach(([id, label]) => { if (!val(id)) m.push([$(id), `Ej. ${e.n}: ${label.toLowerCase()}`]); }));
+  LISTA(act).forEach(e => e.f.forEach(([id, label]) => { if (!val(id)) m.push([$(id), `Ej. ${e.n}: ${label.toLowerCase()}`]); }));
   return m;
 }
 
@@ -584,7 +690,7 @@ function faltantes(act){
 function datosDe(act){
   if (act === ACT_TK) return {ticket: TICKET.map((q,i) => ({pregunta:q, respuesta:val(`tk${i}`)}))};
   const d = {productoId: productoId()};
-  EJS.forEach(e => { d[e.id] = {}; e.f.forEach(([id,, tipo]) => { d[e.id][id] = tipo === "n" ? num(id) : val(id); }); });
+  LISTA(act).forEach(e => { d[e.id] = {}; e.f.forEach(([id,, tipo]) => { d[e.id][id] = tipo === "n" ? num(id) : val(id); }); });
   return d;
 }
 const payload = act => ({act, grupo:grupoSel(), equipo:Number(val("equipo")), nombre:val("nombre"), codigo:val("codigo"), producto:productoActual(), integrantes:integrantes(), datos:datosDe(act)});
@@ -592,7 +698,7 @@ const v = x => x === null || x === undefined || x === "" ? "—" : x;
 function textoDatos(act, d){
   const L = [];
   if (act === ACT_TK){ (d.ticket||[]).forEach((t,i) => L.push(`${i+1}. ${t.pregunta}`, `   ${t.respuesta}`)); return L; }
-  EJS.forEach(e => {
+  LISTA(act).forEach(e => {
     L.push(`EJERCICIO ${e.n} · ${e.t.toUpperCase()}`);
     e.f.forEach(([id, label]) => L.push(`  ${label}: ${v((d[e.id]||{})[id])}`));
     L.push("");
@@ -638,11 +744,11 @@ const acciones = {
 };
 function marcarEnviados(){
   const rec = store.get("s3_enviados") || {};
-  [[ACT_EQ,"pl-lab","Equipo"],[ACT_TK,"pl-ticket","Individual"]].forEach(([a,id,b]) => { $(id).textContent = rec[a] ? "Enviado ✓" : b; $(id).classList.toggle("done", !!rec[a]); });
+  [[ACT_EQ,"pl-lab","Equipo"],[ACT_AV,"pl-adv","Equipo"],[ACT_TK,"pl-ticket","Individual"]].forEach(([a,id,b]) => { $(id).textContent = rec[a] ? "Enviado ✓" : b; $(id).classList.toggle("done", !!rec[a]); });
 }
 
 /* ---------- Pestañas y eventos ---------- */
-const TABS = ["lab","ticket","doc"];
+const TABS = ["lab","adv","ticket","doc"];
 function abrir(k){ TABS.forEach(t => { $(`t-${t}`).setAttribute("aria-selected", t===k); $(`p-${t}`).hidden = t!==k; }); $("idcard").hidden = k === "doc"; try{ history.replaceState(null, "", "#" + k); }catch(e){} }
 TABS.forEach(t => $(`t-${t}`).addEventListener("click", () => abrir(t)));
 document.querySelector(".tabs").addEventListener("keydown", e => {
@@ -679,7 +785,7 @@ async function docCargar(){
 function docPintar(){
   const f = $("docAct").value, list = ENTREGAS.filter(x => !f || x.act === f), totEq = EQUIPOS.length;
   const cuenta = a => ENTREGAS.filter(x => x.act === a).length;
-  $("docMeters").innerHTML = [[ACT_EQ,"Talleres QPM",`de ${totEq} equipos registrados`],[ACT_TK,"Tickets de salida","estudiantes"],["","Por calificar","entregas sin nota o reenviadas"]]
+  $("docMeters").innerHTML = [[ACT_EQ,"Talleres QPM",`de ${totEq} equipos registrados`],[ACT_AV,"Talleres avanzados",`de ${totEq} equipos`],[ACT_TK,"Tickets de salida","estudiantes"],["","Por calificar","entregas sin nota o reenviadas"]]
     .map(([a,t,s]) => `<div class="meter"><b>${a ? cuenta(a) : ENTREGAS.filter(x => !x.calificacion || x.calificacion.reenvio).length}</b><small>${t}</small><div>${s}</div></div>`).join("");
   const pend = EQUIPOS.filter(e => !ENTREGAS.some(x => x.act === ACT_EQ && x.grupo === e.grupo && x.equipo === e.equipo)).map(e => `${e.grupo}-${e.equipo}`);
   $("docPend").hidden = !pend.length; $("docPend").innerHTML = `<b>Equipos sin taller:</b> ${esc(pend.join(", "))}.`;
@@ -710,6 +816,13 @@ const RUBRICAS = {
     {k:"diag", t:"Ejercicio 5: diagnóstico del error", s:"Tres causas correctas con correcciones concretas.", a:"Dos causas correctas.", i:"Una o ninguna."},
     {k:"reto", t:"Ejercicio 6: su producto en QPM", s:"Paleta correcta, resultados coherentes con el peso y la altura, brecha bien calculada.", a:"Resultados con un error o brecha mal calculada.", i:"Ejercicio incompleto o incoherente."},
     {k:"analisis", t:"Análisis y recomendación", s:"Conclusiones propias, técnicas y ligadas a la condición especial del producto.", a:"Conclusiones genéricas.", i:"Sin análisis."}
+  ],
+  "S3-QPMA": [
+    {k:"e7", t:"Ejercicio 7: paletización de tres productos", s:"Seis paletas correctas y cambio de factor limitante de la panela explicado.", a:"Uno o dos resultados con error o explicación débil.", i:"Varios resultados incorrectos."},
+    {k:"e8", t:"Ejercicio 8: paletas en contenedor", s:"Paletas por contenedor, niveles y límite por peso correctos; costo por kg bien calculado.", a:"Conteo correcto con error en peso o costo.", i:"Conteos incorrectos."},
+    {k:"e9", t:"Ejercicio 9: carga suelta frente a paletizada", s:"Capas y total limitados por la carga útil; diferencia bien calculada.", a:"Cálculo por volumen sin aplicar la carga útil, o diferencia mal calculada.", i:"Resultados incoherentes."},
+    {k:"e10", t:"Ejercicio 10: contenerización del pedido mixto", s:"Paletas, peso y posiciones correctos; reparto que respeta la carga útil y el apilamiento.", a:"Cálculos con un error o plan incompleto.", i:"Plan que excede la carga útil o apila el bocadillo debajo."},
+    {k:"analisis", t:"Análisis y recomendaciones", s:"Recomendaciones técnicas justificadas con números (costo, peso, riesgos de la carga suelta).", a:"Recomendaciones genéricas.", i:"Sin análisis."}
   ],
   "S3-TICKET": [
     {k:"r1", t:"1. Modos de QPM", s:"Distingue los tres modos con un ejemplo correcto de cada uno.", a:"Distingue dos modos o sin ejemplos.", i:"Confunde los modos."},
@@ -772,13 +885,66 @@ function revisionAuto(x){
       fila("Brecha vs. S2 (%)", g6.e6_brecha, brDado != null ? `${brDado} con su total (${br} con la referencia)` : br, brDado != null && cerca(g6.e6_brecha, brDado, 0.05))].join("")}</ul>`); }
   return L.join("");
 }
+
+/* Revisión del taller avanzado: referencias calculadas desde AV */
+function posMin(list, H){
+  const bot = list.filter(p => p.stack).sort((a,b) => a.h - b.h), tops = list.filter(p => !p.stack).sort((a,b) => b.h - a.h), used = new Set();
+  let pairs = 0;
+  tops.forEach(t => { const i = bot.findIndex((b,k) => !used.has(k) && b.h + t.h <= H); if (i >= 0){ used.add(i); pairs++; } });
+  const r = bot.filter((_,k) => !used.has(k)); let i = 0, j = r.length - 1;
+  while (i < j){ if (r[i].h + r[j].h <= H){ pairs++; i++; j--; } else j--; }
+  return list.length - pairs;
+}
+function revisionAv(x){
+  const d = x.datos || {}, L = [], ul = a => `<ul style="margin:2px 0 6px;padding-left:18px">${a.join("")}</ul>`, f2 = n => n.toLocaleString("es-CO", {maximumFractionDigits:2});
+  const R = {}; ["A","B","C"].forEach(k => { const p = AV[k]; R[k] = {c: paleta(1200, 1000, p.d[0], p.d[1], p.d[2], p.p, AV.hmax, AV.wmax), e: paleta(1200, 800, p.d[0], p.d[1], p.d[2], p.p, AV.hmax, AV.wmax)}; });
+  const a = d.e7 || {}, efB = Math.round(R.B.c.capa * AV.B.d[0] * AV.B.d[1] / 120) / 100, hC = R.C.c.capas * AV.C.d[2] + 145;
+  L.push(`<b>Ej. 7</b>:` + ul([
+    fila("Panela CHEP", a.e7_Ac, R.A.c.tot, a.e7_Ac === R.A.c.tot), fila("Factor panela CHEP", a.e7_Al, R.A.c.lim, a.e7_Al === R.A.c.lim),
+    fila("Panela EUR", a.e7_Ae, R.A.e.tot, a.e7_Ae === R.A.e.tot), fila("Factor panela EUR", a.e7_Ael, R.A.e.lim, a.e7_Ael === R.A.e.lim),
+    fila("Café CHEP", a.e7_Bc, R.B.c.tot, a.e7_Bc === R.B.c.tot), fila("Eficiencia café CHEP (%)", a.e7_Bef, f2(efB), cerca(a.e7_Bef, efB, 0.02)), fila("Café EUR", a.e7_Be, R.B.e.tot, a.e7_Be === R.B.e.tot),
+    fila("Bocadillo CHEP", a.e7_Cc, R.C.c.tot, a.e7_Cc === R.C.c.tot), fila("Altura bocadillo CHEP (mm)", a.e7_Ch, hC, cerca(a.e7_Ch, hC, 0.01)), fila("Bocadillo EUR", a.e7_Ce, R.C.e.tot, a.e7_Ce === R.C.e.tot)]));
+  // Ejercicio 8
+  const b = d.e8 || {}, P20 = capaMax(AV.c20.d[0], AV.c20.d[1], 1200, 1000), P40 = capaMax(AV.c40.d[0], AV.c40.d[1], 1200, 1000);
+  const A20 = P20 * Math.max(1, Math.floor(AV.c20.d[2] / AV.pa.d[2])), A40 = P40 * Math.max(1, Math.floor(AV.c40.d[2] / AV.pa.d[2])), nB = Math.floor(AV.c40.d[2] / AV.pb.d[2]);
+  const Bvol = P40 * nB, Bkg = Math.floor(AV.c40.kg / AV.pb.kg), Btot = Math.min(Bvol, Bkg), Blim = Bkg < Bvol ? LIM_CONT[2] : LIM_CONT[0];
+  const ck = Math.min(AV.c20.usd / (A20 * AV.pa.kg), AV.c40.usd / (A40 * AV.pa.kg), AV.c40.usd / (Btot * AV.pb.kg));
+  L.push(`<b>Ej. 8</b> (QPM puede dar 1 posición menos por holguras):` + ul([
+    fila("Paletas A en 20' ST", b.e8_a20, P20 ? A20 : "—", b.e8_a20 != null && Math.abs(b.e8_a20 - A20) <= 1), fila("Paletas A en 40' HC", b.e8_a40, A40, b.e8_a40 != null && Math.abs(b.e8_a40 - A40) <= 1),
+    fila("Posiciones de piso 40' HC", b.e8_pos, P40, b.e8_pos != null && Math.abs(b.e8_pos - P40) <= 1), fila("Niveles de B", b.e8_niv, nB, b.e8_niv === nB),
+    fila("Paletas B cargadas", b.e8_btot, `${Btot} (volumen ${Bvol}, peso ${Bkg})`, b.e8_btot != null && Math.abs(b.e8_btot - Btot) <= 1), fila("Factor limitante con B", b.e8_lim, Blim, b.e8_lim === Blim),
+    fila("Costo por kg más bajo (USD)", b.e8_ckg, f2(ck), cerca(b.e8_ckg, ck, 0.05))]));
+  // Ejercicio 9
+  const c = d.e9 || {}, capa9 = capaMax(AV.c40.d[0], AV.c40.d[1], AV.C.d[0], AV.C.d[1]), capas9 = Math.floor(AV.c40.d[2] / AV.C.d[2]), vol9 = capa9 * capas9;
+  const kgU = Math.floor(AV.c40.kg / AV.C.p), tot9 = Math.min(vol9, kgU), tot9min = Math.min(vol9, Math.floor(kgU / capa9) * capa9), lim9 = kgU < vol9 ? LIM_CONT[2] : LIM_CONT[1];
+  const cpC = a.e7_Cc || R.C.c.tot, pal9 = P40 * cpC, dif9 = c.e9_tot && c.e9_pal ? Math.round((c.e9_tot - c.e9_pal) / c.e9_pal * 1000) / 10 : null;
+  L.push(`<b>Ej. 9</b> (patrón guillotina: QPM puede encontrar algo más por capa):` + ul([
+    fila("Cajas por capa", c.e9_capa, capa9, cerca(c.e9_capa, capa9, 0.03)), fila("Capas por altura", c.e9_capas, capas9, c.e9_capas === capas9),
+    fila("Cajas por volumen", c.e9_vol, vol9, cerca(c.e9_vol, vol9, 0.03)), fila("Cajas con 26 500 kg", c.e9_tot, `${tot9min}–${tot9}`, c.e9_tot >= tot9min - 1 && c.e9_tot <= tot9),
+    fila("Factor limitante", c.e9_lim, lim9, c.e9_lim === lim9), fila("Cajas paletizadas", c.e9_pal, `${pal9} (${P40} × ${cpC})`, c.e9_pal != null && Math.abs(c.e9_pal - pal9) <= cpC),
+    fila("Diferencia (%)", c.e9_dif, dif9 != null ? `${f2(dif9)} con sus datos` : "—", dif9 != null && cerca(c.e9_dif, dif9, 0.05))]));
+  // Ejercicio 10
+  const g = d.e10 || {}, cp = {A: a.e7_Ac || R.A.c.tot, B: a.e7_Bc || R.B.c.tot, C: a.e7_Cc || R.C.c.tot}, lista = [];
+  let kgT = 0; const np = {};
+  ["A","B","C"].forEach(k => { const n = Math.ceil(AV.ped[k] / cp[k]), resto = AV.ped[k] - (n - 1) * cp[k], capas = R[k].c.capas, h = capas * AV[k].d[2] + 145; np[k] = n;
+    kgT += (n - 1) * (cp[k] * AV[k].p + 30) + resto * AV[k].p + 30;
+    for (let i = 0; i < n; i++) lista.push({h, stack: k !== "C"}); });
+  const pos = posMin(lista, AV.c40.d[2]), ntot = np.A + np.B + np.C, lim10 = kgT > AV.c40.kg ? LIM_CONT[2] : pos > P40 ? LIM_CONT[0] : "Nada: cabe todo";
+  L.push(`<b>Ej. 10</b> (con las cajas por paleta que reportaron en el ej. 7: ${cp.A} · ${cp.B} · ${cp.C}):` + ul([
+    fila("Paletas de panela", g.e10_pA, np.A, g.e10_pA === np.A), fila("Paletas de café", g.e10_pB, np.B, g.e10_pB === np.B), fila("Paletas de bocadillo", g.e10_pC, np.C, g.e10_pC === np.C),
+    fila("Peso total (kg)", g.e10_kg, kgs(kgT), cerca(g.e10_kg, kgT, 0.01)), fila("Posiciones de piso mínimas", g.e10_pos, `${pos} de ${ntot} paletas`, g.e10_pos != null && Math.abs(g.e10_pos - pos) <= 1),
+    fila("Qué lo impide", g.e10_lim, lim10, g.e10_lim === lim10),
+    fila("Peso en el 40' HC (kg)", g.e10_kg40, `≤ ${kgs(AV.c40.kg)} y lo más cerca posible; resto ${g.e10_kg40 ? kgs(Math.round(kgT - g.e10_kg40)) : "—"} kg al 20' ST (≤ ${kgs(AV.c20.kg)})`, g.e10_kg40 != null && g.e10_kg40 <= AV.c40.kg && g.e10_kg40 >= AV.c40.kg * 0.85 && kgT - g.e10_kg40 <= AV.c20.kg)]) +
+    `<span class="hint">Revise en el plan: el bocadillo nunca va debajo; parejas ≤ 2 698 mm; peso repartido a lo largo; aseguramiento con bolsas de aire o calzas.</span>`);
+  return L.join("");
+}
 function abrirCal(key){
   const x = ENTREGAS.find(y => y.key === key); if (!x) return;
   CAL = x; const c = x.calificacion || {criterios:{}, nota:"", comentario:""};
   $("cT").textContent = `Calificar · ${NOMBRES[x.act]||x.act}`;
   $("cS").textContent = `${x.grupo} · Equipo ${x.equipo} · ${x.producto} · ${x.act === ACT_TK ? x.nombre : "nota de equipo"}`;
   $("cB").textContent = textoEntrega(x);
-  $("cAuto").hidden = x.act !== ACT_EQ; if (x.act === ACT_EQ) $("cAuto").innerHTML = revisionAuto(x);
+  $("cAuto").hidden = x.act === ACT_TK; if (x.act === ACT_EQ) $("cAuto").innerHTML = revisionAuto(x); else if (x.act === ACT_AV) $("cAuto").innerHTML = revisionAv(x);
   $("cCrit").innerHTML = (RUBRICAS[x.act]||[]).map(r => `<div class="crit">
       <div class="row"><b style="flex:1;min-width:160px;color:var(--fg)">${esc(r.t)}</b><input type="number" min="0" max="5" step="0.1" data-c="${r.k}" value="${c.criterios?.[r.k] ?? ""}" aria-label="${esc(r.t)}"></div>
       <div class="row">${[["Superior 5,0",5],["4,5",4.5],["4,0",4],["Aceptable 3,5",3.5],["3,0",3],["Insuficiente 2,0",2]].map(([l,n]) => `<button type="button" class="lv" data-set="${r.k}" data-v="${n}">${l}</button>`).join("")}</div>
@@ -819,8 +985,8 @@ $("cDel").addEventListener("click", async () => {
 });
 
 /* Sábana de notas */
-const PESOS_DEF = {L:70, T:30};
-const pesos = () => { const p = store.get("s3_pesos") || PESOS_DEF; return {L:+p.L||0, T:+p.T||0}; };
+const PESOS_DEF = {L:50, A:30, T:20};
+const pesos = () => { const p = store.get("s3_pesos") || PESOS_DEF; return {L:+p.L||0, A:+p.A||0, T:+p.T||0}; };
 const norm = t => String(t||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(Boolean);
 function mismoNombre(a, b){ const A = norm(a), B = norm(b); if (!A.length || !B.length) return false; const [c, l] = A.length <= B.length ? [A, B] : [B, A]; return c.every(t => l.includes(t)) || (c.length >= 2 && c.slice(0,2).every(t => l.includes(t))); }
 function filasSabana(){
@@ -829,31 +995,32 @@ function filasSabana(){
   eqs.sort((a,b) => a.grupo.localeCompare(b.grupo) || a.equipo - b.equipo);
   eqs.forEach(e => {
     const lab = ENTREGAS.find(x => x.act === ACT_EQ && x.grupo === e.grupo && x.equipo === e.equipo);
+    const av = ENTREGAS.find(x => x.act === ACT_AV && x.grupo === e.grupo && x.equipo === e.equipo);
     const tks = ENTREGAS.filter(x => x.act === ACT_TK && x.grupo === e.grupo && x.equipo === e.equipo);
     const miembros = e.sinReg ? [] : [[e.jefe,"Jefe de carga"],[e.calculista,"Calculista"],...e.operarios.map(o => [o,"Operario"])];
-    miembros.forEach(([nom, rol]) => { const t = tks.find(x => !usados.has(x.key) && mismoNombre(x.nombre, nom)); if (t) usados.add(t.key); filas.push({grupo:e.grupo, equipo:e.equipo, nombre:nom, rol, codigo:t?.codigo||"", lab, ticket:t}); });
-    tks.filter(x => !usados.has(x.key)).forEach(t => { usados.add(t.key); filas.push({grupo:e.grupo, equipo:e.equipo, nombre:t.nombre, rol: e.sinReg ? "Equipo sin registro" : "No figura en el equipo", codigo:t.codigo, lab, ticket:t}); });
+    miembros.forEach(([nom, rol]) => { const t = tks.find(x => !usados.has(x.key) && mismoNombre(x.nombre, nom)); if (t) usados.add(t.key); filas.push({grupo:e.grupo, equipo:e.equipo, nombre:nom, rol, codigo:t?.codigo||"", lab, av, ticket:t}); });
+    tks.filter(x => !usados.has(x.key)).forEach(t => { usados.add(t.key); filas.push({grupo:e.grupo, equipo:e.equipo, nombre:t.nombre, rol: e.sinReg ? "Equipo sin registro" : "No figura en el equipo", codigo:t.codigo, lab, av, ticket:t}); });
   });
-  const w = pesos(), tot = w.L + w.T;
-  filas.forEach(f => { const pend = [f.lab, f.ticket].some(x => x && (!x.calificacion || x.calificacion.reenvio)); f.def = pend || !tot ? null : ((f.lab?.calificacion?.nota||0)*w.L + (f.ticket?.calificacion?.nota||0)*w.T) / tot; });
+  const w = pesos(), tot = w.L + w.A + w.T;
+  filas.forEach(f => { const pend = [f.lab, w.A ? f.av : null, f.ticket].some(x => x && (!x.calificacion || x.calificacion.reenvio)); f.def = pend || !tot ? null : ((f.lab?.calificacion?.nota||0)*w.L + (f.av?.calificacion?.nota||0)*w.A + (f.ticket?.calificacion?.nota||0)*w.T) / tot; });
   return filas;
 }
 const celda = x => !x ? '<span class="hint">0,0<br>no entregó</span>' : !x.calificacion ? '<span class="hint">Por calificar</span>' : badge(x.calificacion.nota) + (x.calificacion.reenvio ? '<div class="flag">Reenviada</div>' : "");
 function sabPintar(){
-  const w = pesos(); $("wL").value = w.L; $("wT").value = w.T; const t = w.L + w.T; $("wSum").textContent = `Suma: ${t}%`; $("wSum").style.color = t === 100 ? "" : "var(--danger)";
+  const w = pesos(); $("wL").value = w.L; $("wA").value = w.A; $("wT").value = w.T; const t = w.L + w.A + w.T; $("wSum").textContent = `Suma: ${t}%`; $("wSum").style.color = t === 100 ? "" : "var(--danger)";
   const f = filasSabana();
   $("sabRows").innerHTML = f.length ? f.map(r => `<tr><td>${esc(r.grupo)} · ${r.equipo}</td><td>${esc(r.nombre)}<div class="hint">${esc([r.rol, r.codigo].filter(Boolean).join(" · "))}</div></td>
-    <td class="n">${celda(r.lab)}</td><td class="n">${celda(r.ticket)}</td><td class="n">${r.def === null ? '<span class="hint">Pendiente</span>' : badge(r.def)}</td></tr>`).join("")
-    : '<tr><td colspan="5" class="hint">Aún no hay equipos ni entregas.</td></tr>';
+    <td class="n">${celda(r.lab)}</td><td class="n">${celda(r.av)}</td><td class="n">${celda(r.ticket)}</td><td class="n">${r.def === null ? '<span class="hint">Pendiente</span>' : badge(r.def)}</td></tr>`).join("")
+    : '<tr><td colspan="6" class="hint">Aún no hay equipos ni entregas.</td></tr>';
 }
-["wL","wT"].forEach(id => $(id).addEventListener("input", () => { store.set("s3_pesos", {L:val("wL"), T:val("wT")}); sabPintar(); }));
+["wL","wA","wT"].forEach(id => $(id).addEventListener("input", () => { store.set("s3_pesos", {L:val("wL"), A:val("wA"), T:val("wT")}); sabPintar(); }));
 const descargar = (nombre, contenido) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + contenido], {type:"text/csv;charset=utf-8"})); a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); };
 const q = x => `"${String(x ?? "").replace(/"/g,'""').replace(/\n/g," ")}"`;
 $("sabCsv").addEventListener("click", () => {
   const f = filasSabana(); if (!f.length){ docMsg("warn","No hay datos para exportar."); return; }
   const w = pesos(), n = x => !x ? "0,0" : x.calificacion ? fmt(x.calificacion.nota) : "Por calificar";
-  const L = [["Grupo","Equipo","Estudiante","Codigo","Rol",`Taller (${w.L}%)`,`Ticket (${w.T}%)`,"Definitiva","Retroalimentacion taller","Retroalimentacion ticket"].map(q).join(";")];
-  f.forEach(r => L.push([r.grupo, r.equipo, r.nombre, r.codigo, r.rol, n(r.lab), n(r.ticket), r.def === null ? "Pendiente" : fmt(r.def), r.lab?.calificacion?.comentario, r.ticket?.calificacion?.comentario].map(q).join(";")));
+  const L = [["Grupo","Equipo","Estudiante","Codigo","Rol",`Taller (${w.L}%)`,`Avanzado (${w.A}%)`,`Ticket (${w.T}%)`,"Definitiva","Retroalimentacion taller","Retroalimentacion avanzado","Retroalimentacion ticket"].map(q).join(";")];
+  f.forEach(r => L.push([r.grupo, r.equipo, r.nombre, r.codigo, r.rol, n(r.lab), n(r.av), n(r.ticket), r.def === null ? "Pendiente" : fmt(r.def), r.lab?.calificacion?.comentario, r.av?.calificacion?.comentario, r.ticket?.calificacion?.comentario].map(q).join(";")));
   descargar("Sabana_notas_S3.csv", L.join("\n"));
 });
 $("docCsv").addEventListener("click", () => {
