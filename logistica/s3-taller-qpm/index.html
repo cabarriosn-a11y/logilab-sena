@@ -262,10 +262,10 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
   <section class="card" role="tabpanel" id="p-adv" aria-labelledby="t-adv" hidden>
     <div>
       <h2>Taller avanzado · paletización y contenerización <span class="hint">· uno por equipo, código S3-QPMA</span></h2>
-      <p class="hint" style="margin:6px 0 0">Cuatro ejercicios con varios productos: paletas CHEP y EUR, contenedores de 20' y 40' HC, carga suelta y un pedido mixto. Requisito: haber hecho los ejercicios 1 a 6. Se entrega aparte del taller básico.</p>
+      <p class="hint" style="margin:6px 0 0">Cuatro ejercicios con varios productos: paletas CHEP y EUR, contenedores Dry Cargo 20 y High Cube 40 de QPM, carga suelta y un pedido mixto. Requisito: haber hecho los ejercicios 1 a 6. Se entrega aparte del taller básico.</p>
     </div>
     <div class="prog"><span id="pg-adv-t">0 de 4</span><div class="bar"><i id="pg-adv"></i></div></div>
-    <div class="notice info"><b>Truco para contenedores:</b> si su versión de QPM no tiene el modo «Paleta a contenedor», creen el <b>piso del contenedor como una paleta</b> (largo × ancho interior, 1 mm de alto, 0 kg) y carguen la paleta armada o la caja con <b>Caja a paleta</b>. Las propiedades de la carga son el interior del contenedor: altura interior y carga útil. Así se hace en los ejercicios 8 y 9.</div>
+    <div class="notice info"><b>Contenedores de QPM:</b> usen los que trae QPM en <b>Ventana › Cajas y paletas estándar › Contenedores</b>: <b>Dry Cargo 20</b> (interior 5 900 × 2 340 × 2 390 mm, 21 777 kg) y <b>High Cube 40</b> (interior 12 010 × 2 330 × 2 690 mm, 25 841 kg). Para cargar paletas o cajas en el contenedor, creen su <b>piso como una paleta</b> con esas medidas (1 mm de alto, 0 kg) y usen <b>Caja a paleta</b>, tal como explica el ejercicio 8.</div>
     <div id="ejs2" style="display:flex;flex-direction:column;gap:16px"></div>
     <div class="send" data-act="S3-QPMA"></div>
   </section>
@@ -377,7 +377,7 @@ const AV = {
   B:{n:"Café tostado en grano", d:[500,300,240], p:14},
   C:{n:"Bocadillo veleño", d:[320,240,180], p:9},
   chep:[1200,1000,145,30], eur:[1200,800,144,25], hmax:1345, wmax:1500,
-  c20:{n:"20' ST", d:[5898,2352,2393], kg:28200, usd:2100}, c40:{n:"40' HC", d:[12032,2352,2698], kg:26500, usd:3300},
+  c20:{n:"Dry Cargo 20", d:[5900,2340,2390], kg:21777, usd:2100}, c40:{n:"High Cube 40", d:[12010,2330,2690], kg:25841, usd:3300},
   pa:{d:[1200,1000,1645], kg:950}, pb:{d:[1200,1000,1165], kg:640},
   ped:{A:600, B:450, C:900}
 };
@@ -393,27 +393,27 @@ const EJS2 = [
       ["e7_Bc","Café · cajas por paleta CHEP","n"],["e7_Bef","Café · eficiencia de área en CHEP (%)","n"],["e7_Be","Café · cajas por paleta EUR","n"],
       ["e7_Cc","Bocadillo · cajas por paleta CHEP","n"],["e7_Ch","Bocadillo · altura total con paleta CHEP (mm)","n"],["e7_Ce","Bocadillo · cajas por paleta EUR","n"],
       ["e7_conc","¿Por qué la panela cambia de factor limitante al pasar de CHEP a EUR? ¿Qué paleta usarían si el cliente está en Europa y por qué?","t"]]},
-  {id:"e8", n:"8", lvl:"Intermedio", t:"De la paleta al contenedor", s:"Cuántas paletas caben en un 20' ST y en un 40' HC, y cuándo conviene apilar.",
+  {id:"e8", n:"8", lvl:"Intermedio", t:"De la paleta al contenedor", s:"Cuántas paletas caben en un Dry Cargo 20 y en un High Cube 40, y cuándo conviene apilar.",
    datos:[["Paleta alta (A)",`${mm(AV.pa.d)} mm · ${kgs(AV.pa.kg)} kg · no se apila`],["Paleta baja (B)",`${mm(AV.pb.d)} mm · ${kgs(AV.pb.kg)} kg · soporta 1 paleta encima`],
-     ["Contenedor 20' ST (interior)",`${mm(AV.c20.d)} mm · carga útil ${kgs(AV.c20.kg)} kg · flete USD ${kgs(AV.c20.usd)}`],["Contenedor 40' HC (interior)",`${mm(AV.c40.d)} mm · carga útil ${kgs(AV.c40.kg)} kg · flete USD ${kgs(AV.c40.usd)}`]],
-   pasos:["Creen el piso de cada contenedor como una «paleta» (ver el truco de arriba) o usen el modo de contenedor de su QPM.","Carguen la paleta A como si fuera una caja en el 20' ST y en el 40' HC.","Repitan con la paleta B en el 40' HC: QPM la apila en dos niveles si la altura alcanza.","Revisen si el peso supera la carga útil y calculen el costo de flete por kilogramo de cada opción."],
-   f:[["e8_a20","Paletas A en el 20' ST","n"],["e8_a40","Paletas A en el 40' HC","n"],["e8_pos","Paletas B por nivel en el 40' HC (posiciones de piso)","n"],["e8_niv","Niveles de paletas B que caben por altura","n"],
-      ["e8_btot","Paletas B que se pueden cargar en el 40' HC","n"],["e8_lim","Factor limitante del 40' HC con paletas B","s",LIM_CONT],["e8_ckg","Costo de flete por kg de la opción más barata (USD/kg)","n"],
-      ["e8_conc","¿Qué opción recomiendan (A en 20', A en 40' HC o B en 40' HC)? ¿Qué condición debe cumplir el empaque para poder apilar?","t"]]},
-  {id:"e9", n:"9", lvl:"Avanzado", t:"Carga suelta frente a carga paletizada", s:"Carguen el bocadillo directo al piso del 40' HC y compárenlo con las paletas.",
-   datos:[["Caja de bocadillo",`${mm(AV.C.d)} mm · ${AV.C.p} kg`],["Contenedor 40' HC (interior)",`${mm(AV.c40.d)} mm · carga útil ${kgs(AV.c40.kg)} kg`],["Paletizado (comparación)","Paletas CHEP de bocadillo del ej. 7, sin apilar (el bocadillo no soporta peso encima)"]],
-   pasos:["Usen el piso del 40' HC como paleta (ej. 8) y carguen la caja de bocadillo directo.","Primero pongan un peso máximo muy alto para ver cuántas cajas caben <b>por volumen</b>; luego pongan la carga útil real.","Calculen cuántas cajas van paletizadas: paletas en el 40' HC × cajas por paleta del ej. 7.","Diferencia (%) = (cajas sueltas − cajas paletizadas) ÷ cajas paletizadas × 100."],
-   f:[["e9_capa","Cajas por capa en el piso del 40' HC","n"],["e9_capas","Capas por altura","n"],["e9_vol","Cajas que caben por volumen (sin límite de peso)","n"],["e9_tot","Cajas que se pueden cargar con 26 500 kg","n"],
+     ["Contenedor Dry Cargo 20 (interior)",`${mm(AV.c20.d)} mm · carga útil ${kgs(AV.c20.kg)} kg · flete USD ${kgs(AV.c20.usd)}`],["Contenedor High Cube 40 (interior)",`${mm(AV.c40.d)} mm · carga útil ${kgs(AV.c40.kg)} kg · flete USD ${kgs(AV.c40.usd)}`]],
+   pasos:["Creen el piso de cada contenedor como una «paleta» (ver el truco de arriba) o usen el modo de contenedor de su QPM.","Carguen la paleta A como si fuera una caja en el Dry Cargo 20 y en el High Cube 40.","Repitan con la paleta B en el High Cube 40: QPM la apila en dos niveles si la altura alcanza.","Revisen si el peso supera la carga útil y calculen el costo de flete por kilogramo de cada opción."],
+   f:[["e8_a20","Paletas A en el Dry Cargo 20","n"],["e8_a40","Paletas A en el High Cube 40","n"],["e8_pos","Paletas B por nivel en el High Cube 40 (posiciones de piso)","n"],["e8_niv","Niveles de paletas B que caben por altura","n"],
+      ["e8_btot","Paletas B que se pueden cargar en el High Cube 40","n"],["e8_lim","Factor limitante del High Cube 40 con paletas B","s",LIM_CONT],["e8_ckg","Costo de flete por kg de la opción más barata (USD/kg)","n"],
+      ["e8_conc","¿Qué opción recomiendan (A en 20', A en High Cube 40 o B en High Cube 40)? ¿Qué condición debe cumplir el empaque para poder apilar?","t"]]},
+  {id:"e9", n:"9", lvl:"Avanzado", t:"Carga suelta frente a carga paletizada", s:"Carguen el bocadillo directo al piso del High Cube 40 y compárenlo con las paletas.",
+   datos:[["Caja de bocadillo",`${mm(AV.C.d)} mm · ${AV.C.p} kg`],["Contenedor High Cube 40 (interior)",`${mm(AV.c40.d)} mm · carga útil ${kgs(AV.c40.kg)} kg`],["Paletizado (comparación)","Paletas CHEP de bocadillo del ej. 7, sin apilar (el bocadillo no soporta peso encima)"]],
+   pasos:["Usen el piso del High Cube 40 como paleta (ej. 8) y carguen la caja de bocadillo directo.","Primero pongan un peso máximo muy alto para ver cuántas cajas caben <b>por volumen</b>; luego pongan la carga útil real.","Calculen cuántas cajas van paletizadas: paletas en el High Cube 40 × cajas por paleta del ej. 7.","Diferencia (%) = (cajas sueltas − cajas paletizadas) ÷ cajas paletizadas × 100."],
+   f:[["e9_capa","Cajas por capa en el piso del High Cube 40","n"],["e9_capas","Capas por altura","n"],["e9_vol","Cajas que caben por volumen (sin límite de peso)","n"],["e9_tot","Cajas que se pueden cargar con 25 841 kg","n"],
       ["e9_lim","Factor limitante de la carga suelta","s",LIM_CONT],["e9_pal","Cajas si se envía paletizado (paletas × cajas por paleta)","n"],["e9_dif","Diferencia carga suelta frente a paletizada (%)","n"],
       ["e9_conc","Además de la cantidad, ¿qué ventajas y desventajas tiene la carga suelta (tiempo de cargue, mano de obra, daños, descargue en destino)? ¿Qué recomiendan?","t"]]},
-  {id:"e10", n:"10", lvl:"Avanzado", t:"Reto: contenerizar el pedido mixto", s:"Panela, café y bocadillo hacia un 40' HC: paletas, apilamiento, peso y plan de cargue.",
+  {id:"e10", n:"10", lvl:"Avanzado", t:"Reto: contenerizar el pedido mixto", s:"Panela, café y bocadillo hacia un High Cube 40: paletas, apilamiento, peso y plan de cargue.",
    datos:[["Pedido",`Panela ${AV.ped.A} cajas · café ${AV.ped.B} · bocadillo ${AV.ped.C}`],["Paleta","CHEP 1200x1000, con sus resultados del ej. 7"],
      ["Apilamiento","Panela y café soportan una paleta encima. El bocadillo no soporta peso: va arriba o solo."],
-     ["Contenedor principal",`40' HC · ${mm(AV.c40.d)} mm · carga útil ${kgs(AV.c40.kg)} kg · 22 posiciones de piso para CHEP`],["Contenedor adicional",`20' ST · ${mm(AV.c20.d)} mm · carga útil ${kgs(AV.c20.kg)} kg`]],
-   pasos:["Con las cajas por paleta del ej. 7 calculen las paletas de cada producto (la última puede quedar incompleta).","Calculen el peso de cada paleta (cajas × peso + 30 kg de la paleta) y el peso total del pedido.","Formen parejas apilables cuya altura sumada no pase de 2 698 mm y calculen las posiciones de piso mínimas.","Comparen con las 22 posiciones y con la carga útil del 40' HC. Decidan si cabe todo y, si no, cómo lo reparten.","Escriban el plan de cargue: qué va al fondo, qué apilan, cómo reparten el peso y cómo aseguran la carga."],
+     ["Contenedor principal",`High Cube 40 · ${mm(AV.c40.d)} mm · carga útil ${kgs(AV.c40.kg)} kg · 22 posiciones de piso para CHEP`],["Contenedor adicional",`Dry Cargo 20 · ${mm(AV.c20.d)} mm · carga útil ${kgs(AV.c20.kg)} kg`]],
+   pasos:["Con las cajas por paleta del ej. 7 calculen las paletas de cada producto (la última puede quedar incompleta).","Calculen el peso de cada paleta (cajas × peso + 30 kg de la paleta) y el peso total del pedido.","Formen parejas apilables cuya altura sumada no pase de 2 690 mm y calculen las posiciones de piso mínimas.","Comparen con las 22 posiciones y con la carga útil del High Cube 40. Decidan si cabe todo y, si no, cómo lo reparten.","Escriban el plan de cargue: qué va al fondo, qué apilan, cómo reparten el peso y cómo aseguran la carga."],
    f:[["e10_pA","Paletas de panela","n"],["e10_pB","Paletas de café","n"],["e10_pC","Paletas de bocadillo","n"],["e10_kg","Peso total del pedido con paletas (kg)","n"],
-      ["e10_pos","Posiciones de piso mínimas apilando lo permitido","n"],["e10_lim","¿Qué impide cargar todo en un solo 40' HC?","s",[...LIM_CONT,"Nada: cabe todo"]],["e10_kg40","Peso que cargan en el 40' HC (kg)","n"],
-      ["e10_plan","Plan de cargue: qué va en el 40' HC y qué en el 20' ST, qué apilan, orden de cargue y aseguramiento","t"],
+      ["e10_pos","Posiciones de piso mínimas apilando lo permitido","n"],["e10_lim","¿Qué impide cargar todo en un solo High Cube 40?","s",[...LIM_CONT,"Nada: cabe todo"]],["e10_kg40","Peso que cargan en el High Cube 40 (kg)","n"],
+      ["e10_plan","Plan de cargue: qué va en el High Cube 40 y qué en el Dry Cargo 20, qué apilan, orden de cargue y aseguramiento","t"],
       ["e10_conc","Si el cliente exige un solo contenedor, ¿qué le proponen (reducir el pedido, otra paleta, otro contenedor)? Justifiquen con números.","t"]]}
 ];
 /* Paso a paso campo por campo de cada ejercicio: [paso, dónde, qué hacer]. "!" al inicio del paso = advertencia. */
@@ -479,23 +479,23 @@ const CFG = {
     ["!", "Ojo", "Si cambian la paleta pero no las máximas de la carga, QPM deja cajas por fuera de la EUR (voladizo)."]
   ],
   e8: [
-    ["1", "Ventana › Cajas y paletas estándar › pestaña Paletas", "<b>Editar › Duplicar</b> una fila y conviértanla en «Piso 20' ST»: Longitud <b>5898</b> · Ancho <b>2352</b> · Altura <b>1</b> mm · Peso <b>0</b> kg. Desplacen la tabla a la derecha y cambien también los <b>máximos de la carga</b> de esa fila: Long. <b>5898</b> · Anch. <b>2352</b> · Altur. <b>2393</b> · Peso C <b>28200</b>. Enter en cada celda. Hagan otra fila «Piso 40' HC»: <b>12032 × 2352 × 1</b> con máximos <b>12032 × 2352 × 2698</b> y <b>26500</b> kg."],
+    ["1", "Ventana › Cajas y paletas estándar › pestaña Paletas", "<b>Editar › Duplicar</b> una fila y conviértanla en «Piso Dry Cargo 20»: Longitud <b>5900</b> · Ancho <b>2340</b> · Altura <b>1</b> mm · Peso <b>0</b> kg. Desplacen la tabla a la derecha y cambien también los <b>máximos de la carga</b> de esa fila: Long. <b>5900</b> · Anch. <b>2340</b> · Altur. <b>2390</b> · Peso C <b>21777</b>. Enter en cada celda. Hagan otra fila «Piso High Cube 40»: <b>12010 × 2330 × 1</b> con máximos <b>12010 × 2330 × 2690</b> y <b>25841</b> kg."],
     ["i", "Es normal", "En la vista previa el «Piso» se ve como una <b>línea</b>: mide 1 mm de alto. Si en la fila quedan los máximos por defecto (1345 mm y 1500 kg), QPM solo armará un nivel y no pasará de 1500 kg."],
     ["2", "Herramientas › Opciones", "Si QPM no acepta medidas tan grandes, suban los máximos de dimensiones de paleta y de carga (por ejemplo a 13 000 mm)."],
     ["3", "Archivo › Nueva hoja de datos", "<b>Caja a paleta</b>. En la «caja» escriban la <b>paleta A armada</b>: <b>1200 × 1000 × 1645</b> mm · <b>950</b> kg · verticales <b>solo Altura</b>"],
-    ["4", "Dimensiones Paleta y carga", "<b>Piso 20' ST</b> · máximas <b>5898 × 2352 × 2393</b> · Peso Máximo <b>28200</b> kg → <b>Recalcular</b> → paletas A en el 20' ST"],
-    ["5", "Cambiar al 40' HC", "<b>Piso 40' HC</b> · máximas <b>12032 × 2352 × 2698</b> · Peso Máximo <b>26500</b> → Recalcular → paletas A en el 40' HC"],
+    ["4", "Dimensiones Paleta y carga", "<b>Piso Dry Cargo 20</b> · máximas <b>5900 × 2340 × 2390</b> · Peso Máximo <b>21777</b> kg → <b>Recalcular</b> → paletas A en el Dry Cargo 20"],
+    ["5", "Cambiar al High Cube 40", "<b>Piso High Cube 40</b> · máximas <b>12010 × 2330 × 2690</b> · Peso Máximo <b>25841</b> → Recalcular → paletas A en el High Cube 40"],
     ["6", "Paleta B", "Cambien la «caja» a <b>1200 × 1000 × 1165</b> mm · <b>640</b> kg → Recalcular. «Por capa» = posiciones de piso · «capas» = niveles · total = paletas cargadas"],
     ["7", "Peso", "Comparen posiciones × niveles × 640 kg con la carga útil. Si la supera, QPM deja el último nivel incompleto."],
-    ["8", "Costo por kg", "Flete ÷ (paletas × peso de cada paleta). 20' ST = USD 2 100 · 40' HC = USD 3 300. Comparen las tres opciones y escriban la menor (dos decimales)."],
+    ["8", "Costo por kg", "Flete ÷ (paletas × peso de cada paleta). Dry Cargo 20 = USD 2 100 · High Cube 40 = USD 3 300. Comparen las tres opciones y escriban la menor (dos decimales)."],
     ["i", "Si su QPM tiene modo contenedor", "Pueden usar <b>Paleta a contenedor</b> con las mismas medidas interiores y carga útil: el resultado debe coincidir."]
   ],
   e9: [
     ["1", "Archivo › Nueva hoja de datos", "<b>Caja a paleta</b> · caja de bocadillo <b>320 × 240 × 180</b> mm · <b>9</b> kg · verticales <b>solo Altura</b>"],
-    ["2", "Dimensiones Paleta y carga", "<b>Piso 40' HC</b> (del ej. 8) · máximas <b>12032 × 2352 × 2698</b>"],
+    ["2", "Dimensiones Paleta y carga", "<b>Piso High Cube 40</b> (del ej. 8) · máximas <b>12010 × 2330 × 2690</b>"],
     ["3", "Peso Máximo 99999 kg", "<b>Recalcular</b> → cajas por capa, capas y total: eso cabe <b>por volumen</b>"],
-    ["4", "Peso Máximo 26500 kg", "<b>Recalcular</b> → cajas que de verdad se pueden cargar. ¿Cuántas capas quedaron?"],
-    ["5", "Paletizado", "Posiciones de piso del 40' HC para CHEP (ej. 8) × cajas por paleta de bocadillo (ej. 7). No se apila."],
+    ["4", "Peso Máximo 25841 kg", "<b>Recalcular</b> → cajas que de verdad se pueden cargar. ¿Cuántas capas quedaron?"],
+    ["5", "Paletizado", "Posiciones de piso del High Cube 40 para CHEP (ej. 8) × cajas por paleta de bocadillo (ej. 7). No se apila."],
     ["6", "Diferencia (%)", "(cajas sueltas − cajas paletizadas) ÷ cajas paletizadas × 100"],
     ["!", "Si QPM tarda", "Con un piso tan grande QPM puede tardar unos segundos: esperen antes de volver a hacer clic."]
   ],
@@ -503,10 +503,10 @@ const CFG = {
     ["1", "Paletas por producto", "Pedido ÷ cajas por paleta (ej. 7, CHEP), redondeado hacia arriba. La última paleta lleva el sobrante."],
     ["2", "Peso por paleta", "Cajas × peso de la caja + 30 kg de la paleta. La paleta incompleta pesa menos: calcúlenla aparte."],
     ["3", "Altura por paleta", "Capas × alto de la caja + 145 mm (la del bocadillo ya la tienen del ej. 7)"],
-    ["4", "Parejas apilables", "Abajo solo panela o café. La suma de las dos alturas debe ser ≤ 2 698 mm. Empiecen poniendo cada bocadillo sobre la paleta más baja que lo aguante."],
-    ["5", "Posiciones de piso", "Total de paletas − número de parejas. Compárenlo con las 22 posiciones del 40' HC."],
-    ["6", "Carga útil", "Sumen el peso. Si pasa de 26 500 kg, decidan qué paletas van al 20' ST (máximo 28 200 kg)."],
-    ["7", "QPM (opcional)", "Verifiquen una pareja apilada: «caja» de 1200 × 1000 × (altura de las dos paletas) en el Piso 40' HC."],
+    ["4", "Parejas apilables", "Abajo solo panela o café. La suma de las dos alturas debe ser ≤ 2 690 mm. Empiecen poniendo cada bocadillo sobre la paleta más baja que lo aguante."],
+    ["5", "Posiciones de piso", "Total de paletas − número de parejas. Compárenlo con las 22 posiciones del High Cube 40."],
+    ["6", "Carga útil", "Sumen el peso. Si pasa de 25 841 kg, decidan qué paletas van al Dry Cargo 20 (máximo 21 777 kg)."],
+    ["7", "QPM (opcional)", "Verifiquen una pareja apilada: «caja» de 1200 × 1000 × (altura de las dos paletas) en el Piso High Cube 40."],
     ["8", "Plan de cargue", "Lo pesado abajo y repartido a lo largo del contenedor; nada suelto: bolsas de aire o calzas en los huecos; lo último que se carga es lo primero que se descarga."]
   ]
 };
@@ -911,8 +911,8 @@ function revisionAv(x){
   const Bvol = P40 * nB, Bkg = Math.floor(AV.c40.kg / AV.pb.kg), Btot = Math.min(Bvol, Bkg), Blim = Bkg < Bvol ? LIM_CONT[2] : LIM_CONT[0];
   const ck = Math.min(AV.c20.usd / (A20 * AV.pa.kg), AV.c40.usd / (A40 * AV.pa.kg), AV.c40.usd / (Btot * AV.pb.kg));
   L.push(`<b>Ej. 8</b> (QPM puede dar 1 posición menos por holguras):` + ul([
-    fila("Paletas A en 20' ST", b.e8_a20, P20 ? A20 : "—", b.e8_a20 != null && Math.abs(b.e8_a20 - A20) <= 1), fila("Paletas A en 40' HC", b.e8_a40, A40, b.e8_a40 != null && Math.abs(b.e8_a40 - A40) <= 1),
-    fila("Posiciones de piso 40' HC", b.e8_pos, P40, b.e8_pos != null && Math.abs(b.e8_pos - P40) <= 1), fila("Niveles de B", b.e8_niv, nB, b.e8_niv === nB),
+    fila("Paletas A en Dry Cargo 20", b.e8_a20, P20 ? A20 : "—", b.e8_a20 != null && Math.abs(b.e8_a20 - A20) <= 1), fila("Paletas A en High Cube 40", b.e8_a40, A40, b.e8_a40 != null && Math.abs(b.e8_a40 - A40) <= 1),
+    fila("Posiciones de piso High Cube 40", b.e8_pos, P40, b.e8_pos != null && Math.abs(b.e8_pos - P40) <= 1), fila("Niveles de B", b.e8_niv, nB, b.e8_niv === nB),
     fila("Paletas B cargadas", b.e8_btot, `${Btot} (volumen ${Bvol}, peso ${Bkg})`, b.e8_btot != null && Math.abs(b.e8_btot - Btot) <= 1), fila("Factor limitante con B", b.e8_lim, Blim, b.e8_lim === Blim),
     fila("Costo por kg más bajo (USD)", b.e8_ckg, f2(ck), cerca(b.e8_ckg, ck, 0.05))]));
   // Ejercicio 9
@@ -921,7 +921,7 @@ function revisionAv(x){
   const cpC = a.e7_Cc || R.C.c.tot, pal9 = P40 * cpC, dif9 = c.e9_tot && c.e9_pal ? Math.round((c.e9_tot - c.e9_pal) / c.e9_pal * 1000) / 10 : null;
   L.push(`<b>Ej. 9</b> (patrón guillotina: QPM puede encontrar algo más por capa):` + ul([
     fila("Cajas por capa", c.e9_capa, capa9, cerca(c.e9_capa, capa9, 0.03)), fila("Capas por altura", c.e9_capas, capas9, c.e9_capas === capas9),
-    fila("Cajas por volumen", c.e9_vol, vol9, cerca(c.e9_vol, vol9, 0.03)), fila("Cajas con 26 500 kg", c.e9_tot, `${tot9min}–${tot9}`, c.e9_tot >= tot9min - 1 && c.e9_tot <= tot9),
+    fila("Cajas por volumen", c.e9_vol, vol9, cerca(c.e9_vol, vol9, 0.03)), fila("Cajas con la carga útil", c.e9_tot, `${tot9min}–${tot9}`, c.e9_tot >= tot9min - 1 && c.e9_tot <= tot9),
     fila("Factor limitante", c.e9_lim, lim9, c.e9_lim === lim9), fila("Cajas paletizadas", c.e9_pal, `${pal9} (${P40} × ${cpC})`, c.e9_pal != null && Math.abs(c.e9_pal - pal9) <= cpC),
     fila("Diferencia (%)", c.e9_dif, dif9 != null ? `${f2(dif9)} con sus datos` : "—", dif9 != null && cerca(c.e9_dif, dif9, 0.05))]));
   // Ejercicio 10
@@ -935,8 +935,8 @@ function revisionAv(x){
     fila("Paletas de panela", g.e10_pA, np.A, g.e10_pA === np.A), fila("Paletas de café", g.e10_pB, np.B, g.e10_pB === np.B), fila("Paletas de bocadillo", g.e10_pC, np.C, g.e10_pC === np.C),
     fila("Peso total (kg)", g.e10_kg, kgs(kgT), cerca(g.e10_kg, kgT, 0.01)), fila("Posiciones de piso mínimas", g.e10_pos, `${pos} de ${ntot} paletas`, g.e10_pos != null && Math.abs(g.e10_pos - pos) <= 1),
     fila("Qué lo impide", g.e10_lim, lim10, g.e10_lim === lim10),
-    fila("Peso en el 40' HC (kg)", g.e10_kg40, `≤ ${kgs(AV.c40.kg)} y lo más cerca posible; resto ${g.e10_kg40 ? kgs(Math.round(kgT - g.e10_kg40)) : "—"} kg al 20' ST (≤ ${kgs(AV.c20.kg)})`, g.e10_kg40 != null && g.e10_kg40 <= AV.c40.kg && g.e10_kg40 >= AV.c40.kg * 0.85 && kgT - g.e10_kg40 <= AV.c20.kg)]) +
-    `<span class="hint">Revise en el plan: el bocadillo nunca va debajo; parejas ≤ 2 698 mm; peso repartido a lo largo; aseguramiento con bolsas de aire o calzas.</span>`);
+    fila("Peso en el High Cube 40 (kg)", g.e10_kg40, `≤ ${kgs(AV.c40.kg)} y lo más cerca posible; resto ${g.e10_kg40 ? kgs(Math.round(kgT - g.e10_kg40)) : "—"} kg al Dry Cargo 20 (≤ ${kgs(AV.c20.kg)})`, g.e10_kg40 != null && g.e10_kg40 <= AV.c40.kg && g.e10_kg40 >= AV.c40.kg * 0.85 && kgT - g.e10_kg40 <= AV.c20.kg)]) +
+    `<span class="hint">Revise en el plan: el bocadillo nunca va debajo; parejas ≤ 2 690 mm; peso repartido a lo largo; aseguramiento con bolsas de aire o calzas.</span>`);
   return L.join("");
 }
 function abrirCal(key){
