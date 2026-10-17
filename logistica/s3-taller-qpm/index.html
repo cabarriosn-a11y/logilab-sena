@@ -212,7 +212,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
   <header>
     <div class="eyebrow">Corte 2 · Sesión S3 · Taller de software</div>
     <h1>Quick Pallet Maker: de la caja a la paleta</h1>
-    <p class="lead">Seis ejercicios en QPM, del más sencillo al reto con el producto de su equipo. El Calculista opera QPM y diligencia la hoja del equipo; cada estudiante envía su ticket de salida. Lo que escriben se guarda en este dispositivo mientras trabajan.</p>
+    <p class="lead">Seis ejercicios en QPM, del más sencillo al reto con el producto de su equipo. Cada estudiante hace los ejercicios en QPM y envía su propio taller y su ticket de salida, con su código estudiantil. Lo que escriben se guarda en este dispositivo mientras trabajan.</p>
   </header>
 
   <section class="card" id="idcard" aria-labelledby="idh">
@@ -238,8 +238,8 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
   </section>
 
   <nav class="tabs" role="tablist" aria-label="Entregables">
-    <button class="tab" role="tab" aria-selected="true" aria-controls="p-lab" id="t-lab">Taller QPM <span class="pill" id="pl-lab">Equipo</span></button>
-    <button class="tab" role="tab" aria-selected="false" aria-controls="p-adv" id="t-adv">Taller avanzado <span class="pill" id="pl-adv">Equipo</span></button>
+    <button class="tab" role="tab" aria-selected="true" aria-controls="p-lab" id="t-lab">Taller QPM <span class="pill" id="pl-lab">Individual</span></button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-adv" id="t-adv">Taller avanzado <span class="pill" id="pl-adv">Individual</span></button>
     <button class="tab" role="tab" aria-selected="false" aria-controls="p-ticket" id="t-ticket">Ticket de salida <span class="pill" id="pl-ticket">Individual</span></button>
     <button class="tab" role="tab" aria-selected="false" aria-controls="p-doc" id="t-doc">Docente</button>
   </nav>
@@ -247,7 +247,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
   <!-- TALLER -->
   <section class="card" role="tabpanel" id="p-lab" aria-labelledby="t-lab">
     <div>
-      <h2>2. Taller en Quick Pallet Maker <span class="hint">· uno por equipo, lo envía el Calculista</span></h2>
+      <h2>2. Taller en Quick Pallet Maker <span class="hint">· individual, cada estudiante envía el suyo</span></h2>
       <p class="hint" style="margin:6px 0 0">Hagan los ejercicios en orden: cada uno usa algo que aprendieron en el anterior. En clase: ejercicios 1 a 4. Los ejercicios 5 y 6 pueden terminarlos como trabajo independiente antes de la próxima sesión.</p>
     </div>
     <div class="prog"><span id="pg-lab-t">0 de 6</span><div class="bar"><i id="pg-lab"></i></div></div>
@@ -262,7 +262,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
   <!-- TALLER AVANZADO -->
   <section class="card" role="tabpanel" id="p-adv" aria-labelledby="t-adv" hidden>
     <div>
-      <h2>Taller avanzado · paletización y contenerización <span class="hint">· uno por equipo, código S3-QPMA</span></h2>
+      <h2>Taller avanzado · paletización y contenerización <span class="hint">· individual, código S3-QPMA</span></h2>
       <p class="hint" style="margin:6px 0 0">Cuatro ejercicios con varios productos: paletas CHEP y EUR, contenedores Dry Cargo 20 y High Cube 40 de QPM, carga suelta y un pedido mixto. Requisito: haber hecho los ejercicios 1 a 6. Se entrega aparte del taller básico.</p>
     </div>
     <div class="prog"><span id="pg-adv-t">0 de 4</span><div class="bar"><i id="pg-adv"></i></div></div>
@@ -302,7 +302,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
         <div class="tw"><table class="list"><thead><tr><th>Entrega</th><th>Grupo · equipo</th><th>Quién</th><th>Recibida</th><th>Nota</th><th></th></tr></thead><tbody id="docRows"></tbody></table></div>
       </div>
       <div id="viewSab" hidden style="display:flex;flex-direction:column;gap:14px">
-        <p class="hint" style="margin:0">La nota del taller y del taller avanzado es de equipo: se asigna a cada integrante registrado en la selección de carga. El ticket es individual. Lo no enviado cuenta 0,0; lo enviado sin calificar deja la definitiva pendiente.</p>
+        <p class="hint" style="margin:0">Las tres entregas son individuales y se unen a cada estudiante por su código o su nombre. Las entregas antiguas que se guardaron por equipo cuentan para todos los integrantes de ese equipo. Lo no enviado cuenta 0,0; lo enviado sin calificar deja la definitiva pendiente.</p>
         <div class="pesos"><label>Taller QPM (%)<input type="number" min="0" max="100" id="wL"></label><label>Avanzado (%)<input type="number" min="0" max="100" id="wA"></label><label>Ticket (%)<input type="number" min="0" max="100" id="wT"></label><span class="hint" id="wSum"></span>
           <button class="btn" id="sabCsv" style="margin-left:auto">Descargar sábana (CSV)</button></div>
         <div class="tw"><table class="list"><thead><tr><th>Grupo · eq.</th><th>Estudiante</th><th class="n">Taller</th><th class="n">Avanzado</th><th class="n">Ticket</th><th class="n">Definitiva</th></tr></thead><tbody id="sabRows"></tbody></table></div>
@@ -329,6 +329,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
 "use strict";
 const DOCENTE_CORREO = "cabarriosn@gmail.com";
 const SES = "S3", ACT_EQ = "S3-QPM", ACT_TK = "S3-TICKET", ACT_AV = "S3-QPMA";
+const esEquipo = x => /\/(A1|B1)-e\d+$/.test(x.key); // entregas antiguas guardadas por equipo
 const ASIG = "Unitarización y Embalaje de la Carga (732235) · Corte 2 · S3 Taller Quick Pallet Maker";
 const PRODUCTOS = {1:"Café verde en sacos de 70 kg",2:"Banano en cajas de 18,14 kg",3:"Aguacate Hass en cajas de 4 kg",4:"Baldosas cerámicas en cajas",5:"Aceite de palma en tambores de 200 L",6:"Confitería en cajas corrugadas",7:"Sal marina de Manaure en sacos de 50 kg"};
 const PUERTOS = {1:"Santa Marta",2:"Santa Marta / Turbo",3:"Cartagena",4:"Barranquilla",5:"Barranquilla",6:"Cartagena",7:"Puerto Brisa / Santa Marta"};
@@ -681,8 +682,8 @@ function faltantes(act){
   if (!val("equipo")) m.push([$("equipo"),"equipo"]);
   if (!val("nombre")) m.push([$("nombre"),"nombre"]);
   if (val("equipo") && !productoActual()) m.push([$("prodManual"),"producto"]);
+  if (val("codigo").replace(/\D/g,"").length < 4) m.push([$("codigo"),"código estudiantil"]);
   if (act === ACT_TK){
-    if (val("codigo").replace(/\D/g,"").length < 4) m.push([$("codigo"),"código estudiantil"]);
     TICKET.forEach((_,i) => { if (!val(`tk${i}`)) m.push([$(`tk${i}`),`pregunta ${i+1}`]); });
     return m;
   }
@@ -714,7 +715,7 @@ function texto(act){
   return [`ACTIVIDAD: ${NOMBRES[act]} (${act})`, ASIG, `Grupo: ${p.grupo} · Equipo: ${p.equipo}`, `Producto: ${p.producto}`, `Enviado por: ${p.nombre}${p.codigo ? " · Código " + p.codigo : ""}`,
     ...(p.integrantes.length ? [`Integrantes: ${p.integrantes.join("; ")}`] : []), `Fecha: ${new Date().toLocaleString("es-CO")}`, "", ...textoDatos(act, p.datos)].join("\n");
 }
-const archivoNombre = act => { const p = payload(act); return `${act}_${p.grupo||"G"}_${act === ACT_TK ? (p.codigo||p.nombre) : "equipo"+p.equipo}`.replace(/[^\w-]+/g,"_") + ".txt"; };
+const archivoNombre = act => { const p = payload(act); return `${act}_${p.grupo||"G"}_${p.codigo||p.nombre}`.replace(/[^\w-]+/g,"_") + ".txt"; };
 
 function msg(box, cls, html){ const n = box.querySelector("[data-msg]"); n.className = "notice " + cls; n.innerHTML = html; n.hidden = false; }
 function validar(act, box){
@@ -733,17 +734,9 @@ const acciones = {
     try{
       const r = await fetch("/api/entregas", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify(payload(act, reemplazar))});
       const j = await r.json().catch(() => ({}));
-      if (r.status === 409 && j.conflicto && act !== ACT_TK && !reemplazar){
-        const p = payload(act), cuando = new Date(j.conflicto.actualizado).toLocaleString("es-CO");
-        btn.disabled = false;
-        if (confirm(`El equipo ${p.equipo} del grupo ${p.grupo} ya tiene esta entrega, enviada por ${j.conflicto.nombre} (${cuando}).\n\nSi ustedes son OTRO equipo, toquen Cancelar y corrijan el número de equipo arriba.\n\nSi son del mismo equipo y quieren reemplazarla con esta versión, toquen Aceptar (la anterior queda guardada para el docente).`))
-          return acciones.send(act, box, btn, true);
-        msg(box, "warn", `<b>No se envió.</b> Revisen el grupo y el número de equipo: el equipo ${esc(p.equipo)} de ${esc(p.grupo)} ya tiene la entrega de ${esc(j.conflicto.nombre)}.`);
-        return;
-      }
       if (!r.ok) throw new Error(j.error || "No se pudo enviar.");
       const hora = new Date(j.actualizado).toLocaleString("es-CO");
-      msg(box, "ok", `<b>Entrega recibida.</b> ${j.reemplazo ? `Reemplazó el envío anterior (envío n.° ${j.envios}).` : "Es el primer envío."} Hora: ${esc(hora)}<br>Si corrigen algo, vuelvan a enviar.${act === ACT_TK ? "<br><b>¿Otro compañero va a usar este computador?</b> Que toque «Soy otro estudiante · empezar en limpio» arriba." : ""}`);
+      msg(box, "ok", `<b>Entrega recibida.</b> ${j.reemplazo ? `Reemplazó el envío anterior (envío n.° ${j.envios}).` : "Es el primer envío."} Hora: ${esc(hora)}<br>Si corrigen algo, vuelvan a enviar.<br><b>¿Otro compañero va a usar este computador?</b> Que toque «Soy otro estudiante · empezar en limpio» arriba.`);
       const rec = store.get("s3_enviados") || {}; rec[act] = hora; store.set("s3_enviados", rec); marcarEnviados();
     }catch(e){ msg(box, "err", `<b>No se pudo enviar:</b> ${esc(e.message === "Failed to fetch" ? "sin conexión con el servidor" : e.message)}. Usen WhatsApp, correo o descarguen el archivo.`); }
     finally{ btn.disabled = false; }
@@ -756,7 +749,7 @@ const acciones = {
 };
 function marcarEnviados(){
   const rec = store.get("s3_enviados") || {};
-  [[ACT_EQ,"pl-lab","Equipo"],[ACT_AV,"pl-adv","Equipo"],[ACT_TK,"pl-ticket","Individual"]].forEach(([a,id,b]) => { $(id).textContent = rec[a] ? "Enviado ✓" : b; $(id).classList.toggle("done", !!rec[a]); });
+  [[ACT_EQ,"pl-lab","Individual"],[ACT_AV,"pl-adv","Individual"],[ACT_TK,"pl-ticket","Individual"]].forEach(([a,id,b]) => { $(id).textContent = rec[a] ? "Enviado ✓" : b; $(id).classList.toggle("done", !!rec[a]); });
 }
 
 /* ---------- Pestañas y eventos ---------- */
@@ -808,7 +801,7 @@ async function docCargar(){
 function docPintar(){
   const f = $("docAct").value, list = ENTREGAS.filter(x => !f || x.act === f), totEq = EQUIPOS.length;
   const cuenta = a => ENTREGAS.filter(x => x.act === a).length;
-  $("docMeters").innerHTML = [[ACT_EQ,"Talleres QPM",`de ${totEq} equipos registrados`],[ACT_AV,"Talleres avanzados",`de ${totEq} equipos`],[ACT_TK,"Tickets de salida","estudiantes"],["","Por calificar","entregas sin nota o reenviadas"]]
+  $("docMeters").innerHTML = [[ACT_EQ,"Talleres QPM","estudiantes"],[ACT_AV,"Talleres avanzados","estudiantes"],[ACT_TK,"Tickets de salida","estudiantes"],["","Por calificar","entregas sin nota o reenviadas"]]
     .map(([a,t,s]) => `<div class="meter"><b>${a ? cuenta(a) : ENTREGAS.filter(x => !x.calificacion || x.calificacion.reenvio).length}</b><small>${t}</small><div>${s}</div></div>`).join("");
   const pend = EQUIPOS.filter(e => !ENTREGAS.some(x => x.act === ACT_EQ && x.grupo === e.grupo && x.equipo === e.equipo)).map(e => `${e.grupo}-${e.equipo}`);
   $("docPend").hidden = !pend.length; $("docPend").innerHTML = `<b>Equipos sin taller:</b> ${esc(pend.join(", "))}.`;
@@ -971,7 +964,7 @@ function abrirCal(key){
   const x = ENTREGAS.find(y => y.key === key); if (!x) return;
   CAL = x; const c = x.calificacion || {criterios:{}, nota:"", comentario:""};
   $("cT").textContent = `Calificar · ${NOMBRES[x.act]||x.act}`;
-  $("cS").textContent = `${x.grupo} · Equipo ${x.equipo} · ${x.producto} · ${x.act === ACT_TK ? x.nombre : "nota de equipo"}`;
+  $("cS").textContent = `${x.grupo} · Equipo ${x.equipo} · ${x.producto} · ${esEquipo(x) ? "entrega antigua por equipo (nota para todo el equipo)" : x.nombre}`;
   $("cB").textContent = textoEntrega(x);
   $("cAuto").hidden = x.act === ACT_TK; if (x.act === ACT_EQ) $("cAuto").innerHTML = revisionAuto(x); else if (x.act === ACT_AV) $("cAuto").innerHTML = revisionAv(x);
   $("cCrit").innerHTML = (RUBRICAS[x.act]||[]).map(r => `<div class="crit">
@@ -1023,12 +1016,17 @@ function filasSabana(){
   ENTREGAS.forEach(x => { if (!eqs.some(e => e.grupo === x.grupo && e.equipo === x.equipo)) eqs.push({grupo:x.grupo, equipo:x.equipo, sinReg:true, jefe:"", calculista:"", operarios:[]}); });
   eqs.sort((a,b) => a.grupo.localeCompare(b.grupo) || a.equipo - b.equipo);
   eqs.forEach(e => {
-    const lab = ENTREGAS.find(x => x.act === ACT_EQ && x.grupo === e.grupo && x.equipo === e.equipo);
-    const av = ENTREGAS.find(x => x.act === ACT_AV && x.grupo === e.grupo && x.equipo === e.equipo);
-    const tks = ENTREGAS.filter(x => x.act === ACT_TK && x.grupo === e.grupo && x.equipo === e.equipo);
+    // Entregas antiguas guardadas por equipo: valen para todo el equipo si el estudiante no tiene la suya.
+    const legado = act => ENTREGAS.find(x => x.act === act && esEquipo(x) && x.grupo === e.grupo && x.equipo === e.equipo);
+    const propias = ENTREGAS.filter(x => !esEquipo(x) && x.grupo === e.grupo && x.equipo === e.equipo);
+    // Une las tres entregas de un estudiante: primero por nombre, luego por el mismo código.
+    const de = (nom, cod) => { const r = {};
+      [ACT_EQ, ACT_AV, ACT_TK].forEach(a => { const x = propias.find(y => y.act === a && !usados.has(y.key) && ((cod && y.codigo === cod) || (nom && mismoNombre(y.nombre, nom)))); if (x){ usados.add(x.key); r[a] = x; if (!cod) cod = x.codigo; } });
+      [ACT_EQ, ACT_AV, ACT_TK].forEach(a => { if (!r[a] && cod){ const x = propias.find(y => y.act === a && !usados.has(y.key) && y.codigo === cod); if (x){ usados.add(x.key); r[a] = x; } } });
+      return {codigo: cod || "", lab: r[ACT_EQ] || legado(ACT_EQ), av: r[ACT_AV] || legado(ACT_AV), ticket: r[ACT_TK]}; };
     const miembros = e.sinReg ? [] : [[e.jefe,"Jefe de carga"],[e.calculista,"Calculista"],...e.operarios.map(o => [o,"Operario"])];
-    miembros.forEach(([nom, rol]) => { const t = tks.find(x => !usados.has(x.key) && mismoNombre(x.nombre, nom)); if (t) usados.add(t.key); filas.push({grupo:e.grupo, equipo:e.equipo, nombre:nom, rol, codigo:t?.codigo||"", lab, av, ticket:t}); });
-    tks.filter(x => !usados.has(x.key)).forEach(t => { usados.add(t.key); filas.push({grupo:e.grupo, equipo:e.equipo, nombre:t.nombre, rol: e.sinReg ? "Equipo sin registro" : "No figura en el equipo", codigo:t.codigo, lab, av, ticket:t}); });
+    miembros.forEach(([nom, rol]) => filas.push({grupo:e.grupo, equipo:e.equipo, nombre:nom, rol, ...de(nom, "")}));
+    propias.filter(x => !usados.has(x.key)).forEach(x => { if (usados.has(x.key)) return; filas.push({grupo:e.grupo, equipo:e.equipo, nombre:x.nombre, rol: e.sinReg ? "Equipo sin registro" : "No figura en el equipo", ...de(x.nombre, x.codigo)}); });
   });
   const w = pesos(), tot = w.L + w.A + w.T;
   filas.forEach(f => { const pend = [f.lab, w.A ? f.av : null, f.ticket].some(x => x && (!x.calificacion || x.calificacion.reenvio)); f.def = pend || !tot ? null : ((f.lab?.calificacion?.nota||0)*w.L + (f.av?.calificacion?.nota||0)*w.A + (f.ticket?.calificacion?.nota||0)*w.T) / tot; });

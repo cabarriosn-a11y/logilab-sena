@@ -8,6 +8,7 @@ import { getStore, getDeployStore } from "@netlify/blobs";
 //   S0-E0     Ficha técnica del producto (equipo)   clave: S0-E0/<grupo>-e<equipo>
 //   S2-LAB    Laboratorio de manutención (equipo)   clave: S2-LAB/<grupo>-e<equipo>
 //   S2-TICKET Ticket de salida del laboratorio      clave: S2-TICKET/<grupo>-<codigo>
+//   S3-QPM, S3-QPMA, S3-TICKET  individuales        clave: <act>/<grupo>-<codigo>
 // Un reenvío reemplaza el anterior (se conserva el contador de envíos).
 // POST   /api/entregas                 -> guarda una entrega
 // GET    /api/entregas[?act=S0-RUTA | ?sesion=S0] -> lista (header x-clave-instructor = ADMIN_KEY)
@@ -21,7 +22,9 @@ import { getStore, getDeployStore } from "@netlify/blobs";
 //     salvo que llegue `reemplazar: true`. Las páginas antiguas siguen funcionando igual (solo ganan el historial).
 
 const ACTIVIDADES = ["S0-RUTA", "S0-TICKET", "S0-E0", "S2-LAB", "S2-TICKET", "S3-QPM", "S3-QPMA", "S3-TICKET"];
-const individual = (act: string) => act.endsWith("-TICKET");
+// Talleres que cada estudiante hace y envía por su cuenta (clave por código, como los tickets).
+const INDIVIDUALES = ["S3-QPM", "S3-QPMA"];
+const individual = (act: string) => act.endsWith("-TICKET") || INDIVIDUALES.includes(act);
 const GRUPOS = ["A1", "B1"];
 const MAX_EQUIPO = 7;
 
@@ -97,7 +100,7 @@ export default async (req: Request, _context: Context) => {
       const previa = (await s.get(key, { type: "json" })) as Entrega | null;
       const otraPersona = !!previa && normNombre(previa.nombre) !== normNombre(nombre);
       if (otraPersona && individual(act))
-        return json({ error: `El código ${codigo} ya tiene un ticket enviado por ${previa!.nombre}. Revisa que el código sea el tuyo; si es tuyo, escribe tu nombre igual que en el primer envío.`, conflicto: { nombre: previa!.nombre, actualizado: previa!.actualizado } }, 409);
+        return json({ error: `El código ${codigo} ya tiene esta entrega, enviada por ${previa!.nombre}. Revisa que el código sea el tuyo; si es tuyo, escribe tu nombre igual que en el primer envío.`, conflicto: { nombre: previa!.nombre, actualizado: previa!.actualizado } }, 409);
       if (otraPersona && Number(b.v) >= 2 && b.reemplazar !== true)
         return json({ error: `El equipo ${equipo} del grupo ${grupo} ya tiene esta entrega, enviada por ${previa!.nombre}.`, conflicto: { nombre: previa!.nombre, actualizado: previa!.actualizado, envios: previa!.envios } }, 409);
       const ahora = new Date().toISOString();
