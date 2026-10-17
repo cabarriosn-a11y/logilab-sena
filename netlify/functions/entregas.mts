@@ -14,6 +14,11 @@ import { getStore, getDeployStore } from "@netlify/blobs";
 // PATCH  /api/entregas?key=...         -> califica (docente): { criterios, nota, comentario } o { borrar: true }
 // DELETE /api/entregas?key=...         -> elimina (docente)
 // Si el estudiante reenvía después de calificado, la nota se conserva y queda marcada para revisar (reenvio: true).
+// Protección contra sobrescrituras (computadores compartidos):
+//   - Cada reemplazo guarda la versión anterior en `historial` (las 5 más recientes), así nada se pierde.
+//   - Ticket individual: si el código ya tiene ticket de OTRA persona -> 409 (revisar el código).
+//   - Entrega de equipo enviada por OTRA persona: con cliente v>=2 pide confirmación (409 con `conflicto`)
+//     salvo que llegue `reemplazar: true`. Las páginas antiguas siguen funcionando igual (solo ganan el historial).
 
 const ACTIVIDADES = ["S0-RUTA", "S0-TICKET", "S0-E0", "S2-LAB", "S2-TICKET", "S3-QPM", "S3-QPMA", "S3-TICKET"];
 const individual = (act: string) => act.endsWith("-TICKET");
@@ -25,7 +30,11 @@ type Entrega = {
   producto: string; integrantes: string[]; datos: Record<string, unknown>;
   creado: string; actualizado: string; envios: number;
   calificacion?: Calificacion;
+  historial?: Version[];
 };
+type Version = { nombre: string; codigo: string; producto: string; integrantes: string[]; datos: Record<string, unknown>; actualizado: string };
+const MAX_HIST = 5;
+const normNombre = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
 type Calificacion = { criterios: Record<string, number>; nota: number; comentario: string; fecha: string; reenvio: boolean };
 const KEY_RE = /^S\d{1,2}-[A-Z0-9]{2,8}\/(A1|B1)-[0-9A-Za-z-]+$/;
 const keyValida = (k: string) => KEY_RE.test(k) && ACTIVIDADES.includes(k.split("/")[0]);
@@ -86,6 +95,11 @@ export default async (req: Request, _context: Context) => {
 
       const key = individual(act) ? `${act}/${grupo}-${codigo}` : `${act}/${grupo}-e${equipo}`;
       const previa = (await s.get(key, { type: "json" })) as Entrega | null;
+      const otraPersona = !!previa && normNombre(previa.nombre) !== normNombre(nombre);
+      if (otraPersona && individual(act))
+        return json({ error: `El código ${codigo} ya tiene un ticket enviado por ${previa!.nombre}. Revisa que el código sea el tuyo; si es tuyo, escribe tu nombre igual que en el primer envío.`, conflicto: { nombre: previa!.nombre, actualizado: previa!.actualizado } }, 409);
+      if (otraPersona && Number(b.v) >= 2 && b.reemplazar !== true)
+        return json({ error: `El equipo ${equipo} del grupo ${grupo} ya tiene esta entrega, enviada por ${previa!.nombre}.`, conflicto: { nombre: previa!.nombre, actualizado: previa!.actualizado, envios: previa!.envios } }, 409);
       const ahora = new Date().toISOString();
       const e: Entrega = {
         key, act, grupo, equipo, nombre, codigo,
@@ -95,6 +109,11 @@ export default async (req: Request, _context: Context) => {
         creado: previa?.creado || ahora, actualizado: ahora, envios: (previa?.envios || 0) + 1,
       };
       if (previa?.calificacion) e.calificacion = { ...previa.calificacion, reenvio: true };
+      if (previa) {
+        const v: Version = { nombre: previa.nombre, codigo: previa.codigo, producto: previa.producto, integrantes: previa.integrantes || [], datos: previa.datos, actualizado: previa.actualizado };
+        e.historial = [v, ...(previa.historial || [])].slice(0, MAX_HIST);
+        while (e.historial.length && JSON.stringify(e).length > 300000) e.historial.pop();
+      }
       await s.setJSON(key, e);
       return json({ ok: true, key, envios: e.envios, actualizado: ahora, reemplazo: !!previa }, previa ? 200 : 201);
     }

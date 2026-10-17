@@ -234,6 +234,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
       <label class="f">Código estudiantil<input type="text" id="codigo" data-k="codigo" inputmode="numeric" maxlength="20" placeholder="Ej.: 2025123456"></label>
     </div>
     <label class="f" id="prodManualWrap" hidden>Producto de tu equipo<select id="prodManual" data-k="prodManual"><option value="">Escoge el producto…</option></select></label>
+    <div class="notice warn" id="otroWrap" hidden><b>¿Computador compartido?</b> Este computador tiene guardados los datos de <b id="otroNom"></b>. Si eres otra persona, empieza en limpio para no reemplazar su entrega. <button class="btn sm" type="button" id="otroBtn" style="margin-left:6px">Soy otro estudiante · empezar en limpio</button></div>
   </section>
 
   <nav class="tabs" role="tablist" aria-label="Entregables">
@@ -630,7 +631,9 @@ const productoActual = () => { const e = equipoActual(); if (e) return e.product
 const integrantes = () => { const e = equipoActual(); return e ? [`${e.jefe} (Jefe de carga)`, `${e.calculista} (Calculista)`, ...e.operarios.map(o => `${o} (Operario)`)] : []; };
 
 /* ---------- Borrador ---------- */
+let limpiando = false;
 function guardar(){
+  if (limpiando) return;
   const d = {};
   document.querySelectorAll("[data-k]").forEach(el => {
     if (el.type === "radio"){ if (el.checked) d[el.dataset.k] = el.value; }
@@ -694,7 +697,7 @@ function datosDe(act){
   LISTA(act).forEach(e => { d[e.id] = {}; e.f.forEach(([id,, tipo]) => { d[e.id][id] = tipo === "n" ? num(id) : val(id); }); });
   return d;
 }
-const payload = act => ({act, grupo:grupoSel(), equipo:Number(val("equipo")), nombre:val("nombre"), codigo:val("codigo"), producto:productoActual(), integrantes:integrantes(), datos:datosDe(act)});
+const payload = (act, reemplazar) => ({v:2, reemplazar:!!reemplazar, act, grupo:grupoSel(), equipo:Number(val("equipo")), nombre:val("nombre"), codigo:val("codigo"), producto:productoActual(), integrantes:integrantes(), datos:datosDe(act)});
 const v = x => x === null || x === undefined || x === "" ? "—" : x;
 function textoDatos(act, d){
   const L = [];
@@ -724,15 +727,23 @@ function validar(act, box){
 function copiarViejo(t){ const ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); let ok = false; try{ ok = document.execCommand("copy"); }catch(e){} ta.remove(); return ok; }
 const copiar = t => navigator.clipboard && window.isSecureContext ? navigator.clipboard.writeText(t).then(() => true, () => copiarViejo(t)) : Promise.resolve(copiarViejo(t));
 const acciones = {
-  async send(act, box, btn){
+  async send(act, box, btn, reemplazar){
     if (!validar(act, box)) return;
     btn.disabled = true; msg(box, "info", "Enviando…");
     try{
-      const r = await fetch("/api/entregas", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify(payload(act))});
+      const r = await fetch("/api/entregas", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify(payload(act, reemplazar))});
       const j = await r.json().catch(() => ({}));
+      if (r.status === 409 && j.conflicto && act !== ACT_TK && !reemplazar){
+        const p = payload(act), cuando = new Date(j.conflicto.actualizado).toLocaleString("es-CO");
+        btn.disabled = false;
+        if (confirm(`El equipo ${p.equipo} del grupo ${p.grupo} ya tiene esta entrega, enviada por ${j.conflicto.nombre} (${cuando}).\n\nSi ustedes son OTRO equipo, toquen Cancelar y corrijan el número de equipo arriba.\n\nSi son del mismo equipo y quieren reemplazarla con esta versión, toquen Aceptar (la anterior queda guardada para el docente).`))
+          return acciones.send(act, box, btn, true);
+        msg(box, "warn", `<b>No se envió.</b> Revisen el grupo y el número de equipo: el equipo ${esc(p.equipo)} de ${esc(p.grupo)} ya tiene la entrega de ${esc(j.conflicto.nombre)}.`);
+        return;
+      }
       if (!r.ok) throw new Error(j.error || "No se pudo enviar.");
       const hora = new Date(j.actualizado).toLocaleString("es-CO");
-      msg(box, "ok", `<b>Entrega recibida.</b> ${j.reemplazo ? `Reemplazó el envío anterior (envío n.° ${j.envios}).` : "Es el primer envío."} Hora: ${esc(hora)}<br>Si corrigen algo, vuelvan a enviar.`);
+      msg(box, "ok", `<b>Entrega recibida.</b> ${j.reemplazo ? `Reemplazó el envío anterior (envío n.° ${j.envios}).` : "Es el primer envío."} Hora: ${esc(hora)}<br>Si corrigen algo, vuelvan a enviar.${act === ACT_TK ? "<br><b>¿Otro compañero va a usar este computador?</b> Que toque «Soy otro estudiante · empezar en limpio» arriba." : ""}`);
       const rec = store.get("s3_enviados") || {}; rec[act] = hora; store.set("s3_enviados", rec); marcarEnviados();
     }catch(e){ msg(box, "err", `<b>No se pudo enviar:</b> ${esc(e.message === "Failed to fetch" ? "sin conexión con el servidor" : e.message)}. Usen WhatsApp, correo o descarguen el archivo.`); }
     finally{ btn.disabled = false; }
@@ -764,6 +775,17 @@ $("equipo").addEventListener("change", () => { pintarEquipo(); guardar(); });
 $("prodManual").addEventListener("change", pintarPedido);
 ["visibilitychange","pagehide"].forEach(ev => window.addEventListener(ev, guardar));
 
+/* ---------- Computador compartido: empezar en limpio ---------- */
+function avisoOtro(){
+  const d = store.get(BORR) || {}, rec = store.get("s3_enviados") || {};
+  const n = (d.nombre || "").trim(), hay = n && Object.keys(rec).length;
+  $("otroWrap").hidden = !hay; if (hay) $("otroNom").textContent = n;
+}
+$("otroBtn").addEventListener("click", () => {
+  if (!confirm("Se borrará de este computador lo que escribió el estudiante anterior (identificación y respuestas). Su entrega ya enviada NO se borra del servidor. ¿Continuar?")) return;
+  limpiando = true; store.rawSet(BORR, ""); store.rawSet("s3_enviados", ""); location.reload();
+});
+
 /* ---------- Panel del docente ---------- */
 let ENTREGAS = [], CAL = null;
 const docHeaders = () => ({"x-clave-instructor": store.raw("logilab_clave")});
@@ -793,18 +815,24 @@ function docPintar(){
   $("docRows").innerHTML = list.length ? list.map(x => `<tr>
       <td>${esc(NOMBRES[x.act]||x.act)}${x.envios > 1 ? ` <span class="hint">(${x.envios} envíos)</span>` : ""}</td>
       <td>${esc(x.grupo)} · ${x.equipo}<div class="hint">${esc(x.producto)}</div></td>
-      <td>${esc(x.nombre)}${x.codigo ? `<div class="hint">${esc(x.codigo)}</div>` : ""}</td>
+      <td>${esc(x.nombre)}${x.codigo ? `<div class="hint">${esc(x.codigo)}</div>` : ""}${otrosNombres(x).length ? `<div class="flag">Antes: ${esc(otrosNombres(x).join(", "))} · ver en «Ver»</div>` : ""}</td>
       <td>${esc(new Date(x.actualizado).toLocaleString("es-CO"))}</td>
       <td class="n">${x.calificacion ? badge(x.calificacion.nota) + (x.calificacion.reenvio ? '<div class="flag">Reenviada: revisar</div>' : "") : '<span class="hint">Sin nota</span>'}</td>
       <td style="white-space:nowrap"><button class="btn sm p" data-cal="${esc(x.key)}">${x.calificacion ? "Revisar" : "Calificar"}</button> <button class="btn sm" data-ver="${esc(x.key)}">Ver</button> <button class="btn sm danger" data-del="${esc(x.key)}" aria-label="Eliminar">✕</button></td></tr>`).join("")
     : `<tr><td colspan="6" class="hint">Todavía no hay entregas${f ? " de este tipo" : ""}.</td></tr>`;
   sabPintar();
 }
+const otrosNombres = x => [...new Set((x.historial || []).map(h => h.nombre).filter(n => n && n !== x.nombre))];
 function textoEntrega(x){
   const L = [`${NOMBRES[x.act]||x.act} · Grupo ${x.grupo} · Equipo ${x.equipo}`, `Producto: ${x.producto}`, `Enviado por: ${x.nombre}${x.codigo ? " · " + x.codigo : ""}`];
   if (x.integrantes?.length) L.push(`Integrantes: ${x.integrantes.join("; ")}`);
   L.push(`Recibido: ${new Date(x.actualizado).toLocaleString("es-CO")} · Envíos: ${x.envios}`, "", ...textoDatos(x.act, x.datos || {}));
   if (x.calificacion) L.push("", `NOTA: ${fmt(x.calificacion.nota)}${x.calificacion.comentario ? " · " + x.calificacion.comentario : ""}`);
+  (x.historial || []).forEach((h, i) => {
+    L.push("", "────────────────────────────────", `VERSIÓN ANTERIOR ${i + 1} · enviada por ${h.nombre}${h.codigo ? " · " + h.codigo : ""} · ${new Date(h.actualizado).toLocaleString("es-CO")}`);
+    if (h.producto) L.push(`Producto: ${h.producto}`);
+    L.push(...textoDatos(x.act, h.datos || {}));
+  });
   return L.join("\n");
 }
 
@@ -1052,7 +1080,7 @@ $("docRows").addEventListener("click", async e => {
 $("dlgX").addEventListener("click", () => $("dlg").close());
 
 /* ---------- Inicio ---------- */
-restaurar(); marcarEnviados(); progreso(); cargarEquipos();
+restaurar(); marcarEnviados(); avisoOtro(); progreso(); cargarEquipos();
 abrir(TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "lab");
 if (store.raw("logilab_clave") && location.hash === "#doc") docCargar();
 </script>
