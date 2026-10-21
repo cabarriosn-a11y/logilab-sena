@@ -8,7 +8,8 @@ import { getStore, getDeployStore } from "@netlify/blobs";
 // POST /api/plan                 -> el equipo envía su código de entrega LLPE (sin clave).
 //                                   body: { codigo, taller, equipo, empresa }  (content-type text/plain o json)
 // GET  /api/plan                 -> (instructor) todas las entregas + evaluaciones guardadas.
-// PUT  /api/plan                 -> (instructor) guarda evaluaciones: { ev: { <sid>: { j, cr, obs, at, del? } } }
+// PUT  /api/plan                 -> (instructor) guarda evaluaciones: { ev: { <sid>: { j, cr, obs, at, del? } },
+//                                   alias: { <equipo-dispositivo>: { to: <equipo destino> | "", at } } }
 //                                   se combinan por `at` (gana la más reciente), así sirve desde varios dispositivos.
 // Clave del instructor: header x-clave-instructor = ADMIN_KEY (variable de entorno de Netlify, la misma del panel docente).
 //
@@ -47,6 +48,7 @@ const esInstructor = (req: Request) => {
   return !!clave && !!dada && normClave(dada) === normClave(clave);
 };
 
+type Alias = { to: string; at: number };
 type Ev = { j?: string; cr?: Record<string, boolean>; obs?: string; at?: number; del?: boolean };
 
 function limpiarEv(v: any): Ev | null {
@@ -90,7 +92,8 @@ export default async (req: Request, _context: Context) => {
       const { blobs } = await s.list({ prefix: "e/" });
       const entregas = (await Promise.all(blobs.map((x) => s.get(x.key, { type: "json" })))).filter(Boolean);
       const ev = ((await s.get("evaluaciones", { type: "json" })) as Record<string, Ev> | null) || {};
-      return json({ entregas, ev });
+      const alias = ((await s.get("alias", { type: "json" })) as Record<string, Alias> | null) || {};
+      return json({ entregas, ev, alias });
     }
 
     if (req.method === "PUT") {
@@ -107,7 +110,20 @@ export default async (req: Request, _context: Context) => {
         if (!actual[id] || (actual[id].at || 0) < (e.at || 0)) { actual[id] = e; cambios++; }
       }
       if (cambios) await s.setJSON("evaluaciones", actual);
-      return json({ ok: true, cambios, ev: actual });
+      // Uniones de equipo: entregas de un dispositivo (sin nombre) asignadas por el instructor a un equipo.
+      let cambiosA = 0;
+      const nuevasA = b?.alias && typeof b.alias === "object" ? b.alias : null;
+      let alias = ((await s.get("alias", { type: "json" })) as Record<string, Alias> | null) || {};
+      if (nuevasA) {
+        for (const [k, v] of Object.entries(nuevasA).slice(0, 2000) as [string, any][]) {
+          const id = txt(k, 120), at = Number(v?.at);
+          if (!id || !Number.isFinite(at)) continue;
+          const a: Alias = { to: txt(v?.to, 120), at };
+          if (!alias[id] || (alias[id].at || 0) < at) { alias[id] = a; cambiosA++; }
+        }
+        if (cambiosA) await s.setJSON("alias", alias);
+      }
+      return json({ ok: true, cambios: cambios + cambiosA, ev: actual, alias });
     }
 
     return json({ error: "Método no permitido." }, 405);
