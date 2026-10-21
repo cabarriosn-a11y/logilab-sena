@@ -39,9 +39,12 @@ function cors(req: Request): Record<string, string> {
   };
 }
 
+// Se compara sin espacios ni mayúsculas: en el celular el autocorrector suele cambiarlas.
+const normClave = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "").toLowerCase();
 const esInstructor = (req: Request) => {
   const clave = Netlify.env.get("ADMIN_KEY");
-  return !!clave && req.headers.get("x-clave-instructor") === clave;
+  const dada = req.headers.get("x-clave-instructor") || "";
+  return !!clave && !!dada && normClave(dada) === normClave(clave);
 };
 
 type Ev = { j?: string; cr?: Record<string, boolean>; obs?: string; at?: number; del?: boolean };
