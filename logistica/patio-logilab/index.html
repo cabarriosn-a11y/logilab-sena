@@ -235,6 +235,8 @@ label.f input{font:500 15px var(--body);color:var(--ink);background:#0b1620;bord
 'use strict';
 const T=THREE, K=LogiLab3D.kit(), M=K.M, lin=LogiLab3D.linearize;
 const CAP=1800, VLIM=8/3.6, VMAX=12/3.6, WB=1.42, HMAX=2.8;
+// Alto de la estiba cargada (base 0,165 + cajas 0,80). Debe ser menor que el hueco bajo el larguero (1,25 − 0,11 = 1,14 m).
+const BOX_H=0.80, LOAD_H=0.165+BOX_H;
 const $=id=>document.getElementById(id);
 const coarse=matchMedia('(pointer: coarse)').matches; if(coarse){document.body.classList.add('coarse');}
 if(/netlify\.app$|logilab/i.test(location.hostname)) $('portal').hidden=false;
@@ -380,14 +382,14 @@ function makePallet(p){
   [-0.45,0,0.45].forEach(x=>{g.add(K.rbox(0.1,0.02,1.2,wd,x,0.01,0,0.003));[-0.55,0,0.55].forEach(z=>g.add(K.rbox(0.1,0.1,0.1,wd,x,0.07,z,0.008)));g.add(K.rbox(0.1,0.022,1.2,wood,x,0.131,0,0.003));});
   for(let i=0;i<7;i++)g.add(K.rbox(1.0,0.022,0.13,wood,0,0.142+0.011,-0.54+i*0.18,0.004));
   const box=new T.MeshStandardMaterial({color:p.kg>CAP?0xb98f68:0xc49a6c,roughness:.85});
-  const b=K.rbox(0.96,0.98,1.16,box,0,0.165+0.49,0,0.03);g.add(b);p.boxMat=box;
-  const film=new T.Mesh(new T.BoxGeometry(0.99,1.0,1.19),new T.MeshStandardMaterial({color:0xe8f4ff,transparent:true,opacity:.18,roughness:.15,metalness:0}));film.position.y=0.66;g.add(film);
+  const b=K.rbox(0.96,BOX_H,1.16,box,0,0.165+BOX_H/2,0,0.03);g.add(b);p.boxMat=box;
+  const film=new T.Mesh(new T.BoxGeometry(0.99,BOX_H+0.02,1.19),new T.MeshStandardMaterial({color:0xe8f4ff,transparent:true,opacity:.18,roughness:.15,metalness:0}));film.position.y=0.165+BOX_H/2;g.add(film);
   const lt=labelTex(p),lm=new T.MeshBasicMaterial({map:lt});
-  [[0,0.62,0.585,0],[0,0.62,-0.585,Math.PI],[0.485,0.62,0,Math.PI/2],[-0.485,0.62,0,-Math.PI/2]].forEach(([x,y,z,r])=>{const l=new T.Mesh(new T.PlaneGeometry(0.44,0.33),lm);l.position.set(x,y,z);l.rotation.y=r;g.add(l);});
+  [[0,0.165+BOX_H/2,0.585,0],[0,0.165+BOX_H/2,-0.585,Math.PI],[0.485,0.165+BOX_H/2,0,Math.PI/2],[-0.485,0.165+BOX_H/2,0,-Math.PI/2]].forEach(([x,y,z,r])=>{const l=new T.Mesh(new T.PlaneGeometry(0.44,0.33),lm);l.position.set(x,y,z);l.rotation.y=r;g.add(l);});
   g.traverse(m=>{if(m.isMesh){m.castShadow=true;m.receiveShadow=true;}});lin(g);
   return g;
 }
-const palletOBB=p=>({x:p.x,z:p.z,hw:0.5,hl:0.6,yaw:p.yaw,y0:p.pb,y1:p.pb+1.145,label:'otra estiba',pallet:p});
+const palletOBB=p=>({x:p.x,z:p.z,hw:0.5,hl:0.6,yaw:p.yaw,y0:p.pb,y1:p.pb+LOAD_H,label:'otra estiba',pallet:p});
 
 /* ================= Peatones ================= */
 function makeWalker(){
@@ -530,7 +532,7 @@ function fkBoxes(px,pz,th,h){const L=(lx,lz)=>{const[a,b]=rot(lx,lz,th);return[p
   let [x,z]=L(0,-0.35);out.push({x,z,hw:0.54,hl:0.97,yaw:th,y0:0.05,y1:2.12,part:'body'});
   [x,z]=L(0,0.8);out.push({x,z,hw:0.42,hl:0.18,yaw:th,y0:0.05,y1:mastTop(h),part:'mast'});
   [x,z]=L(0,1.5);out.push({x,z,hw:0.33,hl:0.53,yaw:th,y0:h+0.02,y1:h+0.065,part:'forks'});
-  if(st.carry){const p=st.carry;[x,z]=L(0,p.relZ);out.push({x,z,hw:0.5,hl:0.6,yaw:th+p.relYaw,y0:h-0.055+0.002,y1:h-0.055+1.145,part:'load'});}
+  if(st.carry){const p=st.carry;[x,z]=L(0,p.relZ);out.push({x,z,hw:0.5,hl:0.6,yaw:th+p.relYaw,y0:h-0.055+0.002,y1:h-0.055+LOAD_H,part:'load'});}
   return out;}
 function engage(p,px,pz,th,h){const[lx,lz]=toLocal(p.x-px,p.z-pz,th);const ry=Math.abs(Math.sin(p.yaw-th));
   const aligned=ry<0.22&&Math.abs(lx)<0.13;const inWin=h-p.pb>=-0.03&&h-p.pb<=0.062;return {lx,lz,aligned,inWin,ok:aligned&&inWin};}
@@ -572,7 +574,7 @@ function supportAt(p,pb){
       if(dz<=0.9&&dx<=0.75)return {y,fall:true,cell:`B${c.b+1}-N${l+1}`};}
     if(Math.abs(c.dz)<0.45&&Math.abs(c.dx)<0.4)return {y:0,cell:`B${c.b+1}-N1`};}
   for(const q of pallets){if(q===p||q.state!=='rest')continue;const a=palletOBB(Object.assign({},p,{pb})),b=palletOBB(q);a.y0=-1;a.y1=99;b.y0=-1;b.y1=99;
-    if(ovl(a,b)&&pb>=q.pb+1.14)return {y:q.pb+1.145,stack:true};}
+    if(ovl(a,b)&&pb>=q.pb+LOAD_H-0.005)return {y:q.pb+LOAD_H,stack:true};}
   return {y:inContainer(p.x,p.z)?0.02:0};}
 
 function dropPallet(p,sup){
