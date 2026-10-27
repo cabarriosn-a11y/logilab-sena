@@ -143,6 +143,8 @@ dialog pre{margin:0;padding:16px;white-space:pre-wrap;font:400 14px/1.55 var(--f
 .crit{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
 .crit .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .crit input{width:84px;font-weight:700}
+.crit .sug{font-size:12px;color:var(--muted);padding:2px 8px;border-radius:999px;background:var(--ok-soft)}
+.crit .sug.man{background:var(--gold-soft)}
 .lv{appearance:none;border:1.5px solid var(--line);background:var(--surface);color:var(--text);font:600 12px var(--f-body);padding:4px 8px;border-radius:99px;cursor:pointer}
 .lv:hover{border-color:var(--gold)}
 .crit details{font-size:13px;color:var(--muted)}
@@ -302,10 +304,10 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
         <div class="tw"><table class="list"><thead><tr><th>Entrega</th><th>Grupo · equipo</th><th>Quién</th><th>Recibida</th><th>Nota</th><th></th></tr></thead><tbody id="docRows"></tbody></table></div>
       </div>
       <div id="viewSab" hidden style="display:flex;flex-direction:column;gap:14px">
-        <p class="hint" style="margin:0">Las tres entregas son individuales y se unen a cada estudiante por su código o su nombre. Las entregas antiguas que se guardaron por equipo cuentan para todos los integrantes de ese equipo. Lo no enviado cuenta 0,0; lo enviado sin calificar deja la definitiva pendiente.</p>
-        <div class="pesos"><label>Taller QPM (%)<input type="number" min="0" max="100" id="wL"></label><label>Avanzado (%)<input type="number" min="0" max="100" id="wA"></label><label>Ticket (%)<input type="number" min="0" max="100" id="wT"></label><span class="hint" id="wSum"></span>
+        <p class="hint" style="margin:0">Las entregas son individuales y se unen a cada estudiante por su código o su nombre. El taller QPM tiene una sola nota: ejercicios 1–6 valen 60 % y el avanzado (7–10) 40 %, según el número de ejercicios. Las entregas antiguas que se guardaron por equipo cuentan para todos los integrantes de ese equipo. Lo no enviado cuenta 0,0; lo enviado sin calificar deja la definitiva pendiente.</p>
+        <div class="pesos"><label>Taller QPM 1–10 (%)<input type="number" min="0" max="100" id="wL"></label><label>Ticket (%)<input type="number" min="0" max="100" id="wT"></label><span class="hint" id="wSum"></span>
           <button class="btn" id="sabCsv" style="margin-left:auto">Descargar sábana (CSV)</button></div>
-        <div class="tw"><table class="list"><thead><tr><th>Grupo · eq.</th><th>Estudiante</th><th class="n">Taller</th><th class="n">Avanzado</th><th class="n">Ticket</th><th class="n">Definitiva</th></tr></thead><tbody id="sabRows"></tbody></table></div>
+        <div class="tw"><table class="list"><thead><tr><th>Grupo · eq.</th><th>Estudiante</th><th class="n">Taller QPM (1–10)</th><th class="n">Ticket</th><th class="n">Definitiva</th></tr></thead><tbody id="sabRows"></tbody></table></div>
       </div>
     </div>
   </section>
@@ -319,7 +321,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
     <form class="rub" id="cForm" novalidate>
       <div class="auto" id="cAuto" hidden></div>
       <div id="cCrit" style="display:flex;flex-direction:column;gap:10px"></div>
-      <div class="final"><label class="f" style="flex-direction:row;align-items:center;gap:10px">Nota<input type="number" id="cNota" min="0" max="5" step="0.1"></label><span class="hint">Promedio de los criterios; puede ajustarla.</span></div>
+      <div class="final"><label class="f" style="flex-direction:row;align-items:center;gap:10px">Nota<input type="number" id="cNota" min="0" max="5" step="0.1"></label><span class="hint">Promedio de los criterios; puede ajustarla. Las notas sugeridas salen de los ✓; revíselas antes de guardar.</span></div>
       <label class="f">Retroalimentación para el equipo o estudiante<textarea id="cCom" rows="3" placeholder="Qué hicieron bien y qué deben mejorar."></textarea></label>
       <div class="notice" id="cMsg" hidden></div>
       <div class="btns"><button class="btn p" type="submit" id="cSave">Guardar calificación</button><button class="btn" type="button" id="cNext">Guardar y siguiente</button><button class="btn danger" type="button" id="cDel">Quitar nota</button></div>
@@ -868,9 +870,13 @@ function paleta(L, W, l, w, h, p, hmax, wmax){
   return {capa, cAlt, capas, tot, maxU, lim: capa * cAlt * p > wmax ? LIMITES[2] : LIMITES[1], col: Math.max(Math.floor(L/l)*Math.floor(W/w), Math.floor(L/w)*Math.floor(W/l))};
 }
 const cerca = (a, b, tol) => a != null && b != null && Math.abs(a - b) <= Math.max(tol * Math.abs(b), 0.0011);
-const fila = (txt, dado, esp, ok) => `<li>${ok ? "✓" : '<span class="flag">✕</span>'} ${txt}: ${dado == null || dado === "" ? "—" : esc(String(dado))}${ok ? "" : ` (referencia <b>${esc(String(esp))}</b>)`}</li>`;
+/* Conteo de ✓ por ejercicio para sugerir la nota de cada criterio */
+let CUENTA = {}, CUBO = null;
+const seccion = k => { CUBO = CUENTA[k] = {ok:0, t:0}; };
+const marca = ok => { if (CUBO){ CUBO.t++; if (ok) CUBO.ok++; } return ok; };
+const fila = (txt, dado, esp, ok) => (marca(!!ok), `<li>${ok ? "✓" : '<span class="flag">✕</span>'} ${txt}: ${dado == null || dado === "" ? "—" : esc(String(dado))}${ok ? "" : ` (referencia <b>${esc(String(esp))}</b>)`}</li>`);
 function revisionAuto(x){
-  const d = x.datos || {}, L = [];
+  const d = x.datos || {}, L = []; CUENTA = {}; seccion("e1");
   const D = k => EJS.find(e => e.id === k).datos;
   const pd = s => s.match(/[\d,]+/g).map(t => parseFloat(t.replace(",", ".")));
   // Ejercicio 1
@@ -880,23 +886,32 @@ function revisionAuto(x){
     fila("Capas", a.e1_capas, R1.capas, a.e1_capas === R1.capas), fila("Cajas por paleta", a.e1_tot, R1.tot, a.e1_tot === R1.tot),
     fila("Peso de la carga (kg)", a.e1_kg, R1.tot * p1, cerca(a.e1_kg, R1.tot * p1, 0.02)), fila("Altura total (mm)", a.e1_h, R1.capas * h1 + 145, cerca(a.e1_h, R1.capas * h1 + 145, 0.01))].join("")}</ul>`);
   // Ejercicio 2
+  seccion("e2");
   const [l2, w2, h2] = pd(D("e2")[0][1]), p2 = pd(D("e2")[1][1])[0], R2 = paleta(1200, 1000, l2, w2, h2, p2, 1345, 1500), R2b = paleta(1200, 1000, l2, w2, h2, p2, 1345, 2000), b = d.e2 || {};
   L.push(`<b>Ej. 2</b>:<ul style="margin:2px 0 6px;padding-left:18px">${[
     fila("Cajas por capa", b.e2_capa, R2.capa, b.e2_capa === R2.capa), fila("Capas solo por altura", b.e2_alt, R2.cAlt, b.e2_alt === R2.cAlt),
     fila("Cajas por paleta (1500 kg)", b.e2_tot, `${R2.tot}–${R2.maxU} (capas completas o capa parcial)`, b.e2_tot >= R2.tot - R2.capa && b.e2_tot <= R2.maxU),
     fila("Factor limitante", b.e2_lim, R2.lim, b.e2_lim === R2.lim), fila("Cajas con 2000 kg", b.e2_2000, R2b.tot, b.e2_2000 === R2b.tot)].join("")}</ul>`);
   // Ejercicio 3
-  const c = d.e3 || {};
-  if (c.e3_L && c.e3_W && c.e3_H){ const r = relaciones(c.e3_L, c.e3_W, c.e3_H), ok = r.la >= 1 && r.la <= 3 && r.lh >= .5 && r.lh <= 3 && r.ha >= .5 && r.ha <= 3;
+  const c = d.e3 || {}; seccion("e3");
+  if (!(c.e3_L && c.e3_W && c.e3_H)){ marca(false); L.push(`<b>Ej. 3</b>: <span class="flag">✕ no reportaron las medidas de la caja</span>`); }
+  if (c.e3_L && c.e3_W && c.e3_H){ const r = relaciones(c.e3_L, c.e3_W, c.e3_H), ok = marca(r.la >= 1 && r.la <= 3 && r.lh >= .5 && r.lh <= 3 && r.ha >= .5 && r.ha <= 3);
     L.push(`<b>Ej. 3</b>: caja ${c.e3_L} × ${c.e3_W} × ${c.e3_H} mm → L/A ${r.la.toFixed(2)}, L/H ${r.lh.toFixed(2)}, H/A ${r.ha.toFixed(2)} ${ok ? "✓ cumple" : '<span class="flag">✕ no cumple</span>'}. Peso esperado ≈ ${fmtKg(12 * 0.52)} kg de producto + caja; reportado ${v(c.e3_kg)} kg.`); }
   // Ejercicio 4
-  const e4 = d.e4 || {};
-  L.push(`<b>Ej. 4</b>: ${v(e4.e4_pack)} packs → producto ${e4.e4_pack ? fmtKg(e4.e4_pack * 0.092) : "—"} kg ${e4.e4_pack && e4.e4_pack * 0.092 <= 100 && e4.e4_pack * 0.092 >= 95 ? "✓ coherente con el tope de 100 kg" : '<span class="flag">revisar contra el tope de 100 kg</span>'}; unidades ${e4.e4_pack && e4.e4_u === e4.e4_pack * 4 ? "✓" : '<span class="flag">✕ deben ser packs × 4</span>'}; NB por capa (referencia por área) ${capaMax(1200, 1000, 605, 470)}, por altura ${Math.floor(1345/400)} capas; reportaron ${v(e4.e4_cxp)} cajas y ${v(e4.e4_up)} unidades por paleta.`);
+  const e4 = d.e4 || {}; seccion("e4");
+  const pkMin = Math.ceil(95 / 0.092), pkMax = Math.floor(100 / 0.092), R4 = paleta(1200, 1000, 605, 470, 400, 100, 1345, 1500);
+  L.push(`<b>Ej. 4</b> (caja NB 605 × 470 × 400 · tope 100 kg):<ul style="margin:2px 0 6px;padding-left:18px">${[
+    fila("Packs por caja", e4.e4_pack, `${pkMin}–${pkMax} (producto entre 95 y 100 kg)`, e4.e4_pack >= pkMin && e4.e4_pack <= pkMax),
+    fila("Unidades por caja", e4.e4_u, e4.e4_pack ? e4.e4_pack * 4 : "packs × 4", e4.e4_pack && e4.e4_u === e4.e4_pack * 4),
+    fila("Peso de la caja llena (kg)", e4.e4_kg, "entre 95 y 100", e4.e4_kg >= 95 && e4.e4_kg <= 100.5),
+    fila("Qué limitó el llenado", e4.e4_lim, "El peso máximo de la caja", e4.e4_lim === "El peso máximo de la caja"),
+    fila("Cajas NB por paleta", e4.e4_cxp, `${R4.tot} (${R4.capa} por capa × ${R4.capas} capas)`, e4.e4_cxp === R4.tot),
+    fila("Unidades por paleta", e4.e4_up, e4.e4_cxp && e4.e4_u ? `${e4.e4_cxp * e4.e4_u} (sus cajas × sus unidades)` : "cajas × unidades por caja", e4.e4_cxp && e4.e4_u && e4.e4_up === e4.e4_cxp * e4.e4_u)].join("")}</ul>`);
   // Ejercicio 5
   const f5 = d.e5 || {};
   L.push(`<b>Ej. 5</b> (compárelo con la guía docente): A → ${esc(v(f5.e5_A))} · B → ${esc(v(f5.e5_B))} · C → ${esc(v(f5.e5_C))}`);
   // Ejercicio 6
-  const E = EJ[d.productoId], g6 = d.e6 || {};
+  const E = EJ[d.productoId], g6 = d.e6 || {}; seccion("e6");
   if (E){ const R = paleta(E.dp[0], E.dp[1], E.d[0], E.d[1], E.d[2], E.pu, 1345, 1500), s2 = E.capa * E.capas, br = Math.round((R.tot - s2) / s2 * 1000) / 10;
     const brDado = g6.e6_tot ? Math.round((g6.e6_tot - s2) / s2 * 1000) / 10 : null;
     L.push(`<b>Ej. 6</b> (${esc(PRODUCTOS[d.productoId])}):<ul style="margin:2px 0 0;padding-left:18px">${[
@@ -905,7 +920,7 @@ function revisionAuto(x){
       fila("Peso total con paleta (kg)", g6.e6_kg, fmtKg(R.tot * E.pu + E.pp), g6.e6_tot ? cerca(g6.e6_kg, g6.e6_tot * E.pu + E.pp, 0.02) : false),
       fila("Factor limitante", g6.e6_lim, R.lim, g6.e6_lim === R.lim),
       fila("Brecha vs. S2 (%)", g6.e6_brecha, brDado != null ? `${brDado} con su total (${br} con la referencia)` : br, brDado != null && cerca(g6.e6_brecha, brDado, 0.05))].join("")}</ul>`); }
-  return L.join("");
+  CUBO = null; return L.map(t => `<div style="margin-bottom:4px">${t}</div>`).join("");
 }
 
 /* Revisión del taller avanzado: referencias calculadas desde AV */
@@ -919,6 +934,7 @@ function posMin(list, H){
 }
 function revisionAv(x){
   const d = x.datos || {}, L = [], ul = a => `<ul style="margin:2px 0 6px;padding-left:18px">${a.join("")}</ul>`, f2 = n => n.toLocaleString("es-CO", {maximumFractionDigits:2});
+  CUENTA = {}; seccion("e7");
   const R = {}; ["A","B","C"].forEach(k => { const p = AV[k]; R[k] = {c: paleta(1200, 1000, p.d[0], p.d[1], p.d[2], p.p, AV.hmax, AV.wmax), e: paleta(1200, 800, p.d[0], p.d[1], p.d[2], p.p, AV.hmax, AV.wmax)}; });
   const a = d.e7 || {}, efB = Math.round(R.B.c.capa * AV.B.d[0] * AV.B.d[1] / 120) / 100, hC = R.C.c.capas * AV.C.d[2] + 145;
   L.push(`<b>Ej. 7</b>:` + ul([
@@ -927,6 +943,7 @@ function revisionAv(x){
     fila("Café CHEP", a.e7_Bc, R.B.c.tot, a.e7_Bc === R.B.c.tot), fila("Eficiencia café CHEP (%)", a.e7_Bef, f2(efB), cerca(a.e7_Bef, efB, 0.02)), fila("Café EUR", a.e7_Be, R.B.e.tot, a.e7_Be === R.B.e.tot),
     fila("Bocadillo CHEP", a.e7_Cc, R.C.c.tot, a.e7_Cc === R.C.c.tot), fila("Altura bocadillo CHEP (mm)", a.e7_Ch, hC, cerca(a.e7_Ch, hC, 0.01)), fila("Bocadillo EUR", a.e7_Ce, R.C.e.tot, a.e7_Ce === R.C.e.tot)]));
   // Ejercicio 8
+  seccion("e8");
   const b = d.e8 || {}, P20 = capaMax(AV.c20.d[0], AV.c20.d[1], 1200, 1000), P40 = capaMax(AV.c40.d[0], AV.c40.d[1], 1200, 1000);
   const A20 = P20 * Math.max(1, Math.floor(AV.c20.d[2] / AV.pa.d[2])), A40 = P40 * Math.max(1, Math.floor(AV.c40.d[2] / AV.pa.d[2])), nB = Math.floor(AV.c40.d[2] / AV.pb.d[2]);
   const Bvol = P40 * nB, Bkg = Math.floor(AV.c40.kg / AV.pb.kg), Btot = Math.min(Bvol, Bkg), Blim = Bkg < Bvol ? LIM_CONT[2] : LIM_CONT[0];
@@ -937,6 +954,7 @@ function revisionAv(x){
     fila("Paletas B cargadas", b.e8_btot, `${Btot} (volumen ${Bvol}, peso ${Bkg})`, b.e8_btot != null && Math.abs(b.e8_btot - Btot) <= 1), fila("Factor limitante con B", b.e8_lim, Blim, b.e8_lim === Blim),
     fila("Costo por kg más bajo (USD)", b.e8_ckg, f2(ck), cerca(b.e8_ckg, ck, 0.05))]));
   // Ejercicio 9
+  seccion("e9");
   const c = d.e9 || {}, capa9 = capaMax(AV.c40.d[0], AV.c40.d[1], AV.C.d[0], AV.C.d[1]), capas9 = Math.floor(AV.c40.d[2] / AV.C.d[2]), vol9 = capa9 * capas9;
   const kgU = Math.floor(AV.c40.kg / AV.C.p), tot9 = Math.min(vol9, kgU), tot9min = Math.min(vol9, Math.floor(kgU / capa9) * capa9), lim9 = kgU < vol9 ? LIM_CONT[2] : LIM_CONT[1];
   const cpC = a.e7_Cc || R.C.c.tot, pal9 = P40 * cpC, dif9 = c.e9_tot && c.e9_pal ? Math.round((c.e9_tot - c.e9_pal) / c.e9_pal * 1000) / 10 : null;
@@ -946,6 +964,7 @@ function revisionAv(x){
     fila("Factor limitante", c.e9_lim, lim9, c.e9_lim === lim9), fila("Cajas paletizadas", c.e9_pal, `${pal9} (${P40} × ${cpC})`, c.e9_pal != null && Math.abs(c.e9_pal - pal9) <= cpC),
     fila("Diferencia (%)", c.e9_dif, dif9 != null ? `${f2(dif9)} con sus datos` : "—", dif9 != null && cerca(c.e9_dif, dif9, 0.05))]));
   // Ejercicio 10
+  seccion("e10");
   const g = d.e10 || {}, cp = {A: a.e7_Ac || R.A.c.tot, B: a.e7_Bc || R.B.c.tot, C: a.e7_Cc || R.C.c.tot}, lista = [];
   let kgT = 0; const np = {};
   ["A","B","C"].forEach(k => { const n = Math.ceil(AV.ped[k] / cp[k]), resto = AV.ped[k] - (n - 1) * cp[k], capas = R[k].c.capas, h = capas * AV[k].d[2] + 145; np[k] = n;
@@ -958,7 +977,16 @@ function revisionAv(x){
     fila("Qué lo impide", g.e10_lim, lim10, g.e10_lim === lim10),
     fila("Peso en el High Cube 40 (kg)", g.e10_kg40, `≤ ${kgs(AV.c40.kg)} y lo más cerca posible; resto ${g.e10_kg40 ? kgs(Math.round(kgT - g.e10_kg40)) : "—"} kg al Dry Cargo 20 (≤ ${kgs(AV.c20.kg)})`, g.e10_kg40 != null && g.e10_kg40 <= AV.c40.kg && g.e10_kg40 >= AV.c40.kg * 0.85 && kgT - g.e10_kg40 <= AV.c20.kg)]) +
     `<span class="hint">Revise en el plan: el bocadillo nunca va debajo; parejas ≤ 2 690 mm; peso repartido a lo largo; aseguramiento con bolsas de aire o calzas.</span>`);
-  return L.join("");
+  CUBO = null; return L.join("");
+}
+/* Qué ejercicios alimentan cada criterio (los demás los pone el docente) */
+const CRIT_EJ = {"S3-QPM": {basicos:["e1","e2"], caja:["e3","e4"], reto:["e6"]}, "S3-QPMA": {e7:["e7"], e8:["e8"], e9:["e9"], e10:["e10"]}};
+const nivel = r => r >= .9 ? 5 : r >= .75 ? 4.5 : r >= .6 ? 4 : r >= .45 ? 3.5 : r >= .3 ? 3 : 2;
+function sugerencias(act){
+  const out = {}; Object.entries(CRIT_EJ[act] || {}).forEach(([k, ejs]) => {
+    const ok = ejs.reduce((a, e) => a + (CUENTA[e]?.ok || 0), 0), t = ejs.reduce((a, e) => a + (CUENTA[e]?.t || 0), 0);
+    if (t) out[k] = {n: nivel(ok / t), ok, t}; });
+  return out;
 }
 function abrirCal(key){
   const x = ENTREGAS.find(y => y.key === key); if (!x) return;
@@ -966,9 +994,10 @@ function abrirCal(key){
   $("cT").textContent = `Calificar · ${NOMBRES[x.act]||x.act}`;
   $("cS").textContent = `${x.grupo} · Equipo ${x.equipo} · ${x.producto} · ${esEquipo(x) ? "entrega antigua por equipo (nota para todo el equipo)" : x.nombre}`;
   $("cB").textContent = textoEntrega(x);
-  $("cAuto").hidden = x.act === ACT_TK; if (x.act === ACT_EQ) $("cAuto").innerHTML = revisionAuto(x); else if (x.act === ACT_AV) $("cAuto").innerHTML = revisionAv(x);
+  CUENTA = {}; $("cAuto").hidden = x.act === ACT_TK; if (x.act === ACT_EQ) $("cAuto").innerHTML = revisionAuto(x); else if (x.act === ACT_AV) $("cAuto").innerHTML = revisionAv(x);
+  const SUG = x.act === ACT_TK ? {} : sugerencias(x.act), guardada = !!x.calificacion;
   $("cCrit").innerHTML = (RUBRICAS[x.act]||[]).map(r => `<div class="crit">
-      <div class="row"><b style="flex:1;min-width:160px;color:var(--fg)">${esc(r.t)}</b><input type="number" min="0" max="5" step="0.1" data-c="${r.k}" value="${c.criterios?.[r.k] ?? ""}" aria-label="${esc(r.t)}"></div>
+      <div class="row"><b style="flex:1;min-width:160px;color:var(--fg)">${esc(r.t)}</b><input type="number" min="0" max="5" step="0.1" data-c="${r.k}" value="${c.criterios?.[r.k] ?? (!guardada && SUG[r.k] ? SUG[r.k].n : "")}" aria-label="${esc(r.t)}">${SUG[r.k] ? `<span class="sug">Sugerida: <b>${fmt(SUG[r.k].n)}</b> · ${SUG[r.k].ok} de ${SUG[r.k].t} ✓</span>` : CRIT_EJ[x.act] ? '<span class="sug man">La pone usted: lea las respuestas</span>' : ""}</div>
       <div class="row">${[["Superior 5,0",5],["4,5",4.5],["4,0",4],["Aceptable 3,5",3.5],["3,0",3],["Insuficiente 2,0",2]].map(([l,n]) => `<button type="button" class="lv" data-set="${r.k}" data-v="${n}">${l}</button>`).join("")}</div>
       <details><summary>Ver descriptores</summary><ul style="margin:6px 0 0;padding-left:18px"><li><b>Superior (4,0–5,0):</b> ${esc(r.s)}</li><li><b>Aceptable (3,0–3,9):</b> ${esc(r.a)}</li><li><b>Insuficiente (&lt; 3,0):</b> ${esc(r.i)}</li></ul></details></div>`).join("");
   $("cNota").value = c.nota === "" ? "" : c.nota; $("cCom").value = c.comentario || "";
@@ -1007,8 +1036,15 @@ $("cDel").addEventListener("click", async () => {
 });
 
 /* Sábana de notas */
-const PESOS_DEF = {L:50, A:30, T:20};
-const pesos = () => { const p = store.get("s3_pesos") || PESOS_DEF; return {L:+p.L||0, A:+p.A||0, T:+p.T||0}; };
+/* El taller 1–6 y el avanzado 7–10 forman una sola nota de taller (60/40 por número de ejercicios). */
+const PESOS_DEF = {L:80, T:20}, W_BAS = 6, W_AV = 4;
+const pesos = () => { let p = store.get("s3_pesos_u"); if (!p){ const o = store.get("s3_pesos"); p = o ? {L:(+o.L||0) + (+o.A||0), T:+o.T||0} : PESOS_DEF; } return {L:+p.L||0, T:+p.T||0}; };
+function tallerUnico(f){
+  if (!f.lab && !f.av) return {estado:"no"};
+  if ([f.lab, f.av].some(x => x && (!x.calificacion || x.calificacion.reenvio))) return {estado:"pend"};
+  const b = f.lab?.calificacion?.nota || 0, a = f.av?.calificacion?.nota || 0;
+  return {estado:"ok", nota: (b * W_BAS + a * W_AV) / (W_BAS + W_AV), b, a};
+}
 const norm = t => String(t||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(Boolean);
 function mismoNombre(a, b){ const A = norm(a), B = norm(b); if (!A.length || !B.length) return false; const [c, l] = A.length <= B.length ? [A, B] : [B, A]; return c.every(t => l.includes(t)) || (c.length >= 2 && c.slice(0,2).every(t => l.includes(t))); }
 function filasSabana(){
@@ -1028,26 +1064,31 @@ function filasSabana(){
     miembros.forEach(([nom, rol]) => filas.push({grupo:e.grupo, equipo:e.equipo, nombre:nom, rol, ...de(nom, "")}));
     propias.filter(x => !usados.has(x.key)).forEach(x => { if (usados.has(x.key)) return; filas.push({grupo:e.grupo, equipo:e.equipo, nombre:x.nombre, rol: e.sinReg ? "Equipo sin registro" : "No figura en el equipo", ...de(x.nombre, x.codigo)}); });
   });
-  const w = pesos(), tot = w.L + w.A + w.T;
-  filas.forEach(f => { const pend = [f.lab, w.A ? f.av : null, f.ticket].some(x => x && (!x.calificacion || x.calificacion.reenvio)); f.def = pend || !tot ? null : ((f.lab?.calificacion?.nota||0)*w.L + (f.av?.calificacion?.nota||0)*w.A + (f.ticket?.calificacion?.nota||0)*w.T) / tot; });
+  const w = pesos(), tot = w.L + w.T;
+  filas.forEach(f => { f.tal = tallerUnico(f); const pend = f.tal.estado === "pend" || (f.ticket && (!f.ticket.calificacion || f.ticket.calificacion.reenvio));
+    f.def = pend || !tot ? null : ((f.tal.nota || 0) * w.L + (f.ticket?.calificacion?.nota || 0) * w.T) / tot; });
   return filas;
 }
+const parte = (x, n) => !x ? `${n}: no entregó` : x.calificacion ? `${n}: ${fmt(x.calificacion.nota)}` : `${n}: por calificar`;
+const celdaTaller = r => r.tal.estado === "no" ? '<span class="hint">0,0<br>no entregó</span>'
+  : (r.tal.estado === "pend" ? '<span class="hint">Por calificar</span>' : badge(r.tal.nota)) + `<div class="hint" style="font-size:11px">${parte(r.lab,"1–6")} · ${parte(r.av,"7–10")}</div>`;
 const celda = x => !x ? '<span class="hint">0,0<br>no entregó</span>' : !x.calificacion ? '<span class="hint">Por calificar</span>' : badge(x.calificacion.nota) + (x.calificacion.reenvio ? '<div class="flag">Reenviada</div>' : "");
 function sabPintar(){
-  const w = pesos(); $("wL").value = w.L; $("wA").value = w.A; $("wT").value = w.T; const t = w.L + w.A + w.T; $("wSum").textContent = `Suma: ${t}%`; $("wSum").style.color = t === 100 ? "" : "var(--danger)";
+  const w = pesos(); $("wL").value = w.L; $("wT").value = w.T; const t = w.L + w.T; $("wSum").textContent = `Suma: ${t}%`; $("wSum").style.color = t === 100 ? "" : "var(--danger)";
   const f = filasSabana();
   $("sabRows").innerHTML = f.length ? f.map(r => `<tr><td>${esc(r.grupo)} · ${r.equipo}</td><td>${esc(r.nombre)}<div class="hint">${esc([r.rol, r.codigo].filter(Boolean).join(" · "))}</div></td>
-    <td class="n">${celda(r.lab)}</td><td class="n">${celda(r.av)}</td><td class="n">${celda(r.ticket)}</td><td class="n">${r.def === null ? '<span class="hint">Pendiente</span>' : badge(r.def)}</td></tr>`).join("")
-    : '<tr><td colspan="6" class="hint">Aún no hay equipos ni entregas.</td></tr>';
+    <td class="n">${celdaTaller(r)}</td><td class="n">${celda(r.ticket)}</td><td class="n">${r.def === null ? '<span class="hint">Pendiente</span>' : badge(r.def)}</td></tr>`).join("")
+    : '<tr><td colspan="5" class="hint">Aún no hay equipos ni entregas.</td></tr>';
 }
-["wL","wA","wT"].forEach(id => $(id).addEventListener("input", () => { store.set("s3_pesos", {L:val("wL"), A:val("wA"), T:val("wT")}); sabPintar(); }));
+["wL","wT"].forEach(id => $(id).addEventListener("input", () => { store.set("s3_pesos_u", {L:val("wL"), T:val("wT")}); sabPintar(); }));
 const descargar = (nombre, contenido) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + contenido], {type:"text/csv;charset=utf-8"})); a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); };
 const q = x => `"${String(x ?? "").replace(/"/g,'""').replace(/\n/g," ")}"`;
 $("sabCsv").addEventListener("click", () => {
   const f = filasSabana(); if (!f.length){ docMsg("warn","No hay datos para exportar."); return; }
   const w = pesos(), n = x => !x ? "0,0" : x.calificacion ? fmt(x.calificacion.nota) : "Por calificar";
-  const L = [["Grupo","Equipo","Estudiante","Codigo","Rol",`Taller (${w.L}%)`,`Avanzado (${w.A}%)`,`Ticket (${w.T}%)`,"Definitiva","Retroalimentacion taller","Retroalimentacion avanzado","Retroalimentacion ticket"].map(q).join(";")];
-  f.forEach(r => L.push([r.grupo, r.equipo, r.nombre, r.codigo, r.rol, n(r.lab), n(r.av), n(r.ticket), r.def === null ? "Pendiente" : fmt(r.def), r.lab?.calificacion?.comentario, r.av?.calificacion?.comentario, r.ticket?.calificacion?.comentario].map(q).join(";")));
+  const nt = r => r.tal.estado === "no" ? "0,0" : r.tal.estado === "pend" ? "Por calificar" : fmt(r.tal.nota);
+  const L = [["Grupo","Equipo","Estudiante","Codigo","Rol",`Taller QPM 1-10 (${w.L}%)`,"Ejercicios 1-6 (60% del taller)","Avanzado 7-10 (40% del taller)",`Ticket (${w.T}%)`,"Definitiva","Retroalimentacion taller","Retroalimentacion avanzado","Retroalimentacion ticket"].map(q).join(";")];
+  f.forEach(r => L.push([r.grupo, r.equipo, r.nombre, r.codigo, r.rol, nt(r), n(r.lab), n(r.av), n(r.ticket), r.def === null ? "Pendiente" : fmt(r.def), r.lab?.calificacion?.comentario, r.av?.calificacion?.comentario, r.ticket?.calificacion?.comentario].map(q).join(";")));
   descargar("Sabana_notas_S3.csv", L.join("\n"));
 });
 $("docCsv").addEventListener("click", () => {
