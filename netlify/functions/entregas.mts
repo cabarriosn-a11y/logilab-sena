@@ -12,7 +12,7 @@ import { getStore, getDeployStore } from "@netlify/blobs";
 // Un reenvío reemplaza el anterior (se conserva el contador de envíos).
 // POST   /api/entregas                 -> guarda una entrega
 // GET    /api/entregas[?act=S0-RUTA | ?sesion=S0] -> lista (header x-clave-instructor = ADMIN_KEY)
-// PATCH  /api/entregas?key=...         -> califica (docente): { criterios, nota, comentario } o { borrar: true }
+// PATCH  /api/entregas?key=...         -> califica (docente): { criterios, nota, comentario, notaOtra?, definitiva? } o { borrar: true }
 // DELETE /api/entregas?key=...         -> elimina (docente)
 // Si el estudiante reenvía después de calificado, la nota se conserva y queda marcada para revisar (reenvio: true).
 // Protección contra sobrescrituras (computadores compartidos):
@@ -38,7 +38,7 @@ type Entrega = {
 type Version = { nombre: string; codigo: string; producto: string; integrantes: string[]; datos: Record<string, unknown>; actualizado: string };
 const MAX_HIST = 5;
 const normNombre = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
-type Calificacion = { criterios: Record<string, number>; nota: number; comentario: string; fecha: string; reenvio: boolean };
+type Calificacion = { criterios: Record<string, number>; nota: number; comentario: string; fecha: string; reenvio: boolean; notaOtra?: number; definitiva?: number };
 const KEY_RE = /^S\d{1,2}-[A-Z0-9]{2,8}\/(A1|B1)-[0-9A-Za-z-]+$/;
 const keyValida = (k: string) => KEY_RE.test(k) && ACTIVIDADES.includes(k.split("/")[0]);
 const nota05 = (v: unknown) => { const n = Math.round(Number(v) * 10) / 10; return Number.isFinite(n) && n >= 0 && n <= 5 ? n : null; };
@@ -149,6 +149,11 @@ export default async (req: Request, _context: Context) => {
         const n = nota05(v); if (n !== null) criterios[txt(k, 60)] = n;
       }
       actual.calificacion = { criterios, nota, comentario: String(b.comentario ?? "").trim().slice(0, 1500), fecha: new Date().toISOString(), reenvio: false };
+      // Opcionales (taller S3 1–10): nota de la parte que el estudiante no envió por la página y nota definitiva del taller.
+      const opc = (v: unknown) => (v === undefined || v === null || v === "" ? null : nota05(v));
+      const notaOtra = opc(b.notaOtra), definitiva = opc(b.definitiva);
+      if (notaOtra !== null) actual.calificacion.notaOtra = notaOtra;
+      if (definitiva !== null) actual.calificacion.definitiva = definitiva;
       await s.setJSON(key, actual);
       return json({ ok: true, entrega: actual });
     }

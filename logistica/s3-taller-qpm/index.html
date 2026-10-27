@@ -306,7 +306,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
         <div class="tw"><table class="list"><thead><tr><th>Entrega</th><th>Grupo · equipo</th><th>Quién</th><th>Recibida</th><th>Nota</th><th></th></tr></thead><tbody id="docRows"></tbody></table></div>
       </div>
       <div id="viewSab" hidden style="display:flex;flex-direction:column;gap:14px">
-        <p class="hint" style="margin:0">Las entregas son individuales y se unen a cada estudiante por su código o su nombre. El taller QPM tiene una sola nota: ejercicios 1–6 valen 60 % y el avanzado (7–10) 40 %, según el número de ejercicios. Las entregas antiguas que se guardaron por equipo cuentan para todos los integrantes de ese equipo. Lo no enviado cuenta 0,0; lo enviado sin calificar deja la definitiva pendiente.</p>
+        <p class="hint" style="margin:0">Si en la ventana de calificar escribió una nota definitiva del taller, la sábana usa esa. Las entregas son individuales y se unen a cada estudiante por su código o su nombre. El taller QPM tiene una sola nota: ejercicios 1–6 valen 60 % y el avanzado (7–10) 40 %, según el número de ejercicios. Las entregas antiguas que se guardaron por equipo cuentan para todos los integrantes de ese equipo. Lo no enviado cuenta 0,0; lo enviado sin calificar deja la definitiva pendiente.</p>
         <div class="pesos"><label>Taller QPM 1–10 (%)<input type="number" min="0" max="100" id="wL"></label><label>Ticket (%)<input type="number" min="0" max="100" id="wT"></label><span class="hint" id="wSum"></span>
           <button class="btn" id="sabCsv" style="margin-left:auto">Descargar sábana (CSV)</button></div>
         <div class="tw"><table class="list"><thead><tr><th>Grupo · eq.</th><th>Estudiante</th><th class="n">Taller QPM (1–10)</th><th class="n">Ticket</th><th class="n">Definitiva</th></tr></thead><tbody id="sabRows"></tbody></table></div>
@@ -323,7 +323,7 @@ table.mx th{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:
     <form class="rub" id="cForm" novalidate>
       <div class="auto" id="cAuto" hidden></div>
       <div id="cCrit" style="display:flex;flex-direction:column;gap:10px"></div>
-      <div class="final"><label class="f" style="flex-direction:row;align-items:center;gap:10px"><span id="cNotaL">Nota</span><input type="number" id="cNota" min="0" max="5" step="0.1"></label><label class="f" id="cNotaAW" style="flex-direction:row;align-items:center;gap:10px" hidden>Nota 7–10<input type="number" id="cNotaA" min="0" max="5" step="0.1"></label><b id="cUni" hidden></b><span class="hint" style="flex-basis:100%">Promedio de los criterios; puede ajustarla. Las notas sugeridas salen de los ✓; revíselas antes de guardar.</span></div>
+      <div class="final"><label class="f" style="flex-direction:row;align-items:center;gap:10px"><span id="cNotaL">Nota</span><input type="number" id="cNota" min="0" max="5" step="0.1"></label><label class="f" id="cNotaAW" style="flex-direction:row;align-items:center;gap:10px" hidden>Nota 7–10<input type="number" id="cNotaA" min="0" max="5" step="0.1" placeholder="0,0"></label><label class="f" id="cDefW" style="flex-direction:row;align-items:center;gap:10px;padding-left:12px;border-left:2px solid var(--line)" hidden><b>Nota definitiva del taller 1–10</b><input type="number" id="cDef" min="0" max="5" step="0.1"></label><span class="hint" id="cUni" hidden></span><span class="hint" style="flex-basis:100%">Promedio de los criterios; puede ajustarla. Las notas sugeridas salen de los ✓; revíselas antes de guardar.</span></div>
       <label class="f">Retroalimentación para el equipo o estudiante<textarea id="cCom" rows="3" placeholder="Qué hicieron bien y qué deben mejorar."></textarea></label>
       <div class="notice" id="cMsg" hidden></div>
       <div class="btns"><button class="btn p" type="submit" id="cSave">Guardar calificación</button><button class="btn" type="button" id="cNext">Guardar y siguiente</button><button class="btn danger" type="button" id="cDel">Quitar nota</button></div>
@@ -1014,7 +1014,8 @@ function abrirCal(key){
   const x = ENTREGAS.find(y => y.key === key); if (!x) return;
   const par = parDe(x), lab = x.act === ACT_EQ ? x : x.act === ACT_AV ? par : null, av = x.act === ACT_AV ? x : x.act === ACT_EQ ? par : null;
   const unido = !esEquipo(x) && x.act !== ACT_TK;
-  CAL = unido ? [lab && {x:lab, pre:"L", inp:"cNota"}, av && {x:av, pre:"A", inp: lab ? "cNotaA" : "cNota"}].filter(Boolean) : [{x, pre:"X", inp:"cNota"}];
+  CAL = unido ? [lab && {x:lab, pre:"L", inp:"cNota"}, av && {x:av, pre:"A", inp:"cNotaA"}].filter(Boolean) : [{x, pre:"X", inp:"cNota"}];
+  CAL.falta = unido && (!lab ? "cNota" : !av ? "cNotaA" : null);
   const quien = esEquipo(x) ? "entrega antigua por equipo (nota para todo el equipo)" : x.nombre + (x.codigo ? " · " + x.codigo : "");
   $("cT").textContent = unido ? "Calificar · Taller QPM 1–10" : `Calificar · ${NOMBRES[x.act]||x.act}`;
   $("cS").textContent = `${x.grupo} · Equipo ${x.equipo} · ${x.producto} · ${quien}`;
@@ -1026,17 +1027,25 @@ function abrirCal(key){
   } else {
     if (lab){ texto.push("════════ EJERCICIOS 1 A 6 ════════\n\n" + textoEntrega(lab)); CUENTA = {}; auto += `<div class="parte"><b>Ejercicios 1 a 6</b></div>` + revisionAuto(lab); const S = sugerencias(ACT_EQ);
       crit += `<div class="parte"><b>Ejercicios 1 a 6</b> · 60 % del taller</div>` + critHtml("L", ACT_EQ, lab.calificacion, S); }
-    else { texto.push("════════ EJERCICIOS 1 A 6 ════════\n\nNo envió los ejercicios 1 a 6. En la sábana cuentan 0,0."); auto += `<div class="parte"><b>Ejercicios 1 a 6</b></div><p class="flag">No los envió: cuentan 0,0.</p>`; }
+    else { texto.push("════════ EJERCICIOS 1 A 6 ════════\n\nNo envió los ejercicios 1 a 6. En la sábana cuentan 0,0."); auto += `<div class="parte"><b>Ejercicios 1 a 6</b></div><p class="flag">No los envió por la página.</p>`;
+      crit += `<div class="parte"><b>Ejercicios 1 a 6</b> · 60 % del taller</div><div class="crit"><b style="color:var(--fg)">No los envió por la página</b><span class="hint">Si los entregó por otro medio, escriba su <b>Nota 1–6</b> abajo. Si no, déjela en 0,0.</span></div>`; }
     if (av){ texto.push("════════ TALLER AVANZADO · EJERCICIOS 7 A 10 ════════\n\n" + textoEntrega(av)); CUENTA = {}; auto += `<div class="parte"><b>Ejercicios 7 a 10 (avanzado)</b></div>` + revisionAv(av); const S = sugerencias(ACT_AV);
       crit += `<div class="parte"><b>Ejercicios 7 a 10 (avanzado)</b> · 40 % del taller</div>` + critHtml("A", ACT_AV, av.calificacion, S); }
-    else { texto.push("════════ TALLER AVANZADO · EJERCICIOS 7 A 10 ════════\n\nNo envió el taller avanzado. En la sábana cuenta 0,0."); auto += `<div class="parte"><b>Ejercicios 7 a 10 (avanzado)</b></div><p class="flag">No envió el taller avanzado: cuenta 0,0 en la nota del taller.</p>`; }
+    else { texto.push("════════ TALLER AVANZADO · EJERCICIOS 7 A 10 ════════\n\nNo envió el taller avanzado. En la sábana cuenta 0,0."); auto += `<div class="parte"><b>Ejercicios 7 a 10 (avanzado)</b></div><p class="flag">No envió el taller avanzado por la página.</p>`;
+      crit += `<div class="parte"><b>Ejercicios 7 a 10 (avanzado)</b> · 40 % del taller</div><div class="crit"><b style="color:var(--fg)">No lo envió por la página</b><span class="hint">Si lo entregó por otro medio (WhatsApp, correo, papel), escriba su <b>Nota 7–10</b> abajo. Si no lo hizo, déjela en 0,0. También puede escribir directamente la <b>nota definitiva del taller</b>.</span></div>`; }
   }
   $("cB").textContent = texto.join("\n\n\n"); $("cAuto").innerHTML = auto; $("cAuto").hidden = !auto; $("cCrit").innerHTML = crit;
   const dos = CAL.length === 2;
-  $("cNotaL").textContent = !unido ? "Nota" : CAL[0].pre === "L" ? "Nota 1–6" : "Nota 7–10"; $("cNotaAW").hidden = !dos; $("cUni").hidden = !unido;
+  $("cNotaL").textContent = unido ? "Nota 1–6" : "Nota"; $("cNotaAW").hidden = !unido; $("cDefW").hidden = !unido; $("cUni").hidden = !unido;
+  $("cNota").value = $("cNotaA").value = $("cDef").value = "";
   CAL.forEach(pt => { const n = pt.x.calificacion?.nota; $(pt.inp).value = n == null ? "" : n; });
+  if (CAL.falta){ const n = CAL[0].x.calificacion?.notaOtra; $(CAL.falta).value = n == null ? "" : n; }
+  const defG = CAL.map(pt => pt.x.calificacion?.definitiva).find(n => n != null);
+  DEF_MANUAL = false;
   $("cCom").value = CAL.map(pt => pt.x.calificacion?.comentario).find(Boolean) || "";
-  CAL.forEach(pt => recalcular(pt.pre, false)); notaUnica();
+  CAL.forEach(pt => recalcular(pt.pre, false));
+  if (unido && defG != null){ const calc = calcUnica(); DEF_MANUAL = calc === null || Math.abs(calc - defG) > 0.05; $("cDef").value = defG; }
+  notaUnica();
   $("cMsg").hidden = true; $("cDel").hidden = !CAL.some(pt => pt.x.calificacion); $("dlgC").showModal(); $("cB").scrollTop = 0;
 }
 function promedioCrit(pre){
@@ -1045,23 +1054,35 @@ function promedioCrit(pre){
   return Math.round(vs.reduce((a,b) => a+b, 0) / vs.length * 10) / 10;
 }
 function recalcular(pre, forzar = true){ const pt = (CAL||[]).find(q => q.pre === pre); if (!pt) return; const p = promedioCrit(pre); if (p !== null && (forzar || $(pt.inp).value === "")) $(pt.inp).value = p; notaUnica(); }
+let DEF_MANUAL = false;
 const numDe = id => { const t = String($(id).value).replace(",", "."); const n = Number(t); return t === "" || !(n >= 0 && n <= 5) ? null : n; };
+function calcUnica(){
+  const nL = $("cNota").value === "" && CAL.falta === "cNota" ? 0 : numDe("cNota"), nA = $("cNotaA").value === "" && CAL.falta === "cNotaA" ? 0 : numDe("cNotaA");
+  return nL === null || nA === null ? null : Math.round((nL * W_BAS + nA * W_AV) / (W_BAS + W_AV) * 10) / 10;
+}
 function notaUnica(){
   if ($("cUni").hidden || !CAL) return;
-  const L = CAL.find(q => q.pre === "L"), A = CAL.find(q => q.pre === "A"), nL = L ? numDe(L.inp) : 0, nA = A ? numDe(A.inp) : 0;
-  $("cUni").innerHTML = nL === null || nA === null ? '<span class="hint">Nota del taller 1–10: complete las notas</span>' : `Nota del taller 1–10: ${badge((nL * W_BAS + nA * W_AV) / (W_BAS + W_AV))}${!L || !A ? ' <span class="hint">(la parte no enviada cuenta 0,0)</span>' : ""}`;
+  const c = calcUnica();
+  if (!DEF_MANUAL) $("cDef").value = c === null ? "" : c;
+  $("cUni").innerHTML = c === null ? "Complete las notas 1–6 y 7–10 para calcular la definitiva."
+    : `Calculada (60 % ejercicios 1–6 + 40 % avanzado 7–10): <b>${fmt(c)}</b>${DEF_MANUAL ? ' · usted la cambió a mano <button type="button" class="btn sm" id="cDefReset">Usar la calculada</button>' : ""}`;
 }
+$("cDef").addEventListener("input", () => { DEF_MANUAL = $("cDef").value !== ""; notaUnica(); });
+$("cUni").addEventListener("click", e => { if (e.target.id === "cDefReset"){ DEF_MANUAL = false; notaUnica(); } });
 $("cCrit").addEventListener("click", e => { const b = e.target.closest("[data-set]"); if (!b) return; $("cCrit").querySelector(`[data-c="${b.dataset.set}"]`).value = b.dataset.v; recalcular(b.dataset.set.split(":")[0]); });
 $("cCrit").addEventListener("input", e => { const c = e.target.closest("[data-c]"); if (c) recalcular(c.dataset.c.split(":")[0]); });
 ["cNota","cNotaA"].forEach(id => $(id).addEventListener("input", notaUnica));
 function cMsg(cls, t){ $("cMsg").className = "notice " + cls; $("cMsg").textContent = t; $("cMsg").hidden = false; }
 async function guardarCal(sig){
-  const datos = [];
+  const datos = [], unido = !$("cDefW").hidden;
+  const def = unido ? numDe("cDef") : null, otra = CAL.falta ? ($(CAL.falta).value === "" ? 0 : numDe(CAL.falta)) : null;
+  if (unido && def === null){ cMsg("err","Escriba la nota definitiva del taller 1–10 (entre 0,0 y 5,0)."); return; }
+  if (CAL.falta && otra === null){ cMsg("err", `La nota ${CAL.falta === "cNota" ? "1–6" : "7–10"} debe estar entre 0,0 y 5,0.`); return; }
   for (const pt of CAL){
     const nota = numDe(pt.inp);
     if (nota === null){ cMsg("err", `Escriba una nota entre 0,0 y 5,0${CAL.length > 1 ? (pt.pre === "L" ? " para los ejercicios 1–6" : " para el avanzado 7–10") : ""} o califique todos sus criterios.`); return; }
     const criterios = {}; $("cCrit").querySelectorAll(`[data-c^="${pt.pre}:"]`).forEach(i => { if (i.value !== "") criterios[i.dataset.c.split(":")[1]] = Number(i.value); });
-    datos.push({pt, body:{criterios, nota, comentario:$("cCom").value}});
+    datos.push({pt, body:{criterios, nota, comentario:$("cCom").value, ...(unido ? {definitiva:def} : {}), ...(CAL.falta ? {notaOtra:otra} : {})}});
   }
   $("cSave").disabled = $("cNext").disabled = true; cMsg("info","Guardando…");
   const hechos = [];
@@ -1098,8 +1119,9 @@ const pesos = () => { let p = store.get("s3_pesos_u"); if (!p){ const o = store.
 function tallerUnico(f){
   if (!f.lab && !f.av) return {estado:"no"};
   if ([f.lab, f.av].some(x => x && (!x.calificacion || x.calificacion.reenvio))) return {estado:"pend"};
-  const b = f.lab?.calificacion?.nota || 0, a = f.av?.calificacion?.nota || 0;
-  return {estado:"ok", nota: (b * W_BAS + a * W_AV) / (W_BAS + W_AV), b, a};
+  const b = f.lab ? f.lab.calificacion.nota : (f.av?.calificacion?.notaOtra ?? 0), a = f.av ? f.av.calificacion.nota : (f.lab?.calificacion?.notaOtra ?? 0);
+  const def = [f.lab, f.av].map(x => x && !esEquipo(x) ? x.calificacion?.definitiva : null).find(n => n != null);
+  return {estado:"ok", nota: def ?? (b * W_BAS + a * W_AV) / (W_BAS + W_AV), b, a};
 }
 const norm = t => String(t||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(Boolean);
 function mismoNombre(a, b){ const A = norm(a), B = norm(b); if (!A.length || !B.length) return false; const [c, l] = A.length <= B.length ? [A, B] : [B, A]; return c.every(t => l.includes(t)) || (c.length >= 2 && c.slice(0,2).every(t => l.includes(t))); }
@@ -1125,9 +1147,9 @@ function filasSabana(){
     f.def = pend || !tot ? null : ((f.tal.nota || 0) * w.L + (f.ticket?.calificacion?.nota || 0) * w.T) / tot; });
   return filas;
 }
-const parte = (x, n) => !x ? `${n}: no entregó` : x.calificacion ? `${n}: ${fmt(x.calificacion.nota)}` : `${n}: por calificar`;
+const parte = (x, n, otra) => !x ? (otra?.calificacion?.notaOtra != null ? `${n}: ${fmt(otra.calificacion.notaOtra)} (otro medio)` : `${n}: no entregó`) : x.calificacion ? `${n}: ${fmt(x.calificacion.nota)}` : `${n}: por calificar`;
 const celdaTaller = r => r.tal.estado === "no" ? '<span class="hint">0,0<br>no entregó</span>'
-  : (r.tal.estado === "pend" ? '<span class="hint">Por calificar</span>' : badge(r.tal.nota)) + `<div class="hint" style="font-size:11px">${parte(r.lab,"1–6")} · ${parte(r.av,"7–10")}</div>`;
+  : (r.tal.estado === "pend" ? '<span class="hint">Por calificar</span>' : badge(r.tal.nota)) + `<div class="hint" style="font-size:11px">${parte(r.lab,"1–6",r.av)} · ${parte(r.av,"7–10",r.lab)}</div>`;
 const celda = x => !x ? '<span class="hint">0,0<br>no entregó</span>' : !x.calificacion ? '<span class="hint">Por calificar</span>' : badge(x.calificacion.nota) + (x.calificacion.reenvio ? '<div class="flag">Reenviada</div>' : "");
 function sabPintar(){
   const w = pesos(); $("wL").value = w.L; $("wT").value = w.T; const t = w.L + w.T; $("wSum").textContent = `Suma: ${t}%`; $("wSum").style.color = t === 100 ? "" : "var(--danger)";
