@@ -91,14 +91,26 @@ export default async (req: Request, _context: Context) => {
       // Consulta pública de la propia nota: el equipo pide SOLO la evaluación de su(s) entrega(s)
       // por el sid exacto (kind|dispositivo|ts) que ya generó al enviar. No lista ni expone otras entregas,
       // y no requiere clave de instructor; solo devuelve juicio, criterios y observaciones de esos sid.
-      const consulta = new URL(req.url).searchParams.get("ev");
-      if (consulta) {
-        const ids = consulta.split(",").map((x) => txt(x, 200)).filter(Boolean).slice(0, 20);
+      const q = new URL(req.url).searchParams;
+      const consulta = q.get("ev");
+      const dev = q.get("dev");
+      if (consulta || dev) {
         const todas = ((await s.get("evaluaciones", { type: "json" })) as Record<string, Ev> | null) || {};
         const ev: Record<string, Ev> = {};
-        for (const id of ids) {
-          const e = todas[id];
-          if (e && !e.del) ev[id] = { j: e.j || "", cr: e.cr || {}, obs: e.obs || "", at: e.at || 0 };
+        const limpia = (e: Ev) => ({ j: e.j || "", cr: e.cr || {}, obs: e.obs || "", at: e.at || 0 });
+        if (consulta) {
+          // por sid(s) exacto(s): kind|dispositivo|ts
+          for (const id of consulta.split(",").map((x) => txt(x, 200)).filter(Boolean).slice(0, 20)) {
+            const e = todas[id];
+            if (e && !e.del) ev[id] = limpia(e);
+          }
+        }
+        if (dev) {
+          // todas las notas de UN dispositivo (el id va solo en ese aparato): sid = kind|<dev>|ts
+          const tid = txt(dev, 40).replace(/\|/g, "");
+          if (tid) for (const [sid, e] of Object.entries(todas)) {
+            if (e && !e.del && sid.includes("|" + tid + "|")) ev[sid] = limpia(e);
+          }
         }
         return json({ ev });
       }
