@@ -88,6 +88,20 @@ export default async (req: Request, _context: Context) => {
     }
 
     if (req.method === "GET") {
+      // Consulta pública de la propia nota: el equipo pide SOLO la evaluación de su(s) entrega(s)
+      // por el sid exacto (kind|dispositivo|ts) que ya generó al enviar. No lista ni expone otras entregas,
+      // y no requiere clave de instructor; solo devuelve juicio, criterios y observaciones de esos sid.
+      const consulta = new URL(req.url).searchParams.get("ev");
+      if (consulta) {
+        const ids = consulta.split(",").map((x) => txt(x, 200)).filter(Boolean).slice(0, 20);
+        const todas = ((await s.get("evaluaciones", { type: "json" })) as Record<string, Ev> | null) || {};
+        const ev: Record<string, Ev> = {};
+        for (const id of ids) {
+          const e = todas[id];
+          if (e && !e.del) ev[id] = { j: e.j || "", cr: e.cr || {}, obs: e.obs || "", at: e.at || 0 };
+        }
+        return json({ ev });
+      }
       if (!esInstructor(req)) return json({ error: "Clave de instructor incorrecta." }, 403);
       const { blobs } = await s.list({ prefix: "e/" });
       const entregas = (await Promise.all(blobs.map((x) => s.get(x.key, { type: "json" })))).filter(Boolean);
