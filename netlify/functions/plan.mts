@@ -1,5 +1,26 @@
 import type { Context, Config } from "@netlify/functions";
 import { getStore, getDeployStore } from "@netlify/blobs";
+import LZString from "lz-string";
+
+// Calcula el sid (kind|dispositivo|ts) de una entrega a partir de su código LLPE,
+// igual que lo hace la página del instructor, para poder honrar las eliminaciones (ev.del).
+function sidOf(codigo: string): string | null {
+  const m = /^LLPE\.([A-Z0-9]{1,5})\.([ZB])([0-9a-z]{6})\.(.+?)~?$/.exec(String(codigo || "").trim());
+  if (!m) return null;
+  const kind = m[1], fmt = m[2], body = m[4];
+  let raw = "";
+  try {
+    if (fmt === "Z") raw = LZString.decompressFromEncodedURIComponent(body) || "";
+    else raw = Buffer.from(body.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8");
+  } catch { return null; }
+  let p: any;
+  try { p = JSON.parse(raw); } catch { return null; }
+  if (!p || typeof p !== "object") return null;
+  const slug = (x: unknown) => String(x ?? "").toLowerCase().normalize("NFD")
+    .replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-");
+  const team = p.k || ("x-" + slug(p.q || p.e || ""));
+  return kind + "|" + team + "|" + (p.ts || 0);
+}
 
 // Buzón del Taller Plan Estratégico Logístico (SENA, Gestión Logística, competencia 210101007).
 // La página vive en GitHub Pages (cabarriosn-a11y.github.io/logilab-sesiones/logistica/taller-plan-estrategico/),
@@ -116,9 +137,20 @@ export default async (req: Request, _context: Context) => {
       }
       if (!esInstructor(req)) return json({ error: "Clave de instructor incorrecta." }, 403);
       const { blobs } = await s.list({ prefix: "e/" });
-      const entregas = (await Promise.all(blobs.map((x) => s.get(x.key, { type: "json" })))).filter(Boolean);
+      const crudas = await Promise.all(blobs.map(async (x) => ({ key: x.key, v: (await s.get(x.key, { type: "json" })) as any })));
       const ev = ((await s.get("evaluaciones", { type: "json" })) as Record<string, Ev> | null) || {};
       const alias = ((await s.get("alias", { type: "json" })) as Record<string, Alias> | null) || {};
+      // Honra las eliminaciones: una entrega marcada `del` en evaluaciones se oculta y se borra
+      // su registro de forma permanente (antes `del` solo ocultaba y la entrega reaparecía en cada carga).
+      const entregas: any[] = [];
+      const muertas: string[] = [];
+      for (const { key, v } of crudas) {
+        if (!v) continue;
+        const sid = v.codigo ? sidOf(v.codigo) : null;
+        if (sid && ev[sid] && ev[sid].del) { muertas.push(key); continue; }
+        entregas.push(v);
+      }
+      if (muertas.length) await Promise.all(muertas.map((k) => s.delete(k).catch(() => {})));
       return json({ entregas, ev, alias });
     }
 
