@@ -8,6 +8,7 @@
 const W=2.438, D=Math.PI/180, sides=f=>[-1,1].forEach(f), both=f=>[-1,1].forEach(a=>[-1,1].forEach(b=>f(a,b)));
 const shade=(h,k)=>(Math.round((h>>16&255)*k)<<16)|(Math.round((h>>8&255)*k)<<8)|Math.round((h&255)*k);
 const BLK=K=>K.M.color(0x06080a,0,1);
+const LUCES=[];
 
 /* ---------- Tipos (valores típicos de referencia) ---------- */
 const TYPES=[
@@ -61,7 +62,8 @@ function boxParts(o){const L=o.L,H=o.H,k=L/6.058,P=K=>K.M.paint(o.color),R=o.id=
    build:(g,K)=>{sides(s=>{g.add(K.rbox(0.05,0.16,L-0.356,P(K),s*(W/2-0.025),0.08,0,0.008));g.add(K.rbox(0.1,0.014,L-0.356,P(K),s*(W/2-0.06),0.007,0,0.005));});
      const n=Math.round((L-0.5)/0.3);for(let i=0;i<=n;i++){const z=-L/2+0.25+i*(L-0.5)/n;
        if(o.goose&&z<-L/2+3.3)sides(s=>g.add(K.rbox(0.66,0.1,0.05,K.M.dark(),s*(W/2-0.38),0.07,z,0.006)));else g.add(K.rbox(W-0.1,0.1,0.05,K.M.dark(),0,0.07,z,0.006));}
-     sides(sz=>g.add(K.rbox(W-0.324,0.16,0.12,P(K),0,0.08,sz*(L/2-0.06),0.01)));}},
+     sides(sz=>g.add(K.rbox(W-0.324,0.16,0.12,P(K),0,0.08,sz*(L/2-0.06),0.01)));
+     for(let i=0;i<Math.round(L/3);i++){const l=new K.THREE.PointLight(0xfff1dc,0,L*0.45,2);l.position.set(0,H-0.45,-L/2+(i+0.5)*L/Math.round(L/3));g.add(l);LUCES.push(l);}}},
   {name:R?'Piso en T de aluminio':'Piso de madera contrachapada',ex:[0,0.65,0],
    fn:R?'Piso con canales en forma de T por donde circula el aire frío por debajo de la carga. Así la temperatura queda pareja en todo el contenedor.':'Tablero de madera dura de 28 mm atornillado a los travesaños. Resiste el paso de un montacargas con hasta 7 260 kg por eje.',
    mat:R?'Perfiles de aluminio extruido':'Contrachapado de madera tropical tratada contra plagas',
@@ -248,6 +250,8 @@ const CFG={title:CUR.nom,accent:CUR.alias,paint:'#'+((CUR.id==='reefer'?0x3ea6e0
   motion:MOTION[CUR.id]||{label:'Apertura de puertas',from:0,to:260,unit:'°'},
   parts:CUR.id==='flatrack'?flatParts(CUR):CUR.id==='tank'?tankParts(CUR):boxParts(Object.assign({goose:CUR.L>7},CUR))};
 
+/* Captura los controles de cámara para el modo "entrar" (sin modificar el motor) */
+let CTL=null;{const OC=THREE.OrbitControls;THREE.OrbitControls=function(c,d){const o=new OC(c,d);CTL=o;return o;};THREE.OrbitControls.prototype=OC.prototype;}
 LogiLab3D.mount({portal:'../', portalText:'Volver a Equipos 3D',eyebrow:'Contenedores marítimos ISO', ...CFG});
 
 /* ---------- Selector de tipos y tabla comparativa ---------- */
@@ -279,7 +283,56 @@ function extras(){const wrap=document.querySelector('.ll-wrap');if(!wrap)return;
    ${TYPES.map(t=>`<tr class="${t===CUR?'on':''}"><td><a href="#${t.id}">${t.nom}</a><br><small>${t.alias}</small></td><td class="n">${t.iso}</td><td class="n">${t.ext}</td><td class="n">${t.int}</td><td class="n">${t.tara}</td><td class="n">${t.carga}</td><td class="n">${t.cap}</td><td>${t.uso}</td></tr>`).join('')}
    </tbody></table></div>`;
   wrap.insertBefore(tab,wrap.querySelector('.ll-foot'));
-  addEventListener('hashchange',()=>location.reload());}
+  addEventListener('hashchange',()=>location.reload());
+  if(['dry20','hc40','reefer','opentop'].includes(CUR.id))walkMode(wrap);}
+
+/* ---------- Entrar al contenedor (vista en primera persona) ---------- */
+function walkMode(wrap){const T=THREE,stage=wrap.querySelector('.ll-stage'),btns=wrap.querySelector('.ll-btns');
+  document.head.insertAdjacentHTML('beforeend',`<style>
+  .ct-pad{position:absolute;right:12px;bottom:150px;display:none;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,48px);gap:6px;z-index:5;touch-action:none}
+  .ct-pad button{border:1px solid var(--line);background:var(--panel-solid);color:var(--ink);border-radius:10px;font-size:18px;cursor:pointer;user-select:none;-webkit-user-select:none}
+  .ct-pad button:active{background:var(--sena);color:#fff}
+  .ct-in{position:absolute;left:12px;bottom:150px;display:none;max-width:260px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--sena);border-radius:8px;padding:8px 10px;font-size:12.5px;z-index:5}
+  .ct-in b{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block}
+  .walking .ct-pad{display:grid}.walking .ct-in{display:block}.walking .ll-hint{display:none}
+  @media (max-width:640px){.ct-pad,.ct-in{bottom:200px}.ct-in{max-width:170px}}
+  </style>`);
+  const L=CUR.L,H=CUR.H,EYE=1.72,zMin=-L/2+(CUR.id==='reefer'?0.75:0.45);
+  const pad=document.createElement('div');pad.className='ct-pad';pad.setAttribute('aria-label','Caminar');
+  pad.innerHTML='<span></span><button data-d="f" aria-label="Avanzar">▲</button><span></span><button data-d="l" aria-label="Izquierda">◀</button><button data-d="b" aria-label="Retroceder">▼</button><button data-d="r" aria-label="Derecha">▶</button>';
+  const info=document.createElement('div');info.className='ct-in';
+  info.innerHTML=`<b>Estás adentro</b>Espacio útil: ${CUR.int}.<br>Arrastra para mirar alrededor. Camina con las flechas (o W A S D).`;
+  stage.append(pad,info);
+  const go=document.createElement('button');go.className='primary';go.textContent='Entrar al contenedor';btns.prepend(go);
+  let inside=false,save=null,tw=null;const held=new Set();
+  const setSlider=(id,v)=>{const e=document.getElementById(id);if(e){e.value=v;e.dispatchEvent(new Event('input'));}};
+  function look(cam,tgt){const d=tgt.clone().sub(cam).normalize();CTL.object.position.copy(cam);CTL.target.copy(cam.clone().add(d.multiplyScalar(0.06)));}
+  function tween(toCam,toTgt,ms,done){const c0=CTL.object.position.clone(),t0=CTL.target.clone(),st=performance.now();
+    tw=()=>{const k=Math.min(1,(performance.now()-st)/ms),e=k*k*(3-2*k);CTL.object.position.lerpVectors(c0,toCam,e);CTL.target.lerpVectors(t0,toTgt,e);if(k>=1){tw=null;done&&done();}};}
+  function enter(){if(!CTL)return;inside=true;go.textContent='Salir del contenedor';stage.classList.add('walking');
+    save={min:CTL.minDistance,max:CTL.maxDistance,pol:CTL.maxPolarAngle,zoom:CTL.enableZoom,pan:CTL.enablePan};
+    setSlider('ll-explode',0);setSlider('ll-motion',100);LUCES.forEach(l=>{l.intensity=1.6;});
+    const door=new T.Vector3(0,EYE,L/2+3.2),inPos=new T.Vector3(0,EYE,L/2-0.9),ahead=new T.Vector3(0,EYE-0.15,-L/2);
+    tween(door,new T.Vector3(0,EYE-0.2,0),900,()=>{CTL.minDistance=0.01;CTL.maxPolarAngle=Math.PI*0.92;CTL.minPolarAngle=0.08;CTL.enableZoom=false;CTL.enablePan=false;
+      tween(inPos,ahead,1300,()=>{look(CTL.object.position.clone(),ahead);CTL.maxDistance=1;});});}
+  function exit(){inside=false;held.clear();go.textContent='Entrar al contenedor';stage.classList.remove('walking');LUCES.forEach(l=>{l.intensity=0;});
+    Object.assign(CTL,{minDistance:save.min,maxDistance:save.max,maxPolarAngle:save.pol,minPolarAngle:0,enableZoom:save.zoom,enablePan:save.pan});
+    wrap.querySelector('[data-a=reset]').click();}
+  go.addEventListener('click',()=>inside?exit():enter());
+  const K2D={ArrowUp:'f',KeyW:'f',ArrowDown:'b',KeyS:'b',ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r'};
+  addEventListener('keydown',e=>{if(inside&&K2D[e.code]){held.add(K2D[e.code]);e.preventDefault();}});
+  addEventListener('keyup',e=>{if(K2D[e.code])held.delete(K2D[e.code]);});
+  pad.querySelectorAll('button').forEach(b=>{const d=b.dataset.d;b.addEventListener('pointerdown',e=>{held.add(d);b.setPointerCapture(e.pointerId);e.preventDefault();});
+    ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,()=>held.delete(d)));});
+  let last=performance.now();
+  (function loop(now){requestAnimationFrame(loop);const dt=Math.min(0.1,(now-last)/1000);last=now;if(tw){tw();return;}
+    if(!inside||!held.size||!CTL)return;const cam=CTL.object.position,f=CTL.target.clone().sub(cam);f.y=0;f.normalize();
+    const r=new T.Vector3(-f.z,0,f.x),mv=new T.Vector3(),sp=1.6*dt;
+    if(held.has('f'))mv.add(f);if(held.has('b'))mv.sub(f);if(held.has('r'))mv.add(r);if(held.has('l'))mv.sub(r);if(!mv.lengthSq())return;
+    mv.normalize().multiplyScalar(sp);const n=cam.clone().add(mv);
+    n.z=Math.max(zMin,Math.min(L/2+4,n.z));if(n.z<L/2-0.05)n.x=Math.max(-(W/2-0.32),Math.min(W/2-0.32,n.x));else n.x=Math.max(-3,Math.min(3,n.x));
+    if(n.z<L/2-0.05&&cam.z>=L/2-0.05&&Math.abs(n.x)>W/2-0.35)return;
+    n.y=EYE;const d=n.clone().sub(cam);cam.copy(n);CTL.target.add(d);})(last);}
 if(document.querySelector('.ll-wrap'))extras();else document.addEventListener('DOMContentLoaded',extras);
 </script>
 
