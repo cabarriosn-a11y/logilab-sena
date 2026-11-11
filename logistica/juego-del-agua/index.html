@@ -28,6 +28,12 @@ button{font:inherit}
 .tog.on .sw{background:var(--bl)}.tog.on .sw::after{left:23px}
 .board{position:relative;border-radius:18px;overflow:hidden;box-shadow:0 10px 0 #a77d4a,0 14px 24px rgba(0,0,0,.18);background:#c5e3a5;aspect-ratio:1000/680;min-height:420px}
 .board svg.map{position:absolute;inset:0;width:100%;height:100%}
+.drive{animation:drive var(--dur,1.8s) cubic-bezier(.3,.7,.4,1) both}
+@keyframes drive{from{transform:translate(var(--dx),var(--dy))}to{transform:translate(0,0)}}
+.pop{animation:pop .4s ease-out both;animation-delay:var(--dur,1.8s)}
+@keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+.fast{--dur:.3s}
+@media(prefers-reduced-motion:reduce){.drive,.pop{animation:none}}
 .card{position:absolute;width:37%;background:rgba(255,255,255,.97);border-radius:22px;box-shadow:0 4px 16px rgba(0,0,0,.15);padding:10px 16px 12px;text-align:center}
 .card h3{margin:0 0 6px;font-size:1.25rem;font-weight:600;display:flex;justify-content:center;align-items:baseline;gap:6px;position:relative;border-bottom:1px solid #eef1f4;padding-bottom:6px}
 .card h3 small{font-size:.85rem;color:#5b6673;font-weight:400}
@@ -177,8 +183,8 @@ function rulesHTML(){return `<p>Cada aprendiz maneja un eslabón de la cadena de
 const NODE=[[190,78],[810,78],[190,400],[810,400]];
 function tree(x,y,s=1){return `<g transform="translate(${x},${y}) scale(${s})"><ellipse cx="0" cy="34" rx="20" ry="6" fill="#9cc77d"/><rect x="-4" y="6" width="8" height="30" fill="#7a4a21"/><circle cx="0" cy="-6" r="20" fill="#5aa832"/><circle cx="-12" cy="4" r="13" fill="#4f9a2b"/><circle cx="12" cy="4" r="13" fill="#64b23a"/></g>`}
 function rock(x,y){return `<g transform="translate(${x},${y})"><ellipse cx="0" cy="8" rx="34" ry="8" fill="#a9cf8e"/><path d="M-28 6 L-18 -10 L4 -12 L16 -4 L-2 8 Z" fill="#8d949b"/><path d="M0 8 L14 -6 L30 -2 L32 8 Z" fill="#7b828a"/></g>`}
-function truck(x,y,cab,flip){return `<g transform="translate(${x},${y}) ${flip?'scale(-1,1)':''}"><rect x="-52" y="-30" width="78" height="40" rx="3" fill="#f1f3f5" stroke="#c7ccd1"/><rect x="26" y="-18" width="24" height="28" rx="4" fill="${cab}"/><rect x="34" y="-14" width="12" height="9" fill="#3a4651"/><circle cx="-36" cy="12" r="6" fill="#2b2f33"/><circle cx="36" cy="12" r="6" fill="#2b2f33"/></g>`}
-function badge(x,y,q,w){return q===null?'':`<g transform="translate(${x},${y})"><rect x="-30" y="-17" width="60" height="34" rx="17" fill="#fff" opacity=".95"/><text x="-4" y="7" font-size="20" font-weight="800" text-anchor="middle" fill="#1d2733">${q}</text><text x="16" y="7" font-size="11" text-anchor="middle" fill="#3b4652">S${w}</text></g>`}
+function truck(x,y,cab,flip,rot=0,dx=0,dy=0,an=false){return `<g transform="translate(${x},${y})"><g class="${an?'drive':''}" style="--dx:${dx}px;--dy:${dy}px"><g transform="rotate(${rot}) ${flip?'scale(-1,1)':''}"><rect x="-52" y="-30" width="78" height="40" rx="3" fill="#f1f3f5" stroke="#c7ccd1"/><rect x="26" y="-18" width="24" height="28" rx="4" fill="${cab}"/><rect x="34" y="-14" width="12" height="9" fill="#3a4651"/><circle cx="-36" cy="12" r="6" fill="#2b2f33"/><circle cx="36" cy="12" r="6" fill="#2b2f33"/></g></g></g>`}
+function badge(x,y,q,w,an){return q===null?'':`<g transform="translate(${x},${y})"><g class="${an?'pop':''}"><rect x="-30" y="-17" width="60" height="34" rx="17" fill="#fff" opacity=".95"/><text x="-4" y="7" font-size="20" font-weight="800" text-anchor="middle" fill="#1d2733">${q}</text><text x="16" y="7" font-size="11" text-anchor="middle" fill="#3b4652">S${w}</text></g></g>`}
 function building(i){
  const [x,y]=NODE[i];
  if(i===0)return `<g transform="translate(${x},${y-6})"><path d="M-40 -10 L0 -34 L40 -10 Z" fill="#4a5560"/><rect x="-34" y="-10" width="68" height="44" fill="#f5e7cf"/><path d="M-40 -10 h80 v12 h-80z" fill="#fff"/>${[0,1,2,3,4].map(k=>`<rect x="${-40+k*16}" y="-10" width="8" height="12" fill="#d93a3a"/>`).join('')}<rect x="-24" y="8" width="16" height="26" fill="#6b4a2b"/><rect x="2" y="8" width="22" height="16" fill="#9ccbe8"/></g>`;
@@ -186,8 +192,10 @@ function building(i){
  if(i===2)return `<g transform="translate(${x},${y-10})"><path d="M-48 -6 L-20 -30 L48 -30 L48 -6 Z" fill="#7fa7d9"/><rect x="-48" y="-6" width="96" height="42" fill="#fdfdfd" stroke="#c7ccd1"/><rect x="-48" y="18" width="96" height="8" fill="#ea8a2a"/><rect x="10" y="4" width="26" height="32" fill="#d9dde1"/>${[0,1,2].map(k=>`<rect x="${-40+k*12}" y="2" width="7" height="6" fill="#3a4651"/>`).join('')}</g>`;
  return `<g transform="translate(${x},${y-10})"><rect x="-48" y="0" width="96" height="36" fill="#f2c79a" stroke="#c98e57"/>${[0,1,2,3].map(k=>`<path d="M${-48+k*24} 0 L${-36+k*24} -16 L${-24+k*24} 0 Z" fill="#e7a86b"/>`).join('')}<rect x="20" y="-44" width="8" height="30" fill="#6b7280"/><rect x="34" y="-36" width="7" height="22" fill="#6b7280"/><circle cx="24" cy="-52" r="7" fill="#d5d9dd" opacity=".8"/></g>`;
 }
+let lastAnim=null;
 function mapSVG(){
  const t=G.t,vis=k=>fullVis||G.over||reveal===k;
+ const key=G.team+'|'+t+'|'+(fullVis?'all':reveal),an=!G.over&&(reveal!==null||fullVis)&&lastAnim!==key;if(reveal!==null||fullVis)lastAnim=key;
  // camiones: envíos ya despachados que llegan la próxima semana
  const q0=G.arr[0][t+1]||0,q1=G.arr[1][t+1]||0,q2=G.arr[2][t+1]||0;
  const road=(d)=>`<path d="${d}" fill="none" stroke="#4d5359" stroke-width="40" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="22 26"/>`;
@@ -198,9 +206,9 @@ function mapSVG(){
  ${tree(40,60,1)}${tree(60,190,.9)}${tree(640,190,1)}${tree(950,200,.8)}${tree(460,520,1)}${tree(620,530,.9)}${tree(500,300,.8)}${tree(90,560,.8)}
  ${rock(330,170)}${rock(720,230)}${rock(560,610)}${rock(960,120)}
  ${NODE.map((n,i)=>building(i)).join('')}
- ${truck(520,64,'#7b828a',true)}${badge(510,108,vis(0)?q0:null,t+1)}
- ${truck(500,240,'#7b828a',true)}${badge(470,278,vis(1)?q1:null,t+1)}
- ${truck(520,386,'#29a3e0',true)}${badge(510,430,vis(2)?q2:null,t+1)}
+ ${truck(520,64,'#7b828a',true,0,290,14,an)}${badge(510,108,vis(0)?q0:null,t+1,an)}
+ ${truck(500,240,'#7b828a',false,-27,-250,128,an)}${badge(470,282,vis(1)?q1:null,t+1,an)}
+ ${truck(520,386,'#29a3e0',true,0,290,14,an)}${badge(510,430,vis(2)?q2:null,t+1,an)}
  </svg>`;
 }
 function card(i){
@@ -240,7 +248,7 @@ function render(overlay){
  <button class="sbtn" id="reset">⟳ Reiniciar</button></div>
  <div class="panel"><button class="sbtn" id="ins">📖 Instrucciones</button><button class="sbtn" id="res">📅 Resumen semanal</button><button class="sbtn" id="sta" ${(fullVis||G.over)?'':'disabled'}>📈 Estadísticas</button></div>
  </div>
- <div class="board">${mapSVG()}${[0,1,2,3].map(card).join('')}${overlay||''}</div></div>`;
+ <div class="board ${autoRun?'fast':''}">${mapSVG()}${[0,1,2,3].map(card).join('')}${overlay||''}</div></div>`;
  const vis=$('#vis');const tv=()=>{if(!fullVis&&!G.over&&!vis.dataset.c){vis.dataset.c=1;toast('Muestra todo a todos. Toca otra vez para activar');setTimeout(()=>vis.dataset.c='',3000);return}fullVis=!fullVis;if(fullVis){if(reveal===null&&!G.over){const h=nextHuman(G.turnIdx);if(h>=0)reveal=h}render()}else{reveal=null;render(overlayFor())}};
  vis.onclick=tv;vis.onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();tv()}};
  const a=$('#auto');a.onclick=()=>{if(!a.dataset.c){a.dataset.c=1;a.textContent='Toca otra vez: el computador juega todo';setTimeout(()=>{a.dataset.c='';a.textContent='▶ Ejecución automática'},3000);return}runAuto()};
